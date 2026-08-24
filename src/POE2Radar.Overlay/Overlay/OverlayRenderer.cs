@@ -1056,7 +1056,7 @@ public sealed class OverlayRenderer : IDisposable
                 // Rule label wins; else curated friendly label (if enabled); else the derived name.
                 var label = tr?.Label is { Length: > 0 } rl ? rl
                           : (ctx.UseCuratedLandmarks && lm.CuratedName is { } c ? c : lm.Name);
-                rt.DrawText(Localization.Shared.Term(label), _tf!, new Rect(p.X + 7, p.Y - 7, p.X + 240, p.Y + 9), _bStyle, DrawTextOptions.Clip);
+                rt.DrawText(Localization.Shared.Label(label), _tf!, new Rect(p.X + 7, p.Y - 7, p.X + 240, p.Y + 9), _bStyle, DrawTextOptions.Clip);
             }
         }
 
@@ -1080,21 +1080,26 @@ public sealed class OverlayRenderer : IDisposable
         if (!ctx.ShowTerrain || ctx.Terrain is not { } t) return;
         _terrain ??= new TerrainBitmap(rt);
         var ci = ParseColor(ctx.TerrainStyle.InteriorColor, ctx.TerrainStyle.InteriorOpacity);
-        var ce = ParseColor(ctx.TerrainStyle.EdgeColor, ctx.TerrainStyle.EdgeOpacity);
+        var ce = ctx.TerrainStyle.NoOutline ? ci : ParseColor(ctx.TerrainStyle.EdgeColor, ctx.TerrainStyle.EdgeOpacity);
         var terrainStyle = new TerrainBitmap.TerrainStyle(
             ToByte(ci.B), ToByte(ci.G), ToByte(ci.R), ToByte(ci.A),
             ToByte(ce.B), ToByte(ce.G), ToByte(ce.R), ToByte(ce.A));
         _terrain.EnsureBuiltRaw(t.Walkable, t.Width, t.Height, ctx.AreaHash, inTransition: false, terrainStyle);
         if (_terrain.Bitmap is { } bmp)
         {
+            var s = _terrain.Scale;
             var p00 = Project(new NumVec2(0, 0), player, center, scale);
             var p10 = Project(new NumVec2(t.Width, 0), player, center, scale);
             var p01 = Project(new NumVec2(0, t.Height), player, center, scale);
-            var ex = (p10 - p00) / t.Width;
-            var ey = (p01 - p00) / t.Height;
+            // The bitmap is supersampled (s×s px per cell), so the basis vectors are per SOURCE pixel and
+            // the same world-space rect comes from an s× larger source rect. This blit merely PANS the
+            // pre-baked bitmap each frame (it is never re-rendered); Linear downsample of the s-wide edges
+            // is what removes the old sub-pixel shimmer.
+            var ex = (p10 - p00) / (t.Width * s);
+            var ey = (p01 - p00) / (t.Height * s);
             var prev = rt.Transform;
             rt.Transform = new Matrix3x2(ex.X, ex.Y, ey.X, ey.Y, p00.X, p00.Y);
-            rt.DrawBitmap(bmp, 1f, BitmapInterpolationMode.Linear, new Rect(0, 0, t.Width, t.Height));
+            rt.DrawBitmap(bmp, 1f, BitmapInterpolationMode.Linear, new Rect(0, 0, t.Width * s, t.Height * s));
             rt.Transform = prev;
         }
     }

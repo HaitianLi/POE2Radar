@@ -99,6 +99,12 @@ public sealed class Poe2Live
         public string Key => $"{Path}@{(int)Center.X},{(int)Center.Y}";
     }
 
+    /// <summary>A zone transition and its destination: the target area's code + OFFICIAL localized
+    /// name, read live from the transition entity's WorldAreas row (validated: AreaTransition +0x48 →
+    /// row → +0x00 code "G1_11", +0x08 localized name). Lets the radar translate destination labels
+    /// the moment they appear, without having visited the area yet.</summary>
+    public readonly record struct AreaTransition(string Code, string Name);
+
     public sealed record TerrainData(byte[] Walkable, int Width, int Height);
 
     /// <summary>Resolve the in-game chain. Returns false during loading / character select.</summary>
@@ -154,6 +160,38 @@ public sealed class Poe2Live
         var s = Ptr(info);
         _areaCode = s == 0 ? "" : _reader.ReadStringUtf16(s, 64);
         return _areaCode;
+    }
+
+    private string _areaName = ""; private nint _areaNameFor = -1;
+
+    /// <summary>
+    /// The area's OFFICIAL localized display name, read straight from the game's own data: AreaInfo
+    /// points at a UTF-16 "Code\0\0Name\0…" buffer whose post-code segment is the exact name the
+    /// client renders (already in the game's language, e.g. 繁體中文 — validated live: "G1_7" →
+    /// "不朽帝國之墓"). Empty when absent — callers fall back to <see cref="ZoneGuide.FriendlyName"/>.
+    /// Cached per area.
+    /// </summary>
+    public string AreaLocalizedName(nint areaInstance)
+    {
+        if (areaInstance == _areaNameFor) return _areaName;
+        _areaNameFor = areaInstance;
+        _areaName = "";
+        var info = Ptr(areaInstance + Poe2.AreaInstance.AreaInfoPtr);
+        var s = Ptr(info);
+        if (s == 0) return _areaName;
+        var code = _reader.ReadStringUtf16(s, 64);
+        if (code.Length == 0) return _areaName;
+        // The buffer runs "Code\0\0Name\0…" — skip the code, then take the first non-empty segment
+        // (tolerates the empty padding segment) as the official localized name.
+        var off = code.Length + 1;
+        for (var seg = 0; seg < 4; seg++)
+        {
+            var name = _reader.ReadStringUtf16(s + off * 2, 64);
+            if (name.Length == 0) { off += 1; continue; }
+            if (name.All(c => c >= ' ')) { _areaName = name.Trim(); return _areaName; }
+            break;
+        }
+        return _areaName;
     }
 
     private string _league = ""; private nint _leagueFor = -1;
@@ -772,6 +810,66 @@ public sealed class Poe2Live
         result.AddRange(paths);
         result.Sort(StringComparer.Ordinal);
         return result;
+    }
+
+    private List<AreaTransition>? _transitions;
+    private nint _transitionsKey = -1;
+
+    /// <summary>
+    /// Every zone transition in the area (destination code + official localized name), cached per area.
+    /// Walks both the Awake and Sleeping entity maps — transitions are static area objects, so they're
+    /// typically all present from load. The destination name comes from the transition entity's
+    /// AreaTransition +0x48 → WorldAreas row (+0x00 code, +0x08 localized name), the same row layout the
+    /// atlas reader uses.
+    /// </summary>
+    public IReadOnlyList<AreaTransition> Transitions(nint areaInstance)
+    {
+        if (areaInstance == _transitionsKey && _transitions is not null) return _transitions;
+        _transitionsKey = areaInstance;
+        _transitions = ScanTransitions(areaInstance);
+        return _transitions;
+    }
+
+    private List<AreaTransition> ScanTransitions(nint areaInstance)
+    {
+        var list = new List<AreaTransition>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var mapOffset in new[] { Poe2.AreaInstance.AwakeEntities, Poe2.AreaInstance.SleepingEntities })
+        {
+            var head = Ptr(areaInstance + mapOffset);
+            _reader.TryReadStruct<int>(areaInstance + mapOffset + 8, out var size);
+            if (head == 0 || size <= 0 || size > 100000) continue;
+
+            var root = Ptr(head + Poe2.StdMapNode.Parent);
+            _entQueue.Clear(); _entQueue.Enqueue(root);
+            _entVisited.Clear();
+            while (_entQueue.Count > 0 && _entVisited.Count < 200000)
+            {
+                var node = _entQueue.Dequeue();
+                if (node == 0 || node == head || !_entVisited.Add(node)) continue;
+                if (_reader.TryReadBytes(node, _nodeBuf) < _nodeBuf.Length) continue;
+                if (_nodeBuf[Poe2.StdMapNode.IsNil] != 0) continue;
+
+                var id = BitConverter.ToUInt32(_nodeBuf, Poe2.StdMapNode.KeyId);
+                var entity = (nint)BitConverter.ToInt64(_nodeBuf, Poe2.StdMapNode.ValueEntityPtr);
+                _entQueue.Enqueue((nint)BitConverter.ToInt64(_nodeBuf, Poe2.StdMapNode.Left));
+                _entQueue.Enqueue((nint)BitConverter.ToInt64(_nodeBuf, Poe2.StdMapNode.Right));
+                if (entity == 0 || id >= Poe2.EntityList.VisualIdThreshold) continue;
+
+                var at = ResolveComponent(entity, "AreaTransition");
+                if (at == 0) continue;
+                var row = Ptr(at + Poe2.AreaTransitionComponent.WorldAreaRowPtr);
+                if (row == 0) continue;
+                var codePtr = Ptr(row);
+                var namePtr = Ptr(row + Poe2.AtlasMapRow.WorldAreaName);
+                var code = codePtr == 0 ? "" : _reader.ReadStringUtf16(codePtr, 64);
+                var name = namePtr == 0 ? "" : _reader.ReadStringUtf16(namePtr, 64);
+                if (name.Length > 0 && name.All(c => c >= ' ')) name = name.Trim();
+                if (code.Length == 0 || name.Length == 0 || !seen.Add(code)) continue;
+                list.Add(new AreaTransition(code, name));
+            }
+        }
+        return list;
     }
 
     /// <summary>

@@ -24,6 +24,11 @@ public sealed class Localization
     private RadarLanguage _lang = RadarLanguage.English;
     public RadarLanguage Language { get => _lang; set => _lang = value; }
 
+    // English area name → official localized name, harvested live from the game as you play (the overlay
+    // auto-records each area you enter). Stored in the game's own language, so it stays self-consistent
+    // with the client.
+    private readonly Dictionary<string, string> _zoneNames = new(StringComparer.OrdinalIgnoreCase);
+
     // key → [English, 简体中文, 繁體中文]
     private static readonly Dictionary<string, string[]> Terms = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -68,6 +73,24 @@ public sealed class Localization
         ["Point of Interest"] = ["Point of Interest", "兴趣点", "興趣點"],
     };
 
+    // Reward/annotation vocabulary for hand-curated landmark labels ("(Support Gem)", "10% Cold Res",
+    // "+30 Spirit", …). These are OUR English annotations, not game strings — official PoE2 terms,
+    // longest-first at lookup so "Support Gem" wins over any shorter overlap.
+    private static readonly Dictionary<string, string[]> Notes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Lesser Jeweller's Orb"]   = ["Lesser Jeweller's Orb", "次级珠宝匠的宝珠", "次級珠寶匠的寶珠"],
+        ["Greater Jeweller's Orb"]  = ["Greater Jeweller's Orb", "上级珠宝匠的宝珠", "上級珠寶匠的寶珠"],
+        ["Support Gem"]             = ["Support Gem", "辅助宝石", "輔助寶石"],
+        ["Lightning Res"]           = ["Lightning Res", "闪电抗性", "閃電抗性"],
+        ["Reforging Bench"]         = ["Reforging Bench", "重铸台", "重鑄台"],
+        ["Orb of Alchemy"]          = ["Orb of Alchemy", "点金石", "點金石"],
+        ["Cold Res"]                = ["Cold Res", "冰冷抗性", "冰冷抗性"],
+        ["Fire Res"]                = ["Fire Res", "火焰抗性", "火焰抗性"],
+        ["Spirit"]                  = ["Spirit", "精神", "精神"],
+        ["Passive"]                 = ["Passive", "天赋点", "天賦點"],
+        ["vendor"]                  = ["vendor", "商人", "商人"],
+    };
+
     /// <summary>Translate a UI term by key. Falls back to the key itself when unknown.</summary>
     public string T(string key)
         => Terms.TryGetValue(key, out var v) ? v[(int)_lang] : key;
@@ -80,6 +103,41 @@ public sealed class Localization
     {
         if (string.IsNullOrEmpty(text)) return "";
         return Terms.TryGetValue(text, out var v) ? v[(int)_lang] : text;
+    }
+
+    /// <summary>Register a harvested zone name (English → official localized name from the live game).</summary>
+    public void RegisterZoneName(string english, string localized)
+    {
+        if (!string.IsNullOrEmpty(english) && !string.IsNullOrEmpty(localized))
+            _zoneNames[english] = localized;
+    }
+
+    /// <summary>
+    /// On-map label translation: a harvested zone name wins (official, game-language), then the fixed
+    /// <see cref="Term"/> vocabulary. This is how an English landmark label like "Mud Burrow" becomes
+    /// the official 中文 name once that area has been visited (and recorded) once.
+    /// </summary>
+    public string Label(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        if (_zoneNames.TryGetValue(text, out var zh)) return zh;
+        var result = text;
+        // A label can embed an area name with extra descriptors ("Arena / Hunting Grounds") — replace the
+        // LONGEST known area name inside it so the official name still lands (and "Arena /" stays English).
+        string? bestEn = null, bestZh = null;
+        foreach (var (en, z) in _zoneNames)
+            if (en.Length >= 4 && result.Contains(en, StringComparison.OrdinalIgnoreCase)
+                && (bestEn is null || en.Length > bestEn.Length))
+            { bestEn = en; bestZh = z; }
+        if (bestEn is not null && bestZh is not null)
+            result = result.Replace(bestEn, bestZh, StringComparison.OrdinalIgnoreCase);
+        // Reward-note phrases ("(Support Gem)", "10% Cold Res", "+30 Spirit", …) — our own annotations,
+        // translated from the fixed note vocabulary (longest first so "Support Gem" beats any overlap).
+        foreach (var (en, v) in Notes.OrderByDescending(kv => kv.Key.Length))
+            if (result.Contains(en, StringComparison.OrdinalIgnoreCase))
+                result = result.Replace(en, v[(int)_lang], StringComparison.OrdinalIgnoreCase);
+        // Fall back to the fixed generic-term vocabulary ("Boss", "Exit", "Waypoint", …) when unchanged.
+        return result != text ? result : Term(text);
     }
 
     /// <summary>

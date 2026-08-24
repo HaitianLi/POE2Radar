@@ -455,6 +455,9 @@ public sealed class TerrainSettings
     public float InteriorOpacity { get; set; } = 0.118f; // → 30/255
     public string EdgeColor { get; set; } = "#3CDCFF";
     public float EdgeOpacity { get; set; } = 0.706f;      // → 180/255
+    /// <summary>When true, draw only the walkable fill — no brighter wall outline (edge color/opacity
+    /// are ignored and the wall boundary is just the fill's soft edge).</summary>
+    public bool NoOutline { get; set; } = false;
 }
 
 /// <summary>

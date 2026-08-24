@@ -616,6 +616,8 @@ internal static class DashboardHtml
                 <input type="color" class="i-color" data-tcolor="edgeColor">
                 <input type="range" class="op" min="0" max="100" data-topacity="edgeOpacity">
                 <span class="opv" data-topv="edgeOpacity">—</span></span></div>
+            <div class="row"><div class="rl"><span data-i18n="ter.noOutline">No outline (fill only)</span><small data-i18n="ter.noOutlineHint">hide the wall edge, keep only the fill</small></div>
+              <label class="sw"><input type="checkbox" data-tbool="noOutline"><span class="track"></span><span class="knob"></span></label></div>
             <div class="row"><div class="rl hint-row" data-i18n="ter.hint">Edits rebuild the terrain bitmap; use &ldquo;Show terrain&rdquo; above to hide it entirely.</div></div>
           </div>
           <div class="card">
@@ -875,6 +877,7 @@ const I18N = {
   'hp.hint1':'Toggle the bar on/off per rarity with the On checkbox — uncheck all to disable HP bars entirely, or leave only the rarities you want.',
   'hp.hint2':'Bar fill follows the monster icon color; set border color & thickness per rarity (thickness 0 = no border). Offset Y negative = above the mob.',
   'ter.hint':'Edits rebuild the terrain bitmap; use “Show terrain” above to hide it entirely.',
+  'ter.noOutline':'No outline (fill only)','ter.noOutlineHint':'hide the wall edge, keep only the fill',
   'cal.hint':'Adjust here — changes apply live (no in-game hotkeys).',
   'flask.hint':'F8 toggles auto-flask in-game. Status:',
   'zoom.warn':'Writes to the game process — bypasses POE2Radar’s external read-only boundary and may violate the PoE2 Terms of Service. Off by default; use at your own risk.',
@@ -1004,6 +1007,7 @@ const I18N = {
   'hp.hint1':'用“开”复选框按稀有度开关血条 — 全部取消可完全禁用血条，或只保留想要的稀有度。',
   'hp.hint2':'血条填充跟随怪物图标颜色；按稀有度设置边框颜色与粗细（粗细 0 = 无边框）。偏移 Y 为负 = 在怪物上方。',
   'ter.hint':'编辑会重建地形位图；用上方的“显示地形”可完全隐藏。',
+  'ter.noOutline':'无描边(仅填充)','ter.noOutlineHint':'隐藏墙体描边,只保留填充',
   'cal.hint':'在此调整 — 修改立即生效（无需游戏内热键）。',
   'flask.hint':'F8 在游戏中切换自动药剂。状态：',
   'zoom.warn':'会写入游戏进程 — 绕过 POE2Radar 的外部只读边界，可能违反 PoE2 服务条款。默认关闭；风险自负。',
@@ -1133,6 +1137,7 @@ const I18N = {
   'hp.hint1':'用「開」核取方塊按稀有度開關血條 — 全部取消可完全停用血條，或只保留想要的稀有度。',
   'hp.hint2':'血條填滿跟隨怪物圖示顏色；按稀有度設定邊框顏色與粗細（粗細 0 = 無邊框）。偏移 Y 為負 = 在怪物上方。',
   'ter.hint':'編輯會重建地形點陣圖；用上方的「顯示地形」可完全隱藏。',
+  'ter.noOutline':'無描邊(僅填充)','ter.noOutlineHint':'隱藏牆體描邊,只保留填充',
   'cal.hint':'在此調整 — 修改立即生效（無需遊戲內熱鍵）。',
   'flask.hint':'F8 在遊戲中切換自動藥劑。狀態：',
   'zoom.warn':'會寫入遊戲程序 — 繞過 POE2Radar 的外部唯讀邊界，可能違反 PoE2 服務條款。預設關閉；風險自負。',
@@ -1434,11 +1439,13 @@ const saveTerrain=()=>{ if(terrain) saveSetting('terrain',terrain); };
 function renderTerrain(){
   if(!terrain) return;
   $$('[data-tcolor]').forEach(el=>{ el.value=terrain[el.dataset.tcolor]||'#ffffff'; });
+  $$('[data-tbool]').forEach(el=>{ el.checked=!!terrain[el.dataset.tbool]; });
   $$('[data-topacity]').forEach(el=>{ el.value=Math.round((terrain[el.dataset.topacity]??1)*100); });
   $$('[data-topv]').forEach(el=>{ el.textContent=Math.round((terrain[el.dataset.topv]??1)*100)+'%'; });
 }
 function wireTerrain(){
   $$('[data-tcolor]').forEach(el=>{ el.onchange=()=>{ if(terrain){ terrain[el.dataset.tcolor]=el.value; saveTerrain(); } }; });
+  $$('[data-tbool]').forEach(el=>{ el.onchange=()=>{ if(terrain){ terrain[el.dataset.tbool]=el.checked; saveTerrain(); } }; });
   $$('[data-topacity]').forEach(el=>{
     const k=el.dataset.topacity, v=$(`[data-topv="${k}"]`);
     el.oninput=()=>{ if(v) v.textContent=el.value+'%'; };

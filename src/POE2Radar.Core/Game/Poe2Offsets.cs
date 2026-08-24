@@ -389,6 +389,7 @@ public static class Poe2
     {
         public const int GracePeriod   = 0x18; // ✗ float — unvalidated
         public const int TeleportDelay = 0x1C; // ✗ float — unvalidated
+        public const int WorldAreaRowPtr = 0x48; // ✓ → destination WorldAreas row; +0x00 → code ptr ("G1_11"), +0x08 → localized name ptr (validated live, --transitions)
     }
 
     /// <summary>Positioned component.</summary>

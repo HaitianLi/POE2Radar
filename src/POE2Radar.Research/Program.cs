@@ -167,6 +167,21 @@ if (TryGetStrArg(args, "--lootwatch") is { } lootWatchName)
 if (HasFlag(args, "--watch"))
     return RunWatch(process, reader);
 
+if (HasFlag(args, "--zonenames"))
+    return RunZoneHarvest(process, reader, TryGetStrArg(args, "--out"), TryGetIntArg(args, "--secs") ?? 0);
+
+if (HasFlag(args, "--transitions"))
+    return RunTransitions(process, reader);
+
+if (HasFlag(args, "--monsternames"))
+    return RunMonsterNames(process, reader);
+
+if (HasFlag(args, "--maptransform"))
+    return RunMapTransform(process, reader);
+
+if (HasFlag(args, "--lmtest"))
+    return RunLandmarkStability(process, reader);
+
 if (TryGetStrArg(args, "--tile-find") is { } tileNeedle)
     return RunTileFind(process, reader, tileNeedle);
 
@@ -2676,12 +2691,22 @@ static int RunValidate(ProcessHandle process, MemoryReader reader, int perBucket
     var (_, _, ai, _) = ResolveChain(process, reader);
     if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
 
-    // (1) ZoneGuide: raw area code → friendly name / act / level.
+    // (1) ZoneGuide: raw area code → friendly name / act / level + the live official name segment
+    // (validates the AreaLocalizedName read the overlay uses for the in-game area name).
     var areaInfo = SafePtr(reader, ai + Poe2.AreaInstance.AreaInfoPtr);
-    var code = reader.ReadStringUtf16(SafePtr(reader, areaInfo), 64);
+    var codePtr = SafePtr(reader, areaInfo);
+    var code = reader.ReadStringUtf16(codePtr, 64);
+    var liveName = "";
+    var off = code.Length + 1;
+    for (var seg = 0; seg < 4; seg++)
+    {
+        var nm = reader.ReadStringUtf16(codePtr + off * 2, 64);
+        if (nm.Length == 0) { off += 1; continue; }
+        liveName = nm; break;
+    }
     var za = ZoneGuide.Shared.Area(code);
     Console.WriteLine("=== ZoneGuide ===");
-    Console.WriteLine($"  areaCode = '{code}'  →  name='{ZoneGuide.Shared.FriendlyName(code)}'"
+    Console.WriteLine($"  areaCode = '{code}'  →  name='{ZoneGuide.Shared.FriendlyName(code)}'  liveName='{liveName}'"
         + (za is { } z ? $"  act={z.Act} level={z.Level} waypoint={z.Waypoint} town={z.Town}" : "  (NOT in world_areas)"));
 
     // Walk awake entities into category buckets.
@@ -2803,6 +2828,32 @@ static void DumpWindow(MemoryReader reader, nint addr, int len, string indent)
 static int B(MemoryReader reader, nint addr) => reader.TryReadStruct<byte>(addr, out var b) ? b : -1;
 static int I(MemoryReader reader, nint addr) => reader.TryReadStruct<int>(addr, out var v) ? v : -1;
 static float F(MemoryReader reader, nint addr) => reader.TryReadStruct<float>(addr, out var v) ? v : float.NaN;
+
+// Deep name hunt: scan pointer fields at <addr> (up to <len> bytes), following up to two derefs, and
+// print any UTF-16 string that looks like a display name (CJK or letters, 2-40 chars).
+static void HuntName(MemoryReader reader, nint addr, int len, string tag)
+{
+    var buf = new byte[len];
+    if (reader.TryReadBytes(addr, buf) != len) return;
+    var printed = new HashSet<string>(StringComparer.Ordinal);
+    for (var off = 0; off + 8 <= len; off += 8)
+    {
+        var q = BitConverter.ToInt64(buf, off);
+        var u = (ulong)q;
+        if (u < 0x10000 || u > 0x7FFFFFFFFFFF) continue;
+        var p = (nint)q;
+        var probes = new[] { p, p + 8, p + 0x10, p + 0x18, p + 0x20, SafePtr(reader, p), SafePtr(reader, p + 8), SafePtr(reader, p + 0x10), SafePtr(reader, SafePtr(reader, p)) };
+        foreach (var probe in probes)
+        {
+            if (probe == 0) continue;
+            var s = reader.ReadStringUtf16(probe, 40);
+            if (s.Length is < 2 or > 40) continue;
+            if (!s.Any(c => (c >= 0x4E00 && c <= 0x9FFF) || char.IsLetter(c))) continue;
+            if (!s.All(c => c >= ' ')) continue;
+            if (printed.Add(s)) Console.WriteLine($"  {tag} name candidate: '{s}'  (via +0x{off:X2})");
+        }
+    }
+}
 
 // Resolve a component address by name (same StdBucket walk as Poe2Live, inline for probes).
 static nint ResolveComponentAddr(MemoryReader reader, nint entity, string name)
@@ -2998,6 +3049,320 @@ static int RunWatch(ProcessHandle process, MemoryReader reader)
         }
         Thread.Sleep(1500);
     }
+}
+
+// ── Zone-name harvest: run alongside the game while you play the campaign. Every time you enter a NEW
+// area, its OFFICIAL localized name (the game's own "Code\0\0Name\0" segment — already in your client's
+// language) is logged by code to a JSON file, ready to merge into world_areas.json. Default runs until
+// Ctrl+C; `--secs N` stops after N seconds, `--out <path>` overrides the output file.
+static int RunZoneHarvest(ProcessHandle process, MemoryReader reader, string? outPath, int secs)
+{
+    var path = Path.GetFullPath(string.IsNullOrWhiteSpace(outPath)
+        ? Path.Combine(Directory.GetCurrentDirectory(), "tmp_harvested_zone_names.json")
+        : outPath);
+
+    nint slot = 0;
+    foreach (var pat in AobPatterns.GameStateRefs)
+        foreach (var s in AobScanner.ScanForResolvedAddresses(process, reader, pat).Distinct())
+        {
+            if (new Poe2Live(reader, s).TryResolve(out _, out _, out _)) { slot = s; break; }
+            if (slot != 0) break;
+        }
+    if (slot == 0) { Console.Error.WriteLine("Could not lock GameState slot (in game?)."); return 1; }
+    var live = new Poe2Live(reader, slot);
+
+    var dict = new SortedDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+    if (File.Exists(path))
+    {
+        try
+        {
+            using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+            foreach (var p in doc.RootElement.EnumerateObject()) dict[p.Name] = p.Value.Clone();
+        }
+        catch { /* corrupt file — start fresh */ }
+    }
+
+    Console.WriteLine($"ZONENAMES → {path}");
+    Console.WriteLine("Play through the campaign; each NEW area is appended. Ctrl+C to stop.");
+    nint prevArea = 0;
+    var deadline = secs > 0 ? Environment.TickCount64 + secs * 1000L : 0L;
+    while (deadline == 0 || Environment.TickCount64 < deadline)
+    {
+        if (live.TryResolve(out _, out var ai, out _) && ai != 0 && ai != prevArea)
+        {
+            prevArea = ai;
+            var code = live.AreaCode(ai);
+            var zh = live.AreaLocalizedName(ai);
+            if (code.Length > 0 && zh.Length > 0 && !dict.ContainsKey(code))
+            {
+                var za = ZoneGuide.Shared.Area(code);
+                dict[code] = new
+                {
+                    en = ZoneGuide.Shared.FriendlyName(code),
+                    zh = zh,
+                    act = za?.Act ?? 0,
+                    level = za?.Level ?? 0,
+                };
+                File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(dict,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                Console.WriteLine($"  + {code,-14} '{zh}'  (en: {ZoneGuide.Shared.FriendlyName(code)})  [{dict.Count} total]");
+            }
+        }
+        Thread.Sleep(1500);
+    }
+    Console.WriteLine($"Done — {dict.Count} zones → {path}");
+    return 0;
+}
+
+static int RunTransitions(ProcessHandle process, MemoryReader reader)
+{
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+    var head = SafePtr(reader, ai + Poe2.AreaInstance.AwakeEntities);
+    reader.TryReadStruct<int>(ai + Poe2.AreaInstance.AwakeEntities + 8, out var size);
+    if (head == 0 || size <= 0) { Console.Error.WriteLine("no awake entities"); return 1; }
+
+    var transitions = new List<nint>();
+    var queue = new Queue<nint>(); queue.Enqueue(SafePtr(reader, head + Poe2.StdMapNode.Parent));
+    var visited = new HashSet<nint>();
+    while (queue.Count > 0 && visited.Count < 200000)
+    {
+        var node = queue.Dequeue();
+        if (node == 0 || node == head || !visited.Add(node)) continue;
+        if (!reader.TryReadStruct<byte>(node + Poe2.StdMapNode.IsNil, out var nil) || nil != 0) continue;
+        reader.TryReadStruct<uint>(node + Poe2.StdMapNode.KeyId, out var id);
+        var ent = SafePtr(reader, node + Poe2.StdMapNode.ValueEntityPtr);
+        queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Left));
+        queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Right));
+        if (ent == 0 || id >= Poe2.EntityList.VisualIdThreshold) continue;
+        if (ResolveComponentAddr(reader, ent, "AreaTransition") != 0) transitions.Add(ent);
+    }
+    Console.WriteLine($"found {transitions.Count} transition entities\n");
+    foreach (var ent in transitions)
+    {
+        var meta = ReadEntityMetadata(reader, ent);
+        var at = ResolveComponentAddr(reader, ent, "AreaTransition");
+        Console.WriteLine($"── {meta}   AreaTransition=0x{at:X}");
+        var buf = new byte[0x100];
+        if (reader.TryReadBytes(at, buf) != buf.Length) { Console.WriteLine("  (read failed)"); continue; }
+        for (var off = 0; off < buf.Length; off += 8)
+        {
+            var q = BitConverter.ToInt64(buf, off);
+            var u = (ulong)q;
+            var valid = u >= 0x10000 && u <= 0x7FFFFFFFFFFF;
+            var hex = string.Join(' ', Enumerable.Range(0, 8).Select(j => buf[off + j].ToString("X2")));
+            if (!valid) { Console.WriteLine($"  +0x{off:X2}  {hex}"); continue; }
+            var p = (nint)q;
+            var s1 = reader.ReadStringUtf16(p, 48);
+            var s2 = reader.ReadStringUtf16(SafePtr(reader, p), 48);
+            var s3 = reader.ReadStringUtf16(SafePtr(reader, p + 0x08), 48);
+            var s4 = reader.ReadStringUtf16(SafePtr(reader, SafePtr(reader, p)), 48);
+            var note = new List<string>();
+            if (s1.Length > 0 && s1.All(c => c >= ' ')) note.Add($"@p='{s1}'");
+            if (s2.Length > 0 && s2.All(c => c >= ' ')) note.Add($"@*p='{s2}'");
+            if (s3.Length > 0 && s3.All(c => c >= ' ')) note.Add($"@*(p+8)='{s3}'");
+            if (s4.Length > 0 && s4.All(c => c >= ' ')) note.Add($"@**p='{s4}'");
+            Console.WriteLine($"  +0x{off:X2}  {hex}   {(note.Count > 0 ? string.Join("  ", note) : "")}");
+        }
+    }
+    return 0;
+}
+
+static int RunMonsterNames(ProcessHandle process, MemoryReader reader)
+{
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+    var monsters = new List<nint>();
+    foreach (var mapOffset in new[] { Poe2.AreaInstance.AwakeEntities, Poe2.AreaInstance.SleepingEntities })
+    {
+        var head = SafePtr(reader, ai + mapOffset);
+        reader.TryReadStruct<int>(ai + mapOffset + 8, out var size);
+        if (head == 0 || size <= 0) continue;
+        var root = SafePtr(reader, head + Poe2.StdMapNode.Parent);
+        var queue = new Queue<nint>(); queue.Enqueue(root);
+        var visited = new HashSet<nint>();
+        while (queue.Count > 0 && visited.Count < 200000)
+        {
+            var node = queue.Dequeue();
+            if (node == 0 || node == head || !visited.Add(node)) continue;
+            if (!reader.TryReadStruct<byte>(node + Poe2.StdMapNode.IsNil, out var nil) || nil != 0) continue;
+            reader.TryReadStruct<uint>(node + Poe2.StdMapNode.KeyId, out var id);
+            var ent = SafePtr(reader, node + Poe2.StdMapNode.ValueEntityPtr);
+            queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Left));
+            queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Right));
+            if (ent == 0 || id >= Poe2.EntityList.VisualIdThreshold) continue;
+            if (ReadEntityMetadata(reader, ent).Contains("/Monsters/", StringComparison.Ordinal)) monsters.Add(ent);
+        }
+    }
+    Console.WriteLine($"found {monsters.Count} monsters");
+    var shown = 0;
+    foreach (var ent in monsters)
+    {
+        var meta = ReadEntityMetadata(reader, ent);
+        var mon = ResolveComponentAddr(reader, ent, "Monster");
+        var omp = ResolveComponentAddr(reader, ent, "ObjectMagicProperties");
+        var rarity = omp != 0 && reader.TryReadStruct<int>(omp + Poe2.ObjectMagicProperties.Rarity, out var r) ? r : -1;
+        if (mon == 0) continue;
+        if (rarity != 3 && shown >= 8) continue;
+        shown++;
+        Console.WriteLine($"\n── {meta}  rarity={rarity}  Monster=0x{mon:X}");
+        if (rarity == 3)
+        {
+            DumpComponentNames(reader, ent, "BOSS");
+            var details = SafePtr(reader, ent + Poe2.Entity.EntityDetailsPtr);
+            Console.WriteLine($"  EntityDetails=0x{details:X}");
+            HuntName(reader, mon, 0x200, "MON");
+            HuntName(reader, details, 0x60, "DTL");
+        }
+        var buf = new byte[0x100];
+        if (reader.TryReadBytes(mon, buf) != buf.Length) continue;
+        for (var off = 0; off < buf.Length; off += 8)
+        {
+            var q = BitConverter.ToInt64(buf, off);
+            var u = (ulong)q;
+            var valid = u >= 0x10000 && u <= 0x7FFFFFFFFFFF;
+            var hex = string.Join(' ', Enumerable.Range(0, 8).Select(j => buf[off + j].ToString("X2")));
+            if (!valid) { Console.WriteLine($"  +0x{off:X2}  {hex}"); continue; }
+            var p = (nint)q;
+            var s1 = reader.ReadStringUtf16(p, 48);
+            var s2 = reader.ReadStringUtf16(SafePtr(reader, p), 48);
+            var s3 = reader.ReadStringUtf16(SafePtr(reader, p + 0x08), 48);
+            var note = new List<string>();
+            if (s1.Length > 0 && s1.All(c => c >= ' ')) note.Add($"@p='{s1}'");
+            if (s2.Length > 0 && s2.All(c => c >= ' ')) note.Add($"@*p='{s2}'");
+            if (s3.Length > 0 && s3.All(c => c >= ' ')) note.Add($"@*(p+8)='{s3}'");
+            Console.WriteLine($"  +0x{off:X2}  {hex}   {(note.Count > 0 ? string.Join("  ", note) : "")}");
+        }
+    }
+    return 0;
+}
+
+static int RunMapTransform(ProcessHandle process, MemoryReader reader)
+{
+    var (_, igs, _, lp) = ResolveChain(process, reader);
+    if (igs == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+    var uiRoot = SafePtr(reader, igs + Poe2.InGameState.UiRoot);
+    if (uiRoot == 0) { Console.Error.WriteLine("no UiRoot"); return 1; }
+
+    var found = new List<nint>();
+    var queue = new Queue<nint>(); queue.Enqueue(uiRoot);
+    var visited = new HashSet<nint>();
+    var body = new byte[Poe2.MapUiElement.Zoom + 8];
+    while (queue.Count > 0 && visited.Count < 30000)
+    {
+        var el = queue.Dequeue();
+        if (el == 0 || !visited.Add(el)) continue;
+        var first = SafePtr(reader, el + Poe2.UiElement.Children);
+        if (first != 0 && reader.TryReadStruct<nint>(el + Poe2.UiElement.Children + 8, out var lastC))
+        {
+            var n = ((long)lastC - (long)first) / 8;
+            if (n is > 0 and <= 8192)
+                for (long k = 0; k < n; k++) queue.Enqueue(SafePtr(reader, first + (nint)(k * 8)));
+        }
+        if (reader.TryReadBytes(el, body) < body.Length) continue;
+        if (BitConverter.ToSingle(body, Poe2.MapUiElement.DefaultShift) != 0f) continue;
+        if (BitConverter.ToSingle(body, Poe2.MapUiElement.DefaultShift + 4) != -20f) continue;
+        var zoom = BitConverter.ToSingle(body, Poe2.MapUiElement.Zoom);
+        if (zoom is <= 0.05f or >= 8f) continue;
+        found.Add(el);
+    }
+    Console.WriteLine($"found {found.Count} map elements\n");
+    foreach (var el in found)
+    {
+        Console.WriteLine($"=== map element 0x{el:X} ===");
+        reader.TryReadStruct<System.Numerics.Vector2>(el + Poe2.UiElement.RelativePos, out var rel);
+        reader.TryReadStruct<System.Numerics.Vector2>(el + Poe2.UiElement.PositionModifier, out var mod);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.LocalScaleMul, out var mul);
+        reader.TryReadStruct<System.Numerics.Vector2>(el + Poe2.UiElement.SizeW, out var sz);
+        reader.TryReadStruct<uint>(el + Poe2.UiElement.Flags, out var flags);
+        var parent = SafePtr(reader, el + Poe2.UiElement.Parent);
+        var pRel = System.Numerics.Vector2.Zero;
+        if (parent != 0) reader.TryReadStruct<System.Numerics.Vector2>(parent + Poe2.UiElement.RelativePos, out pRel);
+        Console.WriteLine($"  RelativePos(0x118)={rel.X:F2},{rel.Y:F2}  PosMod(0xF0)={mod.X:F2},{mod.Y:F2}  ScaleMul(0x130)={mul:F4}");
+        Console.WriteLine($"  SizeW/H(0x288)={sz.X:F2},{sz.Y:F2}  Flags(0x180)=0x{flags:X}  Parent=0x{parent:X} parentRel={pRel.X:F2},{pRel.Y:F2}");
+        var b = new byte[0x3B0];
+        if (reader.TryReadBytes(el, b) == b.Length)
+        {
+            Console.WriteLine("  float region (0x360..0x3AF, 8-byte stride):");
+            for (var off = 0x360; off < 0x3B0; off += 8)
+            {
+                var f1 = BitConverter.ToSingle(b, off);
+                var f2 = BitConverter.ToSingle(b, off + 4);
+                Console.WriteLine($"    +0x{off:X3}: {f1,12:F3}  {f2,12:F3}");
+            }
+        }
+    }
+
+    // Sample the player position + the map fields until movement is observed (or 30 s timeout).
+    // Walk your character in a straight line. The player grid shows whether the game's player position
+    // is smooth (changes every ~8 ms) or stepped (~33 ms), and the map fields show whether the map pan
+    // follows the player (RelativePos/Shift change) or re-centers at edges (they stay fixed).
+    if (found.Count > 0)
+    {
+        Console.WriteLine("\nwaiting for movement (walk your character) — up to 30 s...");
+        var start = Environment.TickCount64;
+        var seq = new List<(long t, float px, float r1x, float s1x, float r2x, float s2x)>();
+        var distinct = new HashSet<string>();
+        while (Environment.TickCount64 - start < 30000 && distinct.Count < 40)
+        {
+            var t = Environment.TickCount64 - start;
+            float px = 0f;
+            {
+                var render = lp != 0 ? ResolveComponentAddr(reader, lp, "Render") : 0;
+                if (render != 0 && reader.TryReadStruct<POE2Radar.Core.Game.Vector3>(render + Poe2.Render.CurrentWorldPosition, out var pw))
+                    px = pw.X / Poe2.WorldToGridRatio;
+            }
+            float r1x = 0, s1x = 0, r2x = 0, s2x = 0;
+            if (found.Count > 0) { reader.TryReadStruct<System.Numerics.Vector2>(found[0] + Poe2.UiElement.RelativePos, out var a); reader.TryReadStruct<System.Numerics.Vector2>(found[0] + Poe2.MapUiElement.Shift, out var b); r1x = a.X; s1x = b.X; }
+            if (found.Count > 1) { reader.TryReadStruct<System.Numerics.Vector2>(found[1] + Poe2.UiElement.RelativePos, out var c); reader.TryReadStruct<System.Numerics.Vector2>(found[1] + Poe2.MapUiElement.Shift, out var d); r2x = c.X; s2x = d.X; }
+            var key = $"{px:F1}|{r1x:F1}|{s1x:F1}|{r2x:F1}|{s2x:F1}";
+            if (distinct.Add(key)) seq.Add((t, px, r1x, s1x, r2x, s2x));
+            Thread.Sleep(8);
+        }
+        Console.WriteLine($"captured {seq.Count} distinct frames. t(ms)  playerGridX  relX[0]  shiftX[0]  relX[1]  shiftX[1]");
+        foreach (var (t, px, r1, s1, r2, s2) in seq) Console.WriteLine($"  {t,6} {px,11:F2} {r1,9:F2} {s1,9:F2} {r2,10:F2} {s2,9:F2}");
+    }
+    return 0;
+}
+
+// ── Landmark stability: sample the same area's landmark list repeatedly (cached + forced re-scans)
+// to test whether landmark positions are fixed or drift per scan (the "pink dot stepping" hypothesis).
+static int RunLandmarkStability(ProcessHandle process, MemoryReader reader)
+{
+    nint slot = 0;
+    foreach (var pat in AobPatterns.GameStateRefs)
+        foreach (var s in AobScanner.ScanForResolvedAddresses(process, reader, pat).Distinct())
+        {
+            if (new Poe2Live(reader, s).TryResolve(out _, out _, out _)) { slot = s; break; }
+            if (slot != 0) break;
+        }
+    if (slot == 0) { Console.Error.WriteLine("Could not lock GameState slot (in game?)."); return 1; }
+    var live = new Poe2Live(reader, slot);
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain."); return 1; }
+
+    // 1) Cached path: same list, no re-scan.
+    var first = live.Landmarks(ai);
+    Console.WriteLine($"cached pass 1: {first.Count} landmarks");
+    var second = live.Landmarks(ai);
+    Console.WriteLine($"cached pass 2: {second.Count} landmarks (same object? {ReferenceEquals(first, second)})");
+    Console.WriteLine($"first 6 (center + path):");
+    foreach (var lm in first.Take(6)) Console.WriteLine($"    ({lm.Center.X,8:F1},{lm.Center.Y,8:F1})  {lm.Path}");
+
+    // 2) Forced re-scan: does a fresh scan shift the centroids?
+    live.InvalidateLandmarks();
+    var rescanned = live.Landmarks(ai);
+    Console.WriteLine($"\nforced re-scan: {rescanned.Count} landmarks");
+    var drifted = 0;
+    var byPath = first.ToDictionary(l => l.Key, l => l.Center);
+    foreach (var lm in rescanned)
+    {
+        if (!byPath.TryGetValue(lm.Key, out var prev)) { Console.WriteLine($"    NEW: ({lm.Center.X:F1},{lm.Center.Y:F1}) {lm.Path}"); continue; }
+        var dx = lm.Center.X - prev.X; var dy = lm.Center.Y - prev.Y;
+        if (Math.Abs(dx) > 0.01f || Math.Abs(dy) > 0.01f) { drifted++; Console.WriteLine($"    DRIFT {dx:+0.00;-0.00},{dy:+0.00;-0.00}  ({prev.X:F1},{prev.Y:F1})->({lm.Center.X:F1},{lm.Center.Y:F1})  {lm.Path}"); }
+    }
+    Console.WriteLine(drifted == 0 ? "\n(no drift between cached list and a forced re-scan — landmark positions are FIXED)" : $"\n{drifted} landmarks drifted on re-scan");
+    return 0;
 }
 
 // ── Watch-expedition: poll the live entity list, re-resolving expedition-related entities each

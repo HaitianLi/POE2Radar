@@ -152,7 +152,9 @@ public sealed class ApiServer : IDisposable
                     // Character name + level intentionally omitted (privacy: this endpoint is local
                     // but unauthenticated, and screenshots/streams shouldn't leak the character).
                     s.InGame, areaCode = s.AreaCode, areaHash = s.AreaHash, areaLevel = s.AreaLevel,
-                    areaName = ZoneGuide.Shared.FriendlyName(s.AreaCode),
+                    areaName = !string.IsNullOrEmpty(s.AreaDisplayName)
+                        ? s.AreaDisplayName
+                        : ZoneGuide.Shared.FriendlyName(s.AreaCode),
                     areaAct = ZoneGuide.Shared.Area(s.AreaCode)?.Act ?? 0,
                     mapVisible = s.MapVisible, zoom = s.Zoom,
                     hpPct = s.HpPct, manaPct = s.ManaPct, esPct = s.EsPct, autoFlask = s.AutoFlask, flask = s.FlaskNote,
@@ -323,7 +325,9 @@ public sealed class ApiServer : IDisposable
                 Write(ctx, 200, JsonSerializer.Serialize(new
                 {
                     code = s.AreaCode,
-                    name = ZoneGuide.Shared.FriendlyName(s.AreaCode),
+                    name = !string.IsNullOrEmpty(s.AreaDisplayName)
+                        ? s.AreaDisplayName
+                        : ZoneGuide.Shared.FriendlyName(s.AreaCode),
                     act = area?.Act ?? 0,
                     level = area?.Level ?? s.AreaLevel,
                     waypoint = area?.Waypoint ?? false,
@@ -1106,7 +1110,10 @@ public sealed record RadarState(
     IReadOnlyList<ExchangeRow>? ExchangeOffered = null,
     IReadOnlyList<ExchangeRow>? ExchangeWanted = null,
     int ExchangeHaveQty = 0,
-    string ExchangeFillNote = "")
+    string ExchangeFillNote = "",
+    // The area's official localized name read live from the game's own data (already in the game's
+    // language); empty when unavailable, so callers fall back to the English static table.
+    string AreaDisplayName = "")
 {
     public static readonly RadarState Empty =
         new(false, 0, 0, false, 0, System.Numerics.Vector2.Zero,

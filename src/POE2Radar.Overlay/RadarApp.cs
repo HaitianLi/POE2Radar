@@ -188,11 +188,13 @@ public sealed class RadarApp : IDisposable
     private Poe2Live.TerrainData? _terrain;                 // world only
     private int _charLevel;                                 // world only (published in the snapshot)
     private nint _lastAreaInstance;                         // world only: terrain-cache invalidation + atlas anchor
+    private string _harvestPath = "";                       // world only: zone-name harvest file (lazy-init)
+    private readonly HashSet<string> _harvestedZones = new(StringComparer.OrdinalIgnoreCase);
 
     // ── Published lock-free snapshot: the world tick swaps this whole immutable record; the render thread
     //    reads it once per frame. Same idiom as _state / _atlasRender. ──
     private sealed record WorldSnapshot(
-        bool InGame, uint AreaHash, int AreaLevel, string AreaCode, int CharLevel,
+        bool InGame, uint AreaHash, int AreaLevel, string AreaCode, string AreaDisplayName, int CharLevel,
         IReadOnlyList<Poe2Live.EntityDot> Entities,
         IReadOnlyList<Poe2Live.Landmark> Landmarks,
         Poe2Live.TerrainData? Terrain,
@@ -204,7 +206,7 @@ public sealed class RadarApp : IDisposable
         long PublishTimestamp = 0)   // Stopwatch.GetTimestamp() when published — the render thread extrapolates entity dots from here
     {
         public static readonly WorldSnapshot Empty = new(
-            false, 0, 0, "", 0, Array.Empty<Poe2Live.EntityDot>(), Array.Empty<Poe2Live.Landmark>(), null,
+            false, 0, 0, "", "", 0, Array.Empty<Poe2Live.EntityDot>(), Array.Empty<Poe2Live.Landmark>(), null,
             Array.Empty<HpBarSpec>(), Array.Empty<ItemLabelSpec>(), Array.Empty<SelectedPath>(),
             Array.Empty<LegendEntry>(), Array.Empty<string>());
     }
@@ -1285,7 +1287,8 @@ public sealed class RadarApp : IDisposable
         _state = new RadarState(inGame, snap.AreaHash, snap.AreaLevel, map.IsVisible, map.Zoom, player,
             snap.Entities, snap.Landmarks, _hpPct, _manaPct, _esPct, _autoFlask, _flaskNote,
             snap.AreaCode, _charName, snap.CharLevel, _worldMs, _renderMs, mr.Markers, _fps,
-            ex.Open, ex.Summary, ex.Offered, ex.Wanted, ex.HaveQty, ex.FillNote);
+            ex.Open, ex.Summary, ex.Offered, ex.Wanted, ex.HaveQty, ex.FillNote,
+            AreaDisplayName: snap.AreaDisplayName);
 
         var realActive = _gameHwnd != 0 && GetForegroundWindow() == _gameHwnd;
         // "Always show" draws the overlay even when PoE2 isn't focused (for dashboard calibration).
@@ -1419,6 +1422,30 @@ public sealed class RadarApp : IDisposable
     /// nav-target/route maintenance, on the world reader stack (<see cref="_live"/>). Publishes an
     /// immutable <see cref="WorldSnapshot"/> at the end for the render thread to consume lock-free.
     /// </summary>
+    private void HarvestZoneName(string code, string zh)
+    {
+        if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(zh)) return;
+        if (_harvestPath.Length == 0)
+        {
+            _harvestPath = Path.Combine(AppContext.BaseDirectory, "zone_names_harvest.tsv");
+            if (File.Exists(_harvestPath))
+                foreach (var line in File.ReadLines(_harvestPath))
+                {
+                    var p = line.Split('\t');
+                    if (p.Length >= 3)
+                    {
+                        _harvestedZones.Add(p[0]);
+                        Localization.Shared.RegisterZoneName(p[2], p[1]);
+                    }
+                }
+        }
+        if (!_harvestedZones.Add(code)) return;
+        var en = ZoneGuide.Shared.FriendlyName(code);
+        Localization.Shared.RegisterZoneName(en, zh);
+        try { File.AppendAllText(_harvestPath, $"{code}\t{zh}\t{en}\n"); }
+        catch { /* best-effort harvest */ }
+    }
+
     private void WorldTick(nint inGameState, nint areaInstance, nint localPlayer)
     {
         // AreaInstance is a fresh object per area — use its address to invalidate per-area caches.
@@ -1426,6 +1453,14 @@ public sealed class RadarApp : IDisposable
         var areaHash = _live.AreaHash(areaInstance);
         var areaLevel = _live.AreaLevel(areaInstance);
         var areaCode = _live.AreaCode(areaInstance);
+        // Real-time official-name harvest: the first time you enter an area, record its official
+        // localized name (game language) so later maps can swap the English label for it.
+        HarvestZoneName(areaCode, _live.AreaLocalizedName(areaInstance));
+        // Real-time DESTINATION names: every transition in the area exposes its target WorldAreas row,
+        // so its official name translates the moment the label appears (no prior visit needed). Persist
+        // each (English → official) too, so the Chinese JSON accumulates every destination you see.
+        foreach (var t in _live.Transitions(areaInstance))
+            HarvestZoneName(t.Code, t.Name);
         var player = _live.PlayerGrid(localPlayer) ?? NumVec2.Zero;
         _worldPlayer = player;   // for off-thread replans (EnqueueReplan)
 
@@ -1592,7 +1627,7 @@ public sealed class RadarApp : IDisposable
         _legend = BuildLegend(_selectedSnapshot);
 
         // Publish the whole immutable world snapshot atomically for the render thread.
-        _world = new WorldSnapshot(true, areaHash, areaLevel, areaCode, _charLevel,
+        _world = new WorldSnapshot(true, areaHash, areaLevel, areaCode, _live.AreaLocalizedName(areaInstance), _charLevel,
             _entities, _landmarks, _terrain, hpSpecs, itemLabels, _selectedPaths, _legend, _selectedSnapshot,
             PublishTimestamp: System.Diagnostics.Stopwatch.GetTimestamp());
     }

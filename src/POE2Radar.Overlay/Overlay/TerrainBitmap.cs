@@ -24,6 +24,7 @@ public sealed class TerrainBitmap : IDisposable
     private int _builtForHeight;
     private uint _builtForAreaHash;
     private TerrainStyle _builtForStyle;
+    private int _builtForScale = 1;
 
     public TerrainBitmap(ID2D1RenderTarget renderTarget)
     {
@@ -34,6 +35,8 @@ public sealed class TerrainBitmap : IDisposable
     public int Width  => _builtForWidth;
     public int Height => _builtForHeight;
     public uint AreaHash => _builtForAreaHash;
+    /// <summary>Supersample factor the bitmap was baked at (each grid cell is <c>Scale×Scale</c> pixels).</summary>
+    public int Scale => _builtForScale;
 
     /// <summary>
     /// Build (or rebuild) from a flat 0/1 walkable array. Cheap when dimensions +
@@ -54,49 +57,73 @@ public sealed class TerrainBitmap : IDisposable
 
     private void BuildFrom(byte[] walkable, int w, int h, uint areaHash, TerrainStyle style)
     {
-        var pixels = new byte[w * h * 4]; // BGRA
+        // Supersample the walkable mask so the per-frame pan has SOFT edges to resample instead of hard
+        // 1-px outlines. The bitmap is baked ONCE per area and only translated afterwards — never re-rendered
+        // per frame — so the higher-resolution bake costs nothing at render time. 4× caps the largest side at
+        // 4096 px (~64 MB worst case); Direct2D's Linear filter downsamples it back to cell scale on draw.
+        var s = Math.Clamp(4096 / Math.Max(1, Math.Max(w, h)), 1, 4);
+        var W = w * s;
+        var H = h * s;
+        var pixels = new byte[W * H * 4]; // BGRA
 
-        // Render style with per-pixel alpha (colors/alpha are config-driven; defaults preserve the old look):
-        //   • Walkable interior → faint wash. Reads as "you can walk here" without occluding what's behind.
-        //   • Wall edge (walkable cell adjacent to an unwalkable cell or grid boundary) → brighter outline.
-        //   • Walls themselves stay alpha 0 so PoE's actual map shows through.
+        // Pre-filtered (band-limited) bake: every source pixel samples the walkable mask BILINEARLY, so
+        // wall boundaries become soft 1-cell ramps instead of hard edges, and the bright edge outline
+        // fades over one cell. Resampling a SOFT texture at a drifting sub-pixel phase changes it only
+        // imperceptibly — this is what actually kills the shimmer (plain supersampling of hard blocks only
+        // shrank it).
 
+        // Per-CELL Chebyshev distance to the nearest wall (cap 2): 0 = adjacent to a wall, 1 = one cell
+        // away, ≥2 = interior. The grid's data boundary is NOT a wall (same rule as before).
+        var dist = new byte[w * h];
         for (var y = 0; y < h; y++)
-        {
             for (var x = 0; x < w; x++)
             {
-                var v = walkable[y * w + x];
-                var idx = (y * w + x) * 4;
-                if (v == 0) continue;
-
-                var isEdge = false;
-                for (var dy = -1; dy <= 1 && !isEdge; dy++)
-                {
-                    var ny = y + dy;
-                    if (ny < 0 || ny >= h) continue;      // the grid's data boundary is NOT a wall — skipping it
-                    for (var dx = -1; dx <= 1; dx++)       // stops the bright outline that traced the map's outer
-                    {                                      // edge (the "line" on the map's right side).
-                        if (dx == 0 && dy == 0) continue;
-                        var nx = x + dx;
-                        if (nx < 0 || nx >= w) continue;   // grid edge isn't a wall either
-                        if (walkable[ny * w + nx] == 0) { isEdge = true; break; }
+                if (walkable[y * w + x] == 0) { dist[y * w + x] = 0; continue; }
+                var d = 2;
+                for (var dy = -2; dy <= 2 && d > 0; dy++)
+                    for (var dx = -2; dx <= 2 && d > 0; dx++)
+                    {
+                        var ny = y + dy; if (ny < 0 || ny >= h) continue;
+                        var nx = x + dx; if (nx < 0 || nx >= w) continue;
+                        if (walkable[ny * w + nx] != 0) continue;
+                        var dd = Math.Max(Math.Abs(dx), Math.Abs(dy));
+                        if (dd < d) d = dd;
                     }
-                }
+                dist[y * w + x] = (byte)d;
+            }
 
-                if (isEdge)
-                {
-                    pixels[idx + 0] = style.EB;   // B
-                    pixels[idx + 1] = style.EG;   // G
-                    pixels[idx + 2] = style.ER;   // R
-                    pixels[idx + 3] = style.EA;
-                }
-                else
-                {
-                    pixels[idx + 0] = style.IB;   // B
-                    pixels[idx + 1] = style.IG;   // G
-                    pixels[idx + 2] = style.IR;   // R
-                    pixels[idx + 3] = style.IA;
-                }
+        for (var y = 0; y < H; y++)
+        {
+            var cy = y / s;
+            var fy = (y - cy * s) / (float)s;
+            var cy1 = Math.Min(cy + 1, h - 1);
+            var row0 = cy * w;
+            var row1 = cy1 * w;
+            for (var x = 0; x < W; x++)
+            {
+                var cx = x / s;
+                var fx = (x - cx * s) / (float)s;
+                var cx1 = Math.Min(cx + 1, w - 1);
+                var idx = (y * W + x) * 4;
+
+                // Bilinear coverage of the walkable mask (0/1) → soft wall boundary.
+                float c00 = walkable[row0 + cx],  c10 = walkable[row0 + cx1];
+                float c01 = walkable[row1 + cx],  c11 = walkable[row1 + cx1];
+                var c = c00 + (c10 - c00) * fx + (c01 - c00) * fy + (c11 - c10 - c01 + c00) * fx * fy;
+                if (c <= 0f) continue;
+
+                // Bilinear edge-distance field → soft edge→interior ramp.
+                float d00 = dist[row0 + cx],  d10 = dist[row0 + cx1];
+                float d01 = dist[row1 + cx],  d11 = dist[row1 + cx1];
+                var dd = d00 + (d10 - d00) * fx + (d01 - d00) * fy + (d11 - d10 - d01 + d00) * fx * fy;
+                var edgeT = 1f - Math.Clamp(dd, 0f, 1f);
+
+                // Raw channels: color = lerp(interior, edge, edgeT); alpha = coverage × style alpha
+                // (the existing premultiply pass below folds color × alpha).
+                pixels[idx + 0] = (byte)(style.IB + (style.EB - style.IB) * edgeT);   // B
+                pixels[idx + 1] = (byte)(style.IG + (style.EG - style.IG) * edgeT);   // G
+                pixels[idx + 2] = (byte)(style.IR + (style.ER - style.IR) * edgeT);   // R
+                pixels[idx + 3] = (byte)MathF.Round((style.IA + (style.EA - style.IA) * edgeT) * c);
             }
         }
 
@@ -113,11 +140,11 @@ public sealed class TerrainBitmap : IDisposable
             pixels[i + 2] = (byte)(pixels[i + 2] * af);
         }
 
-        var size = new SizeI(w, h);
+        var size = new SizeI(W, H);
         var pinned = GCHandle.Alloc(pixels, GCHandleType.Pinned);
         try
         {
-            _bitmap = _renderTarget.CreateBitmap(size, pinned.AddrOfPinnedObject(), (uint)(w * 4), props);
+            _bitmap = _renderTarget.CreateBitmap(size, pinned.AddrOfPinnedObject(), (uint)(W * 4), props);
         }
         finally
         {
@@ -125,6 +152,7 @@ public sealed class TerrainBitmap : IDisposable
         }
         _builtForWidth     = w;
         _builtForHeight    = h;
+        _builtForScale     = s;
         _builtForAreaHash  = areaHash;
         _builtForStyle     = style;
     }
