@@ -174,6 +174,15 @@ internal static partial class OverlayNative
     [LibraryImport("user32.dll", EntryPoint = "GetAsyncKeyState")]
     public static partial short GetAsyncKeyState(int vKey);
 
+    /// <summary>Capture all mouse input to <paramref name="hwnd"/> until ReleaseCapture — so the game never
+    /// receives the click/release of a drag gesture on the overlay's own widgets.</summary>
+    [LibraryImport("user32.dll", EntryPoint = "SetCapture")]
+    public static partial nint SetCapture(nint hwnd);
+
+    [LibraryImport("user32.dll", EntryPoint = "ReleaseCapture")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool ReleaseCapture();
+
     /// <summary>True iff the given hwnd is the OS-level foreground window.</summary>
     public static bool IsForeground(nint hwnd) => hwnd != 0 && GetForegroundWindow() == hwnd;
 

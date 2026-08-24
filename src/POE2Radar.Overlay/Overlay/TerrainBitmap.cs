@@ -73,12 +73,12 @@ public sealed class TerrainBitmap : IDisposable
                 for (var dy = -1; dy <= 1 && !isEdge; dy++)
                 {
                     var ny = y + dy;
-                    if (ny < 0 || ny >= h) { isEdge = true; break; }
-                    for (var dx = -1; dx <= 1; dx++)
-                    {
+                    if (ny < 0 || ny >= h) continue;      // the grid's data boundary is NOT a wall — skipping it
+                    for (var dx = -1; dx <= 1; dx++)       // stops the bright outline that traced the map's outer
+                    {                                      // edge (the "line" on the map's right side).
                         if (dx == 0 && dy == 0) continue;
                         var nx = x + dx;
-                        if (nx < 0 || nx >= w) { isEdge = true; break; }
+                        if (nx < 0 || nx >= w) continue;   // grid edge isn't a wall either
                         if (walkable[ny * w + nx] == 0) { isEdge = true; break; }
                     }
                 }

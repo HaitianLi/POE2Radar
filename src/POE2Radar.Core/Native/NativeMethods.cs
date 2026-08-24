@@ -5,6 +5,8 @@ namespace POE2Radar.Core.Native;
 internal static partial class NativeMethods
 {
     public const uint PROCESS_VM_READ = 0x0010;
+    public const uint PROCESS_VM_WRITE = 0x0020;
+    public const uint PROCESS_VM_OPERATION = 0x0008;
     public const uint PROCESS_QUERY_INFORMATION = 0x0400;
     public const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
 
@@ -67,6 +69,7 @@ internal static partial class NativeMethods
     public const uint MEM_COMMIT  = 0x00001000;
     public const uint MEM_FREE    = 0x00010000;
     public const uint MEM_RESERVE = 0x00002000;
+    public const uint MEM_RELEASE = 0x00008000;
 
     // Type values
     public const uint MEM_PRIVATE = 0x00020000;
@@ -85,5 +88,26 @@ internal static partial class NativeMethods
     public const uint PAGE_NOCACHE           = 0x200;
     public const uint PAGE_WRITECOMBINE      = 0x400;
 
+
+    // ── Write-side primitives (opt-in zoom patch; NOT used by any read path). ──
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static unsafe partial bool WriteProcessMemory(nint hProcess, nint lpBaseAddress, void* lpBuffer, nuint nSize, out nuint lpNumberOfBytesWritten);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    public static partial nint VirtualAllocEx(nint hProcess, nint lpAddress, nuint dwSize, uint flAllocationType, uint flProtect);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool VirtualFreeEx(nint hProcess, nint lpAddress, nuint dwSize, uint dwFreeType);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool VirtualProtectEx(nint hProcess, nint lpAddress, nuint dwSize, uint flNewProtect, out uint lpflOldProtect);
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool FlushInstructionCache(nint hProcess, nint lpBaseAddress, nuint dwSize);
     public const uint READABLE_PROTECT_MASK = PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE;
 }

@@ -341,7 +341,13 @@ public sealed class OverlayWindow : IDisposable
             // lParam packs client coords: low word = x, high word = y (both signed 16-bit).
             var x = (short)(lParam & 0xFFFF);
             var y = (short)((lParam >> 16) & 0xFFFF);
+            OverlayNative.SetCapture(hwnd);   // keep the game from receiving the drag's release
             OnClientClick?.Invoke(x, y);
+            return 0;
+        }
+        if (msg == OverlayNative.WM_LBUTTONUP)
+        {
+            OverlayNative.ReleaseCapture();
             return 0;
         }
         if (msg == OverlayNative.WM_DESTROY)

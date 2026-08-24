@@ -452,6 +452,12 @@ public sealed class Poe2Atlas
 
     private void Invalidate() { _nodeCanvas = 0; _nodeVtable = 0; _hiddenTicks = 0; _tagCache.Clear(); _graph.Clear(); _graphCanvas = 0; _currentMarker = 0; }
 
+    /// <summary>Public cache reset: force a full re-resolve (node canvas + per-node tags) on the next
+    /// <c>Read</c>. Used by the overlay when the radar language changes, so localized map names refresh
+    /// without closing/reopening the Atlas. Thread-safe: takes <see cref="_nodeLock"/> (the fields it
+    /// clears are guarded by it — the original callers of <see cref="Invalidate"/> already held it).</summary>
+    public void InvalidateCache() { lock (_nodeLock) Invalidate(); }
+
     /// <summary>The player's CURRENT atlas node grid coord (the "player icon" tile), via the marker element
     /// (<see cref="Poe2Offsets.AtlasGraph.CurrentMarkerNodePtr"/>): <c>*(marker+0x300)</c> → current node →
     /// its <see cref="Poe2Offsets.AtlasNode.GridPos"/>. Returns null when the marker isn't located or has
@@ -758,6 +764,9 @@ public sealed class Poe2Atlas
         var map = (LooksLikeName(name) && name.Length <= 48) ? name.Trim()
                 : (!string.IsNullOrEmpty(meta.Name) ? meta.Name
                 : (code.StartsWith("Map", StringComparison.Ordinal) ? Prettify(code) : ""));
+        // Apply the radar's language: English keeps the live/curated name; 简体/繁體 swap in the official
+        // GGG localization from atlas_maps.json (so the atlas shows e.g. "岩石城塞" regardless of game lang).
+        map = AtlasMapData.Shared.LocalizedName(code, map);
 
         var tags = new List<string>(4);
 

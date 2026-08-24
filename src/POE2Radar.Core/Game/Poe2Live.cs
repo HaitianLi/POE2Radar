@@ -336,16 +336,33 @@ public sealed class Poe2Live
             _entCacheKey = areaInstance;
         }
 
+        // Read BOTH entity maps: Awake (the active network bubble) AND Sleeping (distant / not-yet-
+        // activated entities — the area boss before its fight triggers, monsters in unexplored rooms).
+        // GameHelper2/ExileCore enumerate both; reading only Awake hides the boss and everything
+        // outside the bubble. The two maps share one monotonic entity-id space, so the recycle guard
+        // and per-entity caches stay valid across both.
         var dots = new List<EntityDot>(256);
-        var head = Ptr(areaInstance + Poe2.AreaInstance.AwakeEntities);
-        _reader.TryReadStruct<int>(areaInstance + Poe2.AreaInstance.AwakeEntities + 8, out var size);
-        if (head == 0 || size <= 0 || size > 100000) return dots;
+        _modReadBudget = ModReadBudgetPerPass;
+        _itemReadBudget = ItemReadBudgetPerPass;
+        WalkEntityMap(areaInstance, Poe2.AreaInstance.AwakeEntities, dots);
+        WalkEntityMap(areaInstance, Poe2.AreaInstance.SleepingEntities, dots);
+        return dots;
+    }
+
+    /// <summary>
+    /// Walk one entity std::map (Awake or Sleeping) and append its <see cref="EntityDot"/>s to
+    /// <paramref name="dots"/>. Shared by <see cref="Entities"/> so both maps are enumerated. The
+    /// mod/item read budgets are set by the caller (once per tick, across both maps).
+    /// </summary>
+    private void WalkEntityMap(nint areaInstance, int mapOffset, List<EntityDot> dots)
+    {
+        var head = Ptr(areaInstance + mapOffset);
+        _reader.TryReadStruct<int>(areaInstance + mapOffset + 8, out var size);
+        if (head == 0 || size <= 0 || size > 100000) return;
 
         var root = Ptr(head + Poe2.StdMapNode.Parent);
         _entQueue.Clear(); _entQueue.Enqueue(root);
         _entVisited.Clear();
-        _modReadBudget = ModReadBudgetPerPass;
-        _itemReadBudget = ItemReadBudgetPerPass;
         while (_entQueue.Count > 0 && _entVisited.Count < 200000)
         {
             var node = _entQueue.Dequeue();
@@ -396,7 +413,6 @@ public sealed class Poe2Live
             dots.Add(new EntityDot(id, entity, g, wv, cat, meta, hpCur, hpMax,
                 poi, ReadReaction(entity), rarity, opened, iconComplete, mods, itemArt, itemIdentified, itemName));
         }
-        return dots;
     }
 
     /// <summary>Drop every frozen per-entity cache entry for an address whose occupant has changed
@@ -684,6 +700,18 @@ public sealed class Poe2Live
     /// per-area scan cache rebuilds.</summary>
     public Func<string, string?>? CustomLandmarkMatch { get; set; }
 
+    /// <summary>Optional Overlay-supplied GameHelper2-style target matcher: given a tile path, returns
+    /// the label ("Boss"/"Stairs") when it matches a GH2 curated tile target, or null. Set by RadarApp
+    /// from <c>RadarSettings.UseGh2Landmarks</c>; the reference completeness layer (endgame boss arenas
+    /// + dungeon stairs) the local curated list lacks.</summary>
+    public Func<string, string?>? Gh2LandmarkMatch { get; set; }
+
+    /// <summary>Optional Overlay-supplied GENERIC boss-room matcher: given a tile path, returns "Boss"
+    /// when its name carries a boss-room signal word (<see cref="BossRoomDetector"/>), or null. Set by
+    /// RadarApp from <c>RadarSettings.AutoDetectBossRooms</c> — this is the coverage layer that flags
+    /// boss arenas on maps neither curated list knows, keyed purely by tile naming.</summary>
+    public Func<string, string?>? BossRoomMatch { get; set; }
+
     /// <summary>Optional Overlay-supplied curated-label lookup: (areaCode, tilePath) → friendly label,
     /// or null. Lets a user-editable overlay sit on top of the baked-in <see cref="CustomLandmarkData"/>
     /// (the "Landmarks" tab). When unset, the baked data is used directly. Call <see cref="InvalidateLandmarks"/>
@@ -792,7 +820,9 @@ public sealed class Poe2Live
                 // sweep was removed — it surfaced decorative terrain (e.g. every "...Vault_Door..." tile)
                 // as noise; users now opt into any tile via Tile rules + the dashboard picker.
                 var keep = Curated(areaCode, p) != null
-                           || CustomLandmarkMatch?.Invoke(p) != null;
+                           || CustomLandmarkMatch?.Invoke(p) != null
+                           || Gh2LandmarkMatch?.Invoke(p) != null
+                           || BossRoomMatch?.Invoke(p) != null;
                 path = keep ? p : null;
                 pathCache[tgtFile] = path;
             }
@@ -806,8 +836,11 @@ public sealed class Poe2Live
         {
             var name = LandmarkName(path);
             // Curated label wins; else a non-empty user label; else null (derived name shows). Same
-            // for every cluster of this path (they're the same feature type in different spots).
-            var curated = Curated(areaCode, path) ?? NonEmpty(CustomLandmarkMatch?.Invoke(path));
+            // for every cluster of this path (they're the same feature type in different spots) ?? NonEmpty(Gh2LandmarkMatch?.Invoke(path)).
+            var curated = Curated(areaCode, path)
+                ?? NonEmpty(CustomLandmarkMatch?.Invoke(path))
+                ?? NonEmpty(Gh2LandmarkMatch?.Invoke(path))
+                ?? NonEmpty(BossRoomMatch?.Invoke(path));
             foreach (var cluster in ClusterTiles(cells, Math.Clamp(LandmarkClusterGap, 0, 64)))
             {
                 double sx = 0, sy = 0;
@@ -865,7 +898,14 @@ public sealed class Poe2Live
         return name.EndsWith(".tdt", StringComparison.OrdinalIgnoreCase) ? name[..^4] : name;
     }
 
-    /// <summary>Read the packed walkable grid (one nibble per cell, 2 cells/byte) into a flat 0/1 array.</summary>
+    /// <summary>
+    /// Read the packed walkable grid (one nibble per cell, 2 cells/byte) into a flat 0/1 array.
+    /// The REAL dimensions come from <c>TotalTiles × 23</c> — NOT <c>bytesPerRow × 2</c>: the game
+    /// rounds each row up to a whole byte, so an ODD cell width leaves a trailing padding nibble.
+    /// Reading that nibble as a cell painted a spurious full-height walkable column along the map's
+    /// right edge (the "line" that loaded with the map — e.g. tilesX=81 → 1863 real cells, padded
+    /// to 1864 where x=1863 read as walkable value 5).
+    /// </summary>
     public TerrainData? Terrain(nint areaInstance)
     {
         var terrain = areaInstance + Poe2.AreaInstance.TerrainMetadata;
@@ -875,15 +915,19 @@ public sealed class Poe2Live
         var totalBytes = (long)last - (long)first;
         if (first == 0 || totalBytes <= 0 || totalBytes > 64 * 1024 * 1024) return null;
 
-        var rows = (int)(totalBytes / bytesPerRow);
-        var width = bytesPerRow * 2;
-        if (rows <= 0 || rows > 65536) return null;
+        // TotalTiles is a StdTuple2D<long> at +0x18: (tilesX, tilesY). The walkable grid is exactly
+        // tilesX×23 cells wide and tilesY×23 rows tall; bytesPerRow×2 is the PADDED width.
+        if (!_reader.TryReadStruct<long>(terrain + Poe2.Terrain.TotalTiles, out var tilesX) || tilesX <= 0 || tilesX > 4096) return null;
+        if (!_reader.TryReadStruct<long>(terrain + Poe2.Terrain.TotalTiles + 8, out var tilesY) || tilesY <= 0 || tilesY > 4096) return null;
+        var width = (int)(tilesX * Poe2.Terrain.TileGridCells);
+        var height = (int)(tilesY * Poe2.Terrain.TileGridCells);
+        if (width <= 0 || height <= 0 || width > bytesPerRow * 2 || (long)height * bytesPerRow > totalBytes) return null;
 
         var raw = new byte[totalBytes];
         if (_reader.TryReadBytes(first, raw) != raw.Length) return null;
 
-        var walk = new byte[width * rows];
-        for (var y = 0; y < rows; y++)
+        var walk = new byte[width * height];
+        for (var y = 0; y < height; y++)
         {
             var rowBase = (long)y * bytesPerRow;
             for (var x = 0; x < width; x++)
@@ -893,7 +937,7 @@ public sealed class Poe2Live
                 walk[y * width + x] = (byte)(nibble != 0 ? 1 : 0);
             }
         }
-        return new TerrainData(walk, width, rows);
+        return new TerrainData(walk, width, height);
     }
 
     private readonly List<nint> _mapEls = new();

@@ -55,6 +55,10 @@ public sealed class OverlayRenderer : IDisposable
     public IReadOnlyList<(Vortice.RawRectF Rect, string Action)> LegendRowRects => _legendRowRects;
     private readonly List<(Vortice.RawRectF Rect, string Action)> _legendRowRects = new();
 
+    /// <summary>The navigation-menu panel's drawn rect (top-left + size) from the last frame — RadarApp
+    /// reads it on mouse-down as the anchor for drag-to-move. In overlay client pixels.</summary>
+    public Vortice.RawRectF MenuRect { get; private set; }
+
     private readonly OverlayWindow _window;
     private TerrainBitmap? _terrain;
     private AtlasIconCache? _atlasIcons;   // #5: decoded atlas content-icon bitmaps (lazy per render target)
@@ -68,6 +72,10 @@ public sealed class OverlayRenderer : IDisposable
     private ID2D1SolidColorBrush? _bPath;  // recolored per route via SetColor
     private ID2D1SolidColorBrush? _bStyle; // scratch brush for config-driven icons / HP bars (recolored per draw)
     private IDWriteTextFormat? _tf;
+    // Corner-minimap circular clip: an ellipse geometry + a layer, recreated when the diameter changes.
+    private ID2D1EllipseGeometry? _miniGeo;
+    private ID2D1Layer? _miniLayer;
+    private float _miniSize = -1f;
     private bool _ready;
 
     public OverlayRenderer(OverlayWindow window) { _window = window; }
@@ -115,7 +123,11 @@ public sealed class OverlayRenderer : IDisposable
                 if (ctx.Map.IsVisible)
                     DrawMap(rt, ctx);                      // terrain + dots + on-map path polylines
                 else
-                    DrawPathsWorld(rt, ctx);               // ground waypoints + lines when the map is closed
+                {
+                    if (ctx.ShowWorldPaths)
+                        DrawPathsWorld(rt, ctx);           // opt-in: ground waypoints when the map is closed
+                    DrawMinimap(rt, ctx);                  // corner minimap viewport (game map transparent)
+                }
 
                 // The navigation-menu widget is ALWAYS interactive in-game (map open or not). It
                 // (re)builds _legendRowRects, so it must run last; nothing else touches those rects now.
@@ -693,6 +705,10 @@ public sealed class OverlayRenderer : IDisposable
         if (!ctx.ShowMonolithPanel || ctx.Monoliths is not { Count: > 0 } monos) return;
         const float w = 248f, pad = 6f, lineH = 15f, headH = 17f, titleH = 18f;
         float x = ctx.WindowWidth - w - 10f, y = 90f;
+        // Keep clear of the corner minimap: when it's pinned top-right the panel would cover the circle,
+        // so start the panel just below the circle instead (top margin + diameter + gap).
+        if (ctx.ShowMinimap && ctx.MinimapCorner == "TopRight")
+            y = 8f + ctx.MinimapSize + 8f;
 
         // Title bar doubles as a click target ("> "/"v " caret like the nav menu) — clicking it toggles
         // the collapsed state (persisted by RadarApp). Registered after DrawNavMenu's rect clear, so it
@@ -997,28 +1013,7 @@ public sealed class OverlayRenderer : IDisposable
         var player = ctx.PlayerGrid;
 
         // Terrain bitmap, projected via the same affine grid→screen transform.
-        if (ctx.ShowTerrain && ctx.Terrain is { } t)
-        {
-            _terrain ??= new TerrainBitmap(rt);
-            var ci = ParseColor(ctx.TerrainStyle.InteriorColor, ctx.TerrainStyle.InteriorOpacity);
-            var ce = ParseColor(ctx.TerrainStyle.EdgeColor, ctx.TerrainStyle.EdgeOpacity);
-            var terrainStyle = new TerrainBitmap.TerrainStyle(
-                ToByte(ci.B), ToByte(ci.G), ToByte(ci.R), ToByte(ci.A),
-                ToByte(ce.B), ToByte(ce.G), ToByte(ce.R), ToByte(ce.A));
-            _terrain.EnsureBuiltRaw(t.Walkable, t.Width, t.Height, ctx.AreaHash, inTransition: false, terrainStyle);
-            if (_terrain.Bitmap is { } bmp)
-            {
-                var p00 = Project(new NumVec2(0, 0), player, center, scale);
-                var p10 = Project(new NumVec2(t.Width, 0), player, center, scale);
-                var p01 = Project(new NumVec2(0, t.Height), player, center, scale);
-                var ex = (p10 - p00) / t.Width;
-                var ey = (p01 - p00) / t.Height;
-                var prev = rt.Transform;
-                rt.Transform = new Matrix3x2(ex.X, ex.Y, ey.X, ey.Y, p00.X, p00.Y);
-                rt.DrawBitmap(bmp, 1f, BitmapInterpolationMode.Linear, new Rect(0, 0, t.Width, t.Height));
-                rt.Transform = prev;
-            }
-        }
+        DrawTerrainLayer(rt, ctx, player, center, scale);
 
         // Entity dots, decided by the UNIFIED display ruleset (single source of truth). Resolve picks
         // the first enabled rule that matches the entity (top-down, explicit precedence); null or a
@@ -1035,7 +1030,7 @@ public sealed class OverlayRenderer : IDisposable
             _bStyle!.Color = ParseColor(rule.Color, rule.Opacity);
             DrawIcon(rt, rule.Shape, p, rule.Size, _bStyle, filled: true);
             if (!string.IsNullOrEmpty(rule.Label))
-                rt.DrawText(rule.Label, _tf!, new Rect(p.X + 7, p.Y - 7, p.X + 240, p.Y + 9), _bStyle, DrawTextOptions.Clip);
+                rt.DrawText(Localization.Shared.Term(rule.Label), _tf!, new Rect(p.X + 7, p.Y - 7, p.X + 240, p.Y + 9), _bStyle, DrawTextOptions.Clip);
         }
 
         // Static tile landmarks (boss arena, treasure, …). Each is styled by its matching "Tile"
@@ -1061,7 +1056,7 @@ public sealed class OverlayRenderer : IDisposable
                 // Rule label wins; else curated friendly label (if enabled); else the derived name.
                 var label = tr?.Label is { Length: > 0 } rl ? rl
                           : (ctx.UseCuratedLandmarks && lm.CuratedName is { } c ? c : lm.Name);
-                rt.DrawText(label, _tf!, new Rect(p.X + 7, p.Y - 7, p.X + 240, p.Y + 9), _bStyle, DrawTextOptions.Clip);
+                rt.DrawText(Localization.Shared.Term(label), _tf!, new Rect(p.X + 7, p.Y - 7, p.X + 240, p.Y + 9), _bStyle, DrawTextOptions.Clip);
             }
         }
 
@@ -1076,6 +1071,108 @@ public sealed class OverlayRenderer : IDisposable
         // Player blip on top (toggleable — some prefer no self-marker).
         if (ctx.ShowPlayerBlip)
             rt.FillEllipse(new Ellipse(center, 5f, 5f), _bPlayer!);
+    }
+
+    /// <summary>Walkable-terrain bitmap, projected through the same affine grid→screen transform as the
+    /// dots. Shared by the large map and the minimap viewport (the bitmap is built once per area).</summary>
+    private void DrawTerrainLayer(ID2D1RenderTarget rt, RenderContext ctx, NumVec2 player, NumVec2 center, float scale)
+    {
+        if (!ctx.ShowTerrain || ctx.Terrain is not { } t) return;
+        _terrain ??= new TerrainBitmap(rt);
+        var ci = ParseColor(ctx.TerrainStyle.InteriorColor, ctx.TerrainStyle.InteriorOpacity);
+        var ce = ParseColor(ctx.TerrainStyle.EdgeColor, ctx.TerrainStyle.EdgeOpacity);
+        var terrainStyle = new TerrainBitmap.TerrainStyle(
+            ToByte(ci.B), ToByte(ci.G), ToByte(ci.R), ToByte(ci.A),
+            ToByte(ce.B), ToByte(ce.G), ToByte(ce.R), ToByte(ce.A));
+        _terrain.EnsureBuiltRaw(t.Walkable, t.Width, t.Height, ctx.AreaHash, inTransition: false, terrainStyle);
+        if (_terrain.Bitmap is { } bmp)
+        {
+            var p00 = Project(new NumVec2(0, 0), player, center, scale);
+            var p10 = Project(new NumVec2(t.Width, 0), player, center, scale);
+            var p01 = Project(new NumVec2(0, t.Height), player, center, scale);
+            var ex = (p10 - p00) / t.Width;
+            var ey = (p01 - p00) / t.Height;
+            var prev = rt.Transform;
+            rt.Transform = new Matrix3x2(ex.X, ex.Y, ey.X, ey.Y, p00.X, p00.Y);
+            rt.DrawBitmap(bmp, 1f, BitmapInterpolationMode.Linear, new Rect(0, 0, t.Width, t.Height));
+            rt.Transform = prev;
+        }
+    }
+
+    /// <summary>
+    /// Self-contained corner minimap. The game's own map has been made transparent, so the radar draws a
+    /// circular minimap of its own at the chosen corner, centered on the player, showing walkable terrain +
+    /// entity dots + the player blip. Uses the same validated projection as the large map, scaled by
+    /// <see cref="RenderContext.MinimapZoom"/>. (The game's real minimap UiElement is full-map content —
+    /// 3840×2160 — clipped by the engine to a corner circle whose geometry isn't exposed, so we draw our
+    /// own circle instead of trying to match it.)
+    /// </summary>
+    private void DrawMinimap(ID2D1RenderTarget rt, RenderContext ctx)
+    {
+        if (!ctx.ShowMinimap) return;
+        var d = ctx.MinimapSize;
+        if (d < 40f) return;
+        var r = d * 0.5f;
+        var margin = 8f;
+
+        float cx, cy;
+        switch (ctx.MinimapCorner)
+        {
+            case "TopLeft":     cx = margin + r; cy = margin + r; break;
+            case "BottomLeft":  cx = margin + r; cy = ctx.WindowHeight - margin - r; break;
+            case "BottomRight": cx = ctx.WindowWidth - margin - r; cy = ctx.WindowHeight - margin - r; break;
+            default:            cx = ctx.WindowWidth - margin - r; cy = margin + r; break; // TopRight
+        }
+        var center = new NumVec2(cx, cy);
+        var scale = ctx.Map.Zoom * (ctx.WindowHeight / 677f) * ctx.ScaleMul * ctx.MinimapZoom;
+        var player = ctx.PlayerGrid;
+
+        // Circular clip geometry + layer, recreated only when the diameter changes.
+        if (_miniGeo is null || _miniLayer is null || _miniSize != d)
+        {
+            _miniGeo?.Dispose(); _miniLayer?.Dispose();
+            var d2dFactory = (ID2D1Factory)rt.Factory;
+            _miniGeo = d2dFactory.CreateEllipseGeometry(new Ellipse(center, r, r));
+            _miniLayer = rt.CreateLayer();
+            _miniSize = d;
+        }
+
+        // Background disc, then the map content clipped to it (no border — borderless minimap).
+        rt.FillGeometry(_miniGeo, _bPanel!);
+        rt.PushLayer(new LayerParameters
+        {
+            ContentBounds = new Vortice.RawRectF(cx - r, cy - r, cx + r, cy + r),
+            GeometricMask = _miniGeo,
+            MaskAntialiasMode = AntialiasMode.PerPrimitive,
+            MaskTransform = Matrix3x2.Identity,
+            Opacity = 1f,
+            LayerOptions = LayerOptions.None,
+        }, _miniLayer);
+
+        DrawTerrainLayer(rt, ctx, player, center, scale);
+
+        // Entity dots — same unified ruleset as the large map, labels dropped (too small to read).
+        var cullR = r + 8f;
+        foreach (var e in ctx.Entities)
+        {
+            if (ctx.HideJunk && JunkFilter.IsJunk(e.Metadata)) continue;
+            var rule = ctx.Resolve?.Invoke(e);
+            if (rule is null || rule.Hide) continue;
+            var p = Project(new NumVec2(e.Grid.X, e.Grid.Y), player, center, scale);
+            var dx = p.X - cx;
+            var dy = p.Y - cy;
+            if (dx * dx + dy * dy > cullR * cullR) continue;
+            _bStyle!.Color = ParseColor(rule.Color, rule.Opacity);
+            DrawIcon(rt, rule.Shape, p, rule.Size, _bStyle, filled: true);
+        }
+
+        // Guidance routes on the minimap (same projection as the large map, clipped to the circle).
+        DrawPaths(rt, ctx, player, center, scale);
+
+        if (ctx.ShowPlayerBlip)
+            rt.FillEllipse(new Ellipse(center, 4f, 4f), _bPlayer!);
+
+        rt.PopLayer();
     }
 
     /// <summary>
@@ -1133,16 +1230,44 @@ public sealed class OverlayRenderer : IDisposable
         var panelW   = NavPanelW;
         var panelH   = NavHeaderH + rowCount * NavRowH + NavPad * 2;
 
-        // Anchor at the chosen corner, then clamp so the whole panel (incl. dropdown) is on-screen.
+        // Position: a free dragged spot (dropdown grows downward) or a pinned corner. Then clamp so the
+        // whole panel (incl. dropdown) stays on-screen.
         var corner   = ctx.NavMenuCorner;
         var isRight  = corner is "TopRight" or "BottomRight";
         var isBottom = corner is "BottomLeft" or "BottomRight";
 
-        var left = isRight ? ctx.WindowWidth - NavMargin - panelW : NavMargin;
-        var top  = isBottom ? ctx.WindowHeight - NavMargin - panelH : NavMargin;
+        float left, top;
+        if (ctx.NavMenuCustom)
+        {
+            left = ctx.NavMenuX;
+            top  = ctx.NavMenuY;
+            isBottom = false;   // free position: dropdown always grows downward
+        }
+        else
+        {
+            left = isRight ? ctx.WindowWidth - NavMargin - panelW : NavMargin;
+            top  = isBottom ? ctx.WindowHeight - NavMargin - panelH : NavMargin;
+
+            // When the corner minimap occupies the SAME corner as the menu, push the menu clear of the
+            // circle — top corners shift the menu BELOW the circle, bottom corners shift it ABOVE. (Same
+            // auto-yield as the monolith panel.)
+            if (ctx.ShowMinimap && ctx.MinimapSize >= 40f)
+            {
+                bool miniRight = ctx.MinimapCorner is "TopRight" or "BottomRight";
+                bool miniTop   = ctx.MinimapCorner is "TopLeft" or "TopRight";
+                if (miniRight == isRight && miniTop == !isBottom)
+                {
+                    var mr = ctx.MinimapSize * 0.5f;
+                    var miniCy = miniTop ? 8f + mr : ctx.WindowHeight - 8f - mr;
+                    top = !isBottom ? miniCy + mr + 8f : miniCy - mr - 8f - panelH;
+                }
+            }
+        }
+
         // Clamp into the window in case it's narrower/shorter than the panel.
         left = Math.Clamp(left, NavMargin, Math.Max(NavMargin, ctx.WindowWidth  - NavMargin - panelW));
         top  = Math.Clamp(top,  NavMargin, Math.Max(NavMargin, ctx.WindowHeight - NavMargin - panelH));
+        MenuRect = new Vortice.RawRectF(left, top, left + panelW, top + panelH);
 
         rt.FillRectangle(new Vortice.RawRectF(left, top, left + panelW, top + panelH), _bPanel!);
 
@@ -1173,38 +1298,42 @@ public sealed class OverlayRenderer : IDisposable
             bx += bw + 4f;
         }
 
-        if (!expanded) return;
-
-        // Dropdown rows. For Bottom corners the chip is at the bottom, so rows fill from the panel top.
-        var rowTop = isBottom ? top + NavPad : headerY + NavHeaderH;
-        var y = rowTop;
-        foreach (var row in ctx.Legend)
+        if (expanded)
         {
-            var rowRect = new Vortice.RawRectF(left, y, left + panelW, y + NavRowH);
-            _legendRowRects.Add((rowRect, "target:" + row.Target.Id)); // click → TogglePathTarget(id)
-
-            // Swatch: selected rows fill with their selection-order route color (matches DrawPaths);
-            // unselected rows get just a dim outline so the click target is still visible.
-            var swatchRect = new Vortice.RawRectF(left + NavPad, y + 3f, left + NavPad + NavSwatch, y + 3f + NavSwatch);
-            if (row.IsSelected)
+            // Dropdown rows. For Bottom corners the chip is at the bottom, so rows fill from the panel top.
+            var rowTop = isBottom ? top + NavPad : headerY + NavHeaderH;
+            var y = rowTop;
+            foreach (var row in ctx.Legend)
             {
-                _bPath!.Color = PathColor(row.ColorSlot);
-                rt.FillRectangle(swatchRect, _bPath);
-            }
-            else
-            {
-                _bPath!.Color = WithAlpha(_bOther!.Color, 0.45f);
-                rt.DrawRectangle(swatchRect, _bPath, 1f);
-            }
+                var rowRect = new Vortice.RawRectF(left, y, left + panelW, y + NavRowH);
+                _legendRowRects.Add((rowRect, "target:" + row.Target.Id)); // click → TogglePathTarget(id)
 
-            // Selected rows get a "> " marker + the highlight color. Entity POIs get a "*" prefix so
-            // they're distinguishable from tile landmarks at a glance. Name is already prettified/curated.
-            var prefix = row.IsSelected ? "> " : (row.Target.IsEntity ? "* " : "  ");
-            var text = prefix + row.Target.Name;
-            var textBrush = row.IsSelected ? _bPlayer! : (row.Target.IsEntity ? _bLandmark! : _bText!);
-            rt.DrawText(text, _tf!, new Rect(left + NavPad + NavSwatch + 5f, y, left + panelW - 4f, y + NavRowH), textBrush, DrawTextOptions.Clip);
-            y += NavRowH;
+                // Swatch: selected rows fill with their selection-order route color (matches DrawPaths);
+                // unselected rows get just a dim outline so the click target is still visible.
+                var swatchRect = new Vortice.RawRectF(left + NavPad, y + 3f, left + NavPad + NavSwatch, y + 3f + NavSwatch);
+                if (row.IsSelected)
+                {
+                    _bPath!.Color = PathColor(row.ColorSlot);
+                    rt.FillRectangle(swatchRect, _bPath);
+                }
+                else
+                {
+                    _bPath!.Color = WithAlpha(_bOther!.Color, 0.45f);
+                    rt.DrawRectangle(swatchRect, _bPath, 1f);
+                }
+
+                // Selected rows get a "> " marker + the highlight color. Entity POIs get a "*" prefix so
+                // they're distinguishable from tile landmarks at a glance. Name is already prettified/curated.
+                var prefix = row.IsSelected ? "> " : (row.Target.IsEntity ? "* " : "  ");
+                var text = prefix + row.Target.Name;
+                var textBrush = row.IsSelected ? _bPlayer! : (row.Target.IsEntity ? _bLandmark! : _bText!);
+                rt.DrawText(text, _tf!, new Rect(left + NavPad + NavSwatch + 5f, y, left + panelW - 4f, y + NavRowH), textBrush, DrawTextOptions.Clip);
+                y += NavRowH;
+            }
         }
+
+        // Whole-panel drag handle — added LAST so the chip/corner/row rects above win the hit-test.
+        _legendRowRects.Add((MenuRect, "menu-drag"));
     }
 
     private static Color4 WithAlpha(Color4 c, float a) => new(c.R, c.G, c.B, a);
@@ -1225,5 +1354,7 @@ public sealed class OverlayRenderer : IDisposable
         _tf?.Dispose();
         _terrain?.Dispose();
         _atlasIcons?.Dispose();
+        _miniGeo?.Dispose();
+        _miniLayer?.Dispose();
     }
 }

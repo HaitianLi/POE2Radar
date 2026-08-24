@@ -13,6 +13,8 @@ public sealed class RadarSettings
     // ── Feature flags (reserved for later phases; no behavior wired yet). ──
     public bool HideJunk { get; set; } = false;
     public bool ShowPath { get; set; } = false;
+    // Draw nav routes on the WORLD GROUND when the big map is closed (vs only on the minimap).
+    public bool ShowWorldPaths { get; set; } = false;
     public bool UseCuratedLandmarks { get; set; } = true;
     public bool DrawAllLandmarkPaths { get; set; } = false;
 
@@ -24,11 +26,33 @@ public sealed class RadarSettings
     //    them (more markers). 0 disables bridging (only directly-touching tiles group). ──
     public int LandmarkClusterGap { get; set; } = 2;
 
+    // ── GameHelper2 reference landmark set (endgame boss arenas + dungeon stairs). When on, the
+    //    landmark scan also surfaces tiles from the ported GH2 boss_arena/stairs target lists. ──
+    public bool UseGh2Landmarks { get; set; } = true;
+
+    // ── Generic boss-room auto-detect: flag any terrain tile whose NAME carries a boss-room signal
+    //    word ("boss"/"arena", see BossRoomDetector) as a Boss landmark — covers maps neither the
+    //    curated list nor the GH2 reference set knows. On by default (a pure coverage add, no override). ──
+    public bool AutoDetectBossRooms { get; set; } = true;
+
+    // ── Master "GH2 Radar" toggle: replicates the GameHelper2 Radar plugin's extra icon recognition
+    //    (tormented spirits, abyss, delirium, incursion, sekhemas, expedition chests, strongbox
+    //    subtypes, campaign runestones) as an overlay layer on top of the local ruleset, plus the GH2
+    //    boss-arena/stairs landmarks. Off by default so the local radar is unchanged until the user
+    //    flips it (dashboard Settings → Radar Display). ──
+    public bool UseGh2Radar { get; set; } = false;
+
     // ── Radar display toggles. ──
     public bool ShowMonsters { get; set; } = true;
     public bool ShowTerrain { get; set; } = true;
     // The player position blip at map-center. Default on (prior behavior); some prefer it off.
     public bool ShowPlayerBlip { get; set; } = true;
+    // Self-contained corner minimap: a circle centered on the player, drawn because the game's own map
+    // is made transparent. Position (corner), diameter and zoom are user-configurable.
+    public bool ShowMinimap { get; set; } = true;
+    public string MinimapCorner { get; set; } = "TopRight";  // TopLeft / TopRight / BottomLeft / BottomRight
+    public float MinimapSize { get; set; } = 260f;           // circle diameter, px
+    public float MinimapZoom { get; set; } = 1.0f;           // × large-map scale (higher = more zoomed in)
 
     // ── Overlay render/present rate (Hz). The overlay redraws + UpdateLayeredWindow-blits at this
     //    rate; lower = less CPU/GPU tax on the game (the blit cost is proportional to resolution).
@@ -37,9 +61,18 @@ public sealed class RadarSettings
     //    The heavier entity/terrain walk stays fixed at ~30 Hz regardless. ──
     public int FpsCap { get; set; } = 0;
 
+    // ── Radar language (trilingual): "en" | "zh-CN" | "zh-Hant". Localizes the radar's own UI
+    //    terms + the on-map game-term vocabulary (mechanics / POI / category labels). ──
+    public string Language { get; set; } = "en";
+
     // ── Navigation-menu widget: which screen corner it is pinned to.
     //    One of "TopLeft", "TopRight", "BottomLeft", "BottomRight". ──
     public string NavMenuCorner { get; set; } = "TopLeft";
+    // Draggable override: when true the menu sits at a free (NavMenuX, NavMenuY) position instead of a
+    // pinned corner (set by dragging the menu; clicking a corner button clears this back to corner mode).
+    public bool NavMenuCustom { get; set; } = false;
+    public float NavMenuX { get; set; } = 0f;   // panel top-left, overlay client px
+    public float NavMenuY { get; set; } = 0f;
 
     // ── Persistent auto-nav: substrings matched (case-insensitive Contains) against a navigation
     //    target's MatchKey (tile path / entity metadata). On every zone change, every target whose
@@ -202,6 +235,10 @@ public sealed class RadarSettings
     // ── Currency Exchange (Kalguur market) order-book depth overlay: top-right panel with the best
     //    offered/wanted ratios + depth. Mirrors the GroundItems/Monoliths settings pattern. ──
     public CurrencyExchangeSettings CurrencyExchange { get; set; } = new();
+
+    // ── Camera zoom un-clamp (opt-in, write-side). The ONE feature that violates the external
+    //    read-only boundary: it patches the game's zoom clamp in code. Default OFF. ──
+    public ZoomSettings Zoom { get; set; } = new();
 
     private static readonly JsonSerializerOptions Json = new()
     {
@@ -454,6 +491,18 @@ public sealed class CurrencyExchangeSettings
     public bool Enabled { get; set; } = true;
     public int MaxRows { get; set; } = 8;        // how many ladder rows to draw per side
     public bool Collapsed { get; set; } = false; // card shrunk to a small "expand" tab (click to toggle)
+}
+
+/// <summary>
+/// Opt-in camera zoom un-clamp: patch the game's zoom <c>minss</c> clamp so the camera zooms out
+/// further than the game normally allows. <see cref="Enabled"/> is the master toggle (persisted, so
+/// it re-applies on the next launch); <see cref="ZoomValue"/> is the clamp target (higher = further
+/// out). Write-side feature — see <see cref="POE2Radar.Overlay.Zoom.ZoomPatch"/>.
+/// </summary>
+public sealed class ZoomSettings
+{
+    public bool Enabled { get; set; } = false;
+    public float ZoomValue { get; set; } = 30.0f;
 }
 
 public sealed class GroundItemSettings

@@ -14,7 +14,8 @@
          "russian": "Горный хребет",
          "spanish": "Cumbre alpina",
          "thai": "Alpine Ridge",
-         "traditional chinese": "高山山脊"
+         "traditional chinese": "高山山脊",
+         "simplified chinese": "高山山脊"
       }
    },
    "MapAridPlains": {
@@ -32,7 +33,8 @@
          "russian": "Засушливые равнины",
          "spanish": "Planicies áridas",
          "thai": "Arid Plains",
-         "traditional chinese": "旱原"
+         "traditional chinese": "旱原",
+         "simplified chinese": "旱原"
       }
    },
    "MapArroyo": {
@@ -50,7 +52,8 @@
          "russian": "Арройо",
          "spanish": "Arroyo",
          "thai": "Arroyo",
-         "traditional chinese": "旱谷"
+         "traditional chinese": "旱谷",
+         "simplified chinese": "旱谷"
       }
    },
    "MapAugury": {
@@ -68,7 +71,8 @@
          "russian": "Ауспиции",
          "spanish": "Premonición",
          "thai": "Augury",
-         "traditional chinese": "預兆"
+         "traditional chinese": "預兆",
+         "simplified chinese": "预兆"
       }
    },
    "MapAzmerianRanges": {
@@ -88,7 +92,8 @@
          "russian": "Хребты азмири",
          "spanish": "Cordillera azmeriana",
          "thai": "Azmerian Ranges",
-         "traditional chinese": "阿茲莫里山脈"
+         "traditional chinese": "阿茲莫里山脈",
+         "simplified chinese": "阿兹莫里山脉"
       }
    },
    "MapBackwash": {
@@ -106,7 +111,8 @@
          "russian": "Стоячие воды",
          "spanish": "Desaguadero",
          "thai": "Backwash",
-         "traditional chinese": "餘波"
+         "traditional chinese": "餘波",
+         "simplified chinese": "余波"
       }
    },
    "MapBastille": {
@@ -124,7 +130,8 @@
          "russian": "Форт",
          "spanish": "Bastilla",
          "thai": "Bastille",
-         "traditional chinese": "堡壘"
+         "traditional chinese": "堡壘",
+         "simplified chinese": "堡垒"
       }
    },
    "MapBazaar": {
@@ -142,7 +149,8 @@
          "russian": "Базар",
          "spanish": "Bazar",
          "thai": "Bazaar",
-         "traditional chinese": "喧鬧集市"
+         "traditional chinese": "喧鬧集市",
+         "simplified chinese": "喧闹集市"
       }
    },
    "MapBloodwood": {
@@ -160,7 +168,8 @@
          "russian": "Кроволесье",
          "spanish": "Bosque sangriento",
          "thai": "Bloodwood",
-         "traditional chinese": "血林"
+         "traditional chinese": "血林",
+         "simplified chinese": "血林"
       }
    },
    "MapBloomingField": {
@@ -178,7 +187,8 @@
          "russian": "Цветущий луг",
          "spanish": "Campo floreciente",
          "thai": "Blooming Field",
-         "traditional chinese": "盛放田野"
+         "traditional chinese": "盛放田野",
+         "simplified chinese": "盛放田野"
       }
    },
    "MapBluff": {
@@ -196,7 +206,8 @@
          "russian": "Утёс",
          "spanish": "Peñascos",
          "thai": "Bluff",
-         "traditional chinese": "絕壁"
+         "traditional chinese": "絕壁",
+         "simplified chinese": "绝壁"
       }
    },
    "MapBurialBog": {
@@ -214,7 +225,8 @@
          "russian": "Погребальная трясина",
          "spanish": "Ciénaga funeraria",
          "thai": "Burial Bog",
-         "traditional chinese": "埋葬沼澤"
+         "traditional chinese": "埋葬沼澤",
+         "simplified chinese": "埋葬沼泽"
       }
    },
    "MapCaldera": {
@@ -232,7 +244,8 @@
          "russian": "Кальдера",
          "spanish": "Caldera",
          "thai": "Caldera",
-         "traditional chinese": "火山炎口"
+         "traditional chinese": "火山炎口",
+         "simplified chinese": "火山炎口"
       }
    },
    "MapCanyon": {
@@ -250,7 +263,8 @@
          "russian": "Каньон",
          "spanish": "Cañón",
          "thai": "Canyon",
-         "traditional chinese": "炙陽峽谷"
+         "traditional chinese": "炙陽峽谷",
+         "simplified chinese": "炙阳峡谷"
       }
    },
    "MapCavernCity": {
@@ -270,7 +284,8 @@
          "russian": "Священный водоём",
          "spanish": "Reservorio sagrado",
          "thai": "Sacred Reservoir",
-         "traditional chinese": "神聖水源地"
+         "traditional chinese": "神聖水源地",
+         "simplified chinese": "神圣水源地"
       }
    },
    "MapCenotes": {
@@ -288,7 +303,8 @@
          "russian": "Сеноты",
          "spanish": "Cenotes",
          "thai": "Cenotes",
-         "traditional chinese": "天然井"
+         "traditional chinese": "天然井",
+         "simplified chinese": "天然井"
       }
    },
    "MapChannel": {
@@ -306,7 +322,8 @@
          "russian": "Канал",
          "spanish": "Canal",
          "thai": "Channel",
-         "traditional chinese": "通道"
+         "traditional chinese": "通道",
+         "simplified chinese": "通道"
       }
    },
    "MapChasm": {
@@ -324,7 +341,8 @@
          "russian": "Разлом",
          "spanish": "Sima",
          "thai": "Chasm",
-         "traditional chinese": "裂口"
+         "traditional chinese": "裂口",
+         "simplified chinese": "裂口"
       }
    },
    "MapCliffside": {
@@ -342,7 +360,8 @@
          "russian": "Обрыв",
          "spanish": "Ladera",
          "thai": "Cliffside",
-         "traditional chinese": "崖壁"
+         "traditional chinese": "崖壁",
+         "simplified chinese": "崖壁"
       }
    },
    "MapCreek": {
@@ -360,7 +379,8 @@
          "russian": "Ручей",
          "spanish": "Arroyo",
          "thai": "Creek",
-         "traditional chinese": "小溪"
+         "traditional chinese": "小溪",
+         "simplified chinese": "小溪"
       }
    },
    "MapCrimsonShores": {
@@ -378,7 +398,8 @@
          "russian": "Багровые берега",
          "spanish": "Costas carmesís",
          "thai": "Crimson Shores",
-         "traditional chinese": "緋紅海岸"
+         "traditional chinese": "緋紅海岸",
+         "simplified chinese": "绯红海岸"
       }
    },
    "MapCrypt": {
@@ -396,7 +417,8 @@
          "russian": "Крипта",
          "spanish": "Cripta",
          "thai": "Crypt",
-         "traditional chinese": "靜謐陵墓"
+         "traditional chinese": "靜謐陵墓",
+         "simplified chinese": "静谧陵墓"
       }
    },
    "MapDecay": {
@@ -414,7 +436,8 @@
          "russian": "Гниль",
          "spanish": "Decaimiento",
          "thai": "Decay",
-         "traditional chinese": "腐蝕"
+         "traditional chinese": "腐蝕",
+         "simplified chinese": "腐蚀"
       }
    },
    "MapDeforestation": {
@@ -432,7 +455,8 @@
          "russian": "Безлесье",
          "spanish": "Deforestación",
          "thai": "Deforestation",
-         "traditional chinese": "伐林地"
+         "traditional chinese": "伐林地",
+         "simplified chinese": "伐林地"
       }
    },
    "MapDerelictMansion": {
@@ -452,7 +476,8 @@
          "russian": "Заброшенное поместье",
          "spanish": "Mansión ruinosa",
          "thai": "Derelict Mansion",
-         "traditional chinese": "廢棄宅邸"
+         "traditional chinese": "廢棄宅邸",
+         "simplified chinese": "废弃宅邸"
       }
    },
    "MapDeserted": {
@@ -470,7 +495,8 @@
          "russian": "Пустошь",
          "spanish": "Baldío",
          "thai": "Deserted",
-         "traditional chinese": "棄置之地"
+         "traditional chinese": "棄置之地",
+         "simplified chinese": "弃置之地"
       }
    },
    "MapEpitaph": {
@@ -488,7 +514,8 @@
          "russian": "Надгробия",
          "spanish": "Epitafio",
          "thai": "Epitaph",
-         "traditional chinese": "幽殤之園"
+         "traditional chinese": "幽殤之園",
+         "simplified chinese": "幽殇之园"
       }
    },
    "MapExcavation": {
@@ -506,7 +533,8 @@
          "russian": "Раскопки",
          "spanish": "Sitio de excavación",
          "thai": "Digsite",
-         "traditional chinese": "挖掘地"
+         "traditional chinese": "挖掘地",
+         "simplified chinese": "挖掘地"
       }
    },
    "MapFlotsam": {
@@ -524,7 +552,8 @@
          "russian": "Обломки",
          "spanish": "Restos de naufragio",
          "thai": "Flotsam",
-         "traditional chinese": "廢料堆"
+         "traditional chinese": "廢料堆",
+         "simplified chinese": "废料堆"
       }
    },
    "MapForge": {
@@ -542,7 +571,8 @@
          "russian": "Кузница",
          "spanish": "Forja",
          "thai": "Forge",
-         "traditional chinese": "鍛造"
+         "traditional chinese": "鍛造",
+         "simplified chinese": "锻造"
       }
    },
    "MapFortress": {
@@ -560,7 +590,8 @@
          "russian": "Крепость",
          "spanish": "Fortaleza",
          "thai": "Fortress",
-         "traditional chinese": "堡壘"
+         "traditional chinese": "堡壘",
+         "simplified chinese": "堡垒"
       }
    },
    "MapFrozenFalls": {
@@ -578,7 +609,8 @@
          "russian": "Замёрзшие водопады",
          "spanish": "Cataratas congeladas",
          "thai": "Frozen Falls",
-         "traditional chinese": "冰凍瀑布"
+         "traditional chinese": "冰凍瀑布",
+         "simplified chinese": "冰冻瀑布"
       }
    },
    "MapGeode": {
@@ -596,7 +628,8 @@
          "russian": "Жеода",
          "spanish": "Geoda",
          "thai": "Geode",
-         "traditional chinese": "晶洞"
+         "traditional chinese": "晶洞",
+         "simplified chinese": "晶洞"
       }
    },
    "MapGreenhouse": {
@@ -614,7 +647,8 @@
          "russian": "Оранжерея",
          "spanish": "Invernadero",
          "thai": "Greenhouse",
-         "traditional chinese": "繁茂溫室"
+         "traditional chinese": "繁茂溫室",
+         "simplified chinese": "繁茂温室"
       }
    },
    "MapGrimhaven": {
@@ -632,7 +666,8 @@
          "russian": "Мрачная гавань",
          "spanish": "Refugio sombrío",
          "thai": "Grimhaven",
-         "traditional chinese": "肅穆之地"
+         "traditional chinese": "肅穆之地",
+         "simplified chinese": "肃穆之地"
       }
    },
    "MapHeadland": {
@@ -650,7 +685,8 @@
          "russian": "Мыс",
          "spanish": "Cabo",
          "thai": "Headland",
-         "traditional chinese": "海角"
+         "traditional chinese": "海角",
+         "simplified chinese": "海角"
       }
    },
    "MapHiddenGrotto": {
@@ -668,7 +704,8 @@
          "russian": "Тайный грот",
          "spanish": "Gruta oculta",
          "thai": "Hidden Grotto",
-         "traditional chinese": "隱密石窟"
+         "traditional chinese": "隱密石窟",
+         "simplified chinese": "隐密石窟"
       }
    },
    "MapHideoutCanal_Claimable": {
@@ -688,7 +725,8 @@
          "russian": "Убежище в каналах",
          "spanish": "Guarida de canal",
          "thai": "ที่ซ่อน Canal",
-         "traditional chinese": "藏身處：運河"
+         "traditional chinese": "藏身處：運河",
+         "simplified chinese": "藏身处：运河"
       }
    },
    "MapHideoutFarmlands_Claimable": {
@@ -708,7 +746,8 @@
          "russian": "Убежище в фермерских землях",
          "spanish": "Guarida de tierras de cultivo",
          "thai": "ที่ซ่อนแดนเพาะปลูก",
-         "traditional chinese": "藏身處：農地"
+         "traditional chinese": "藏身處：農地",
+         "simplified chinese": "藏身处：农地"
       }
    },
    "MapHideoutFelled_Claimable": {
@@ -728,7 +767,8 @@
          "russian": "Снесённое убежище",
          "spanish": "Guarida talada",
          "thai": "ที่ซ่อน Felled",
-         "traditional chinese": "藏身處：殞落"
+         "traditional chinese": "藏身處：殞落",
+         "simplified chinese": "藏身处：殒落"
       }
    },
    "MapHideoutLimestone_Claimable": {
@@ -748,7 +788,8 @@
          "russian": "Известняковое убежище",
          "spanish": "Guarida de caliza",
          "thai": "ที่ซ่อน Limestone",
-         "traditional chinese": "藏身處：石灰岩"
+         "traditional chinese": "藏身處：石灰岩",
+         "simplified chinese": "藏身处：石灰岩"
       }
    },
    "MapHideoutPrison_Claimable": {
@@ -768,7 +809,8 @@
          "russian": "Убежище в тюрьме",
          "spanish": "Guarida de prisión",
          "thai": "ที่ซ่อนเรือนจำ",
-         "traditional chinese": "藏身處：監獄"
+         "traditional chinese": "藏身處：監獄",
+         "simplified chinese": "藏身处：监狱"
       }
    },
    "MapHideoutShoreline_Claimable": {
@@ -788,7 +830,8 @@
          "russian": "Убежище на берегу",
          "spanish": "Guarida de ribera",
          "thai": "ที่ซ่อนชายทะเล",
-         "traditional chinese": "藏身處：海岸線"
+         "traditional chinese": "藏身處：海岸線",
+         "simplified chinese": "藏身处：海岸线"
       }
    },
    "MapHideoutShrine_Claimable": {
@@ -808,7 +851,8 @@
          "russian": "Убежище с алтарём",
          "spanish": "Guarida de sagrario",
          "thai": "ที่ซ่อน Shrine",
-         "traditional chinese": "藏身處：神殿"
+         "traditional chinese": "藏身處：神殿",
+         "simplified chinese": "藏身处：神殿"
       }
    },
    "MapHive": {
@@ -826,7 +870,8 @@
          "russian": "Улей",
          "spanish": "Colmena",
          "thai": "Hive",
-         "traditional chinese": "巢穴"
+         "traditional chinese": "巢穴",
+         "simplified chinese": "巢穴"
       }
    },
    "MapIceCave": {
@@ -844,7 +889,8 @@
          "russian": "Ледяная пещера",
          "spanish": "Cueva de hielo",
          "thai": "Ice Cave",
-         "traditional chinese": "寒冰洞穴"
+         "traditional chinese": "寒冰洞穴",
+         "simplified chinese": "寒冰洞穴"
       }
    },
    "MapInferno": {
@@ -862,7 +908,8 @@
          "russian": "Пожарище",
          "spanish": "Infierno",
          "thai": "Inferno",
-         "traditional chinese": "煉獄"
+         "traditional chinese": "煉獄",
+         "simplified chinese": "炼狱"
       }
    },
    "MapKarst": {
@@ -880,7 +927,8 @@
          "russian": "Карст",
          "spanish": "Karst",
          "thai": "Karst",
-         "traditional chinese": "卡司特"
+         "traditional chinese": "卡司特",
+         "simplified chinese": "卡司特"
       }
    },
    "MapLeaguePortal": {
@@ -898,7 +946,8 @@
          "russian": "Врата миров",
          "spanish": "La puerta del reino",
          "thai": "ประตูข้ามอาณาจักร",
-         "traditional chinese": "界域之門"
+         "traditional chinese": "界域之門",
+         "simplified chinese": "界域之门"
       }
    },
    "MapLoftySummit": {
@@ -916,7 +965,8 @@
          "russian": "Вершина",
          "spanish": "Cima prominente",
          "thai": "Lofty Summit",
-         "traditional chinese": "崇高之巔"
+         "traditional chinese": "崇高之巔",
+         "simplified chinese": "崇高之巅"
       }
    },
    "MapLostTowers": {
@@ -936,7 +986,8 @@
          "russian": "Утраченные башни",
          "spanish": "Torres perdidas",
          "thai": "หอคอยสาบสูญ",
-         "traditional chinese": "失落之塔"
+         "traditional chinese": "失落之塔",
+         "simplified chinese": "失落之塔"
       }
    },
    "MapMarrow": {
@@ -954,7 +1005,8 @@
          "russian": "Свалка костей",
          "spanish": "Médula",
          "thai": "Marrow",
-         "traditional chinese": "朽髓"
+         "traditional chinese": "朽髓",
+         "simplified chinese": "朽髓"
       }
    },
    "MapMesa": {
@@ -972,7 +1024,8 @@
          "russian": "Плоскогорье",
          "spanish": "Mesa",
          "thai": "Mesa",
-         "traditional chinese": "平頂荒漠"
+         "traditional chinese": "平頂荒漠",
+         "simplified chinese": "平顶荒漠"
       }
    },
    "MapMezzanine": {
@@ -990,7 +1043,8 @@
          "russian": "Mezzanine",
          "spanish": "Entrepiso",
          "thai": "Mezzanine",
-         "traditional chinese": "樓中樓"
+         "traditional chinese": "樓中樓",
+         "simplified chinese": "楼中楼"
       }
    },
    "MapMineshaft": {
@@ -1008,7 +1062,8 @@
          "russian": "Шахтный колодец",
          "spanish": "Mina",
          "thai": "Mineshaft",
-         "traditional chinese": "礦井"
+         "traditional chinese": "礦井",
+         "simplified chinese": "矿井"
       }
    },
    "MapMire": {
@@ -1026,7 +1081,8 @@
          "russian": "Трясина",
          "spanish": "Barrizal",
          "thai": "Mire",
-         "traditional chinese": "泥沼"
+         "traditional chinese": "泥沼",
+         "simplified chinese": "泥沼"
       }
    },
    "MapMonument": {
@@ -1044,7 +1100,8 @@
          "russian": "Монумент",
          "spanish": "El monumento",
          "thai": "The Monument",
-         "traditional chinese": "紀念碑"
+         "traditional chinese": "紀念碑",
+         "simplified chinese": "纪念碑"
       }
    },
    "MapMortuary": {
@@ -1062,7 +1119,8 @@
          "russian": "Морг",
          "spanish": "Morgue",
          "thai": "Mortuary",
-         "traditional chinese": "停屍間"
+         "traditional chinese": "停屍間",
+         "simplified chinese": "停尸间"
       }
    },
    "MapMothersoul_Female": {
@@ -1082,7 +1140,8 @@
          "russian": "Залы матриарха",
          "spanish": "Los salones de la matriarca",
          "thai": "โถงมาตา",
-         "traditional chinese": "聖母殿"
+         "traditional chinese": "聖母殿",
+         "simplified chinese": "圣母殿"
       }
    },
    "MapMothersoul_Female_Quest": {
@@ -1103,7 +1162,8 @@
          "russian": "Залы матриарха",
          "spanish": "Los salones de la matriarca",
          "thai": "โถงมาตา",
-         "traditional chinese": "聖母殿"
+         "traditional chinese": "聖母殿",
+         "simplified chinese": "圣母殿"
       }
    },
    "MapMothersoul_Male": {
@@ -1123,7 +1183,8 @@
          "russian": "Залы патриарха",
          "spanish": "Los salones del patriarca",
          "thai": "โถงปิตา",
-         "traditional chinese": "聖祖殿"
+         "traditional chinese": "聖祖殿",
+         "simplified chinese": "圣祖殿"
       }
    },
    "MapMothersoul_Male_Quest": {
@@ -1144,7 +1205,8 @@
          "russian": "Залы патриарха",
          "spanish": "Los salones del patriarca",
          "thai": "โถงปิตา",
-         "traditional chinese": "聖祖殿"
+         "traditional chinese": "聖祖殿",
+         "simplified chinese": "圣祖殿"
       }
    },
    "MapNecropolis": {
@@ -1162,7 +1224,8 @@
          "russian": "Некрополь",
          "spanish": "Necrópolis",
          "thai": "Necropolis",
-         "traditional chinese": "魔影墓場"
+         "traditional chinese": "魔影墓場",
+         "simplified chinese": "魔影墓场"
       }
    },
    "MapOasis": {
@@ -1180,7 +1243,8 @@
          "russian": "Оазис",
          "spanish": "Oasis",
          "thai": "Oasis",
-         "traditional chinese": "幻景綠洲"
+         "traditional chinese": "幻景綠洲",
+         "simplified chinese": "幻景绿洲"
       }
    },
    "MapOrbalasCrossing": {
@@ -1198,7 +1262,8 @@
          "russian": "Перевал Орбалы",
          "spanish": "El cruce de Orbala",
          "thai": "Orbala's Crossing",
-         "traditional chinese": "奧爾巴拉渡口"
+         "traditional chinese": "奧爾巴拉渡口",
+         "simplified chinese": "奥尔巴拉渡口"
       }
    },
    "MapOrnateChambers": {
@@ -1216,7 +1281,8 @@
          "russian": "Витые залы",
          "spanish": "Cámaras ornamentadas",
          "thai": "Ornate Chambers",
-         "traditional chinese": "華美密室"
+         "traditional chinese": "華美密室",
+         "simplified chinese": "华美密室"
       }
    },
    "MapOutlands": {
@@ -1234,7 +1300,8 @@
          "russian": "Дальние земли",
          "spanish": "Las afueras",
          "thai": "Outlands",
-         "traditional chinese": "外域"
+         "traditional chinese": "外域",
+         "simplified chinese": "外域"
       }
    },
    "MapOvergrown": {
@@ -1252,7 +1319,8 @@
          "russian": "Заросли",
          "spanish": "Sobrecrecimiento",
          "thai": "Overgrown",
-         "traditional chinese": "蔥鬱之域"
+         "traditional chinese": "蔥鬱之域",
+         "simplified chinese": "葱郁之域"
       }
    },
    "MapPenitentiary": {
@@ -1270,7 +1338,8 @@
          "russian": "Каторга",
          "spanish": "Penitenciaría",
          "thai": "Penitentiary",
-         "traditional chinese": "監獄"
+         "traditional chinese": "監獄",
+         "simplified chinese": "监狱"
       }
    },
    "MapPit": {
@@ -1288,7 +1357,8 @@
          "russian": "Яма",
          "spanish": "Foso",
          "thai": "Pit",
-         "traditional chinese": "巨坑"
+         "traditional chinese": "巨坑",
+         "simplified chinese": "巨坑"
       }
    },
    "MapPlantation": {
@@ -1306,7 +1376,8 @@
          "russian": "Плантация",
          "spanish": "Plantación",
          "thai": "Plantation",
-         "traditional chinese": "林地"
+         "traditional chinese": "林地",
+         "simplified chinese": "林地"
       }
    },
    "MapPort": {
@@ -1324,7 +1395,8 @@
          "russian": "Порт",
          "spanish": "Puerto",
          "thai": "Port",
-         "traditional chinese": "失落城塢"
+         "traditional chinese": "失落城塢",
+         "simplified chinese": "失落城坞"
       }
    },
    "MapPrecipice": {
@@ -1342,7 +1414,8 @@
          "russian": "Пропасть",
          "spanish": "Precipicio",
          "thai": "Precipice",
-         "traditional chinese": "陡斷峭壁"
+         "traditional chinese": "陡斷峭壁",
+         "simplified chinese": "陡断峭壁"
       }
    },
    "MapPrecursorTower": {
@@ -1362,7 +1435,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre de los precursores",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapPrecursorTowerDesert": {
@@ -1382,7 +1456,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre de los precursores",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapPrecursorTowerForest": {
@@ -1402,7 +1477,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre de los precursores",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapPrecursorTowerGrass": {
@@ -1422,7 +1498,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre de los precursores",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapPrecursorTowerMountain": {
@@ -1442,7 +1519,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre de los precursores",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapPrecursorTowerSwamp": {
@@ -1462,7 +1540,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre de los precursores",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapRavine": {
@@ -1480,7 +1559,8 @@
          "russian": "Ущелье",
          "spanish": "Desfiladero",
          "thai": "Ravine",
-         "traditional chinese": "溪谷"
+         "traditional chinese": "溪谷",
+         "simplified chinese": "溪谷"
       }
    },
    "MapRazedFields": {
@@ -1498,7 +1578,8 @@
          "russian": "Выжженные поля",
          "spanish": "Campos arrasados",
          "thai": "Razed Fields",
-         "traditional chinese": "殘破原野"
+         "traditional chinese": "殘破原野",
+         "simplified chinese": "残破原野"
       }
    },
    "MapReservoir": {
@@ -1516,7 +1597,8 @@
          "russian": "Водоём",
          "spanish": "Embalse",
          "thai": "Reservoir",
-         "traditional chinese": "水源地"
+         "traditional chinese": "水源地",
+         "simplified chinese": "水源地"
       }
    },
    "MapRiverhold": {
@@ -1534,7 +1616,8 @@
          "russian": "Риверхолд",
          "spanish": "Fortaleza costera",
          "thai": "Riverhold",
-         "traditional chinese": "河流堡"
+         "traditional chinese": "河流堡",
+         "simplified chinese": "河流堡"
       }
    },
    "MapRiverside": {
@@ -1552,7 +1635,8 @@
          "russian": "Приречье",
          "spanish": "Ribera",
          "thai": "Riverside",
-         "traditional chinese": "河畔"
+         "traditional chinese": "河畔",
+         "simplified chinese": "河畔"
       }
    },
    "MapRockpools": {
@@ -1570,7 +1654,8 @@
          "russian": "Литораль",
          "spanish": "Estanques",
          "thai": "Rockpools",
-         "traditional chinese": "岩池"
+         "traditional chinese": "岩池",
+         "simplified chinese": "岩池"
       }
    },
    "MapRugosa": {
@@ -1588,7 +1673,8 @@
          "russian": "Кораллы",
          "spanish": "Rugosa",
          "thai": "Rugosa",
-         "traditional chinese": "盧戈薩"
+         "traditional chinese": "盧戈薩",
+         "simplified chinese": "卢戈萨"
       }
    },
    "MapRupture": {
@@ -1606,7 +1692,8 @@
          "russian": "Прорыв",
          "spanish": "Grieta",
          "thai": "Rupture",
-         "traditional chinese": "殘破"
+         "traditional chinese": "殘破",
+         "simplified chinese": "残破"
       }
    },
    "MapRustbowl": {
@@ -1624,7 +1711,8 @@
          "russian": "Ржавь",
          "spanish": "Ruinas oxidadas",
          "thai": "Rustbowl",
-         "traditional chinese": "銹碗"
+         "traditional chinese": "銹碗",
+         "simplified chinese": "锈碗"
       }
    },
    "MapSanctuary": {
@@ -1642,7 +1730,8 @@
          "russian": "Святыня",
          "spanish": "Santuario",
          "thai": "Sanctuary",
-         "traditional chinese": "聖所"
+         "traditional chinese": "聖所",
+         "simplified chinese": "圣所"
       }
    },
    "MapSandspit": {
@@ -1660,7 +1749,8 @@
          "russian": "Песчаная коса",
          "spanish": "Foso de arena",
          "thai": "Sandspit",
-         "traditional chinese": "沙吐"
+         "traditional chinese": "沙吐",
+         "simplified chinese": "沙吐"
       }
    },
    "MapSavanna": {
@@ -1678,7 +1768,8 @@
          "russian": "Саванна",
          "spanish": "Sabana",
          "thai": "Savannah",
-         "traditional chinese": "大草原"
+         "traditional chinese": "大草原",
+         "simplified chinese": "大草原"
       }
    },
    "MapSeepage": {
@@ -1696,7 +1787,8 @@
          "russian": "Альков",
          "spanish": "Drenaje",
          "thai": "Seepage",
-         "traditional chinese": "滲漏"
+         "traditional chinese": "滲漏",
+         "simplified chinese": "渗漏"
       }
    },
    "MapSevenWaters": {
@@ -1714,7 +1806,8 @@
          "russian": "Стечение вод",
          "spanish": "Confluencia",
          "thai": "Confluence",
-         "traditional chinese": "匯流處"
+         "traditional chinese": "匯流處",
+         "simplified chinese": "汇流处"
       }
    },
    "MapSinkhole": {
@@ -1732,7 +1825,8 @@
          "russian": "Провал",
          "spanish": "Sumidero",
          "thai": "Sinkhole",
-         "traditional chinese": "沉洞"
+         "traditional chinese": "沉洞",
+         "simplified chinese": "沉洞"
       }
    },
    "MapSinterRift": {
@@ -1750,7 +1844,8 @@
          "russian": "Туфовый разлом",
          "spanish": "Grieta sedimentaria",
          "thai": "Sinter Rift",
-         "traditional chinese": "罪灰裂隙"
+         "traditional chinese": "罪灰裂隙",
+         "simplified chinese": "罪灰裂隙"
       }
    },
    "MapSlash": {
@@ -1768,7 +1863,8 @@
          "russian": "Протока",
          "spanish": "Grieta",
          "thai": "Slash",
-         "traditional chinese": "橫斷流域"
+         "traditional chinese": "橫斷流域",
+         "simplified chinese": "横断流域"
       }
    },
    "MapSlick": {
@@ -1786,7 +1882,8 @@
          "russian": "Гладь",
          "spanish": "Cámaras oleosas",
          "thai": "Slick",
-         "traditional chinese": "浮油"
+         "traditional chinese": "浮油",
+         "simplified chinese": "浮油"
       }
    },
    "MapSnowfall": {
@@ -1804,7 +1901,8 @@
          "russian": "Снегопад",
          "spanish": "Nevada",
          "thai": "Snowfall",
-         "traditional chinese": "雪域"
+         "traditional chinese": "雪域",
+         "simplified chinese": "雪域"
       }
    },
    "MapSpiderWoods": {
@@ -1822,7 +1920,8 @@
          "russian": "Паучьи леса",
          "spanish": "Bosque arácnido",
          "thai": "Spider Woods",
-         "traditional chinese": "蜘蛛之林"
+         "traditional chinese": "蜘蛛之林",
+         "simplified chinese": "蜘蛛之林"
       }
    },
    "MapSpring_": {
@@ -1840,7 +1939,8 @@
          "russian": "Ручей",
          "spanish": "Manantial",
          "thai": "Spring",
-         "traditional chinese": "湧泉"
+         "traditional chinese": "湧泉",
+         "simplified chinese": "涌泉"
       }
    },
    "MapSteamingSprings": {
@@ -1858,7 +1958,8 @@
          "russian": "Горячие источники",
          "spanish": "Manantiales vaporosos",
          "thai": "Steaming Springs",
-         "traditional chinese": "蒸氣之泉"
+         "traditional chinese": "蒸氣之泉",
+         "simplified chinese": "蒸气之泉"
       }
    },
    "MapSteppe": {
@@ -1876,7 +1977,8 @@
          "russian": "Степь",
          "spanish": "Estepa",
          "thai": "Steppe",
-         "traditional chinese": "乾草原"
+         "traditional chinese": "乾草原",
+         "simplified chinese": "干草原"
       }
    },
    "MapStronghold": {
@@ -1894,7 +1996,8 @@
          "russian": "Твердыня",
          "spanish": "Fortificación",
          "thai": "Stronghold",
-         "traditional chinese": "要塞"
+         "traditional chinese": "要塞",
+         "simplified chinese": "要塞"
       }
    },
    "MapSulphuricCaverns": {
@@ -1912,7 +2015,8 @@
          "russian": "Серные пещеры",
          "spanish": "Cavernas sulfurosas",
          "thai": "Sulphuric Caverns",
-         "traditional chinese": "硫化洞窟"
+         "traditional chinese": "硫化洞窟",
+         "simplified chinese": "硫化洞窟"
       }
    },
    "MapSump": {
@@ -1930,7 +2034,8 @@
          "russian": "Водоотлив",
          "spanish": "Foso séptico",
          "thai": "Sump",
-         "traditional chinese": "污水坑"
+         "traditional chinese": "污水坑",
+         "simplified chinese": "污水坑"
       }
    },
    "MapSunTemple": {
@@ -1948,7 +2053,8 @@
          "russian": "Храм солнца",
          "spanish": "Templo del sol",
          "thai": "Sun Temple",
-         "traditional chinese": "太陽神殿"
+         "traditional chinese": "太陽神殿",
+         "simplified chinese": "太阳神殿"
       }
    },
    "MapSwampTower": {
@@ -1966,7 +2072,8 @@
          "russian": "Тонущий шпиль",
          "spanish": "Torre pantanosa",
          "thai": "ยอดแหลมที่จม",
-         "traditional chinese": "沉溺尖塔"
+         "traditional chinese": "沉溺尖塔",
+         "simplified chinese": "沉溺尖塔"
       }
    },
    "MapSwarm": {
@@ -1984,7 +2091,8 @@
          "russian": "Рой",
          "spanish": "Enjambre",
          "thai": "Swarm",
-         "traditional chinese": "蟲群"
+         "traditional chinese": "蟲群",
+         "simplified chinese": "虫群"
       }
    },
    "MapTerrace": {
@@ -2002,7 +2110,8 @@
          "russian": "Терраса",
          "spanish": "Terraza",
          "thai": "Terrace",
-         "traditional chinese": "台地"
+         "traditional chinese": "台地",
+         "simplified chinese": "台地"
       }
    },
    "MapTrenches": {
@@ -2020,7 +2129,8 @@
          "russian": "Траншеи",
          "spanish": "Trincheras",
          "thai": "Trenches",
-         "traditional chinese": "壕溝"
+         "traditional chinese": "壕溝",
+         "simplified chinese": "壕沟"
       }
    },
    "MapUberBoss_CopperCitadel": {
@@ -2040,7 +2150,8 @@
          "russian": "Медная цитадель",
          "spanish": "La ciudadela de cobre",
          "thai": "ปราการทองแดง",
-         "traditional chinese": "青銅城塞"
+         "traditional chinese": "青銅城塞",
+         "simplified chinese": "青铜城塞"
       }
    },
    "MapUberBoss_CopperCitadel_Quest": {
@@ -2061,7 +2172,8 @@
          "russian": "Медная цитадель",
          "spanish": "La ciudadela de cobre",
          "thai": "ปราการทองแดง",
-         "traditional chinese": "青銅城塞"
+         "traditional chinese": "青銅城塞",
+         "simplified chinese": "青铜城塞"
       }
    },
    "MapUberBoss_Delirium": {
@@ -2079,7 +2191,8 @@
          "russian": "Увядшая ива",
          "spanish": "El sauce marchito",
          "thai": "ต้นหลิวเหี่ยวแห้ง",
-         "traditional chinese": "凋萎敗柳"
+         "traditional chinese": "凋萎敗柳",
+         "simplified chinese": "凋萎败柳"
       }
    },
    "MapUberBoss_Divinity": {
@@ -2099,7 +2212,8 @@
          "russian": "Башня истока",
          "spanish": "La torre del origen",
          "thai": "หอคอยต้นกำเนิด",
-         "traditional chinese": "起源高塔"
+         "traditional chinese": "起源高塔",
+         "simplified chinese": "起源高塔"
       }
    },
    "MapUberBoss_FallenStar": {
@@ -2119,7 +2233,8 @@
          "russian": "Развалины Кингсмарша",
          "spanish": "Las ruinas de Marca del rey",
          "thai": "ซากนครคิงส์มาร์ช",
-         "traditional chinese": "金司馬區廢墟"
+         "traditional chinese": "金司馬區廢墟",
+         "simplified chinese": "金司马区废墟"
       }
    },
    "MapUberBoss_IronCitadel": {
@@ -2139,7 +2254,8 @@
          "russian": "Железная цитадель",
          "spanish": "La ciudadela de hierro",
          "thai": "ปราการเหล็ก",
-         "traditional chinese": "鋼鐵城塞"
+         "traditional chinese": "鋼鐵城塞",
+         "simplified chinese": "钢铁城塞"
       }
    },
    "MapUberBoss_IronCitadel_Quest": {
@@ -2159,7 +2275,8 @@
          "russian": "Западный зал загадок",
          "spanish": "Cámara de enigmas occidental",
          "thai": "ห้องอาถรรพ์ตะวันตก",
-         "traditional chinese": "西側謎團密室"
+         "traditional chinese": "西側謎團密室",
+         "simplified chinese": "西侧谜团密室"
       }
    },
    "MapUberBoss_JadeCitadel": {
@@ -2179,7 +2296,8 @@
          "russian": "Нефритовые острова",
          "spanish": "Las islas de jade",
          "thai": "หมู่เกาะหยก",
-         "traditional chinese": "翠玉群島"
+         "traditional chinese": "翠玉群島",
+         "simplified chinese": "翠玉群岛"
       }
    },
    "MapUberBoss_Monolith": {
@@ -2199,7 +2317,8 @@
          "russian": "Горящий монолит",
          "spanish": "El monolito ardiente",
          "thai": "อนุสาวรีย์เพลิงพิโรธ",
-         "traditional chinese": "燃燒豐碑"
+         "traditional chinese": "燃燒豐碑",
+         "simplified chinese": "燃烧丰碑"
       }
    },
    "MapUberBoss_Ritual": {
@@ -2219,7 +2338,8 @@
          "russian": "Каэр Тарт",
          "spanish": "Caer Tarth",
          "thai": "เคียร์ ทาร์ธ",
-         "traditional chinese": "凱爾塔斯"
+         "traditional chinese": "凱爾塔斯",
+         "simplified chinese": "凯尔塔斯"
       }
    },
    "MapUberBoss_StoneCitadel": {
@@ -2239,7 +2359,8 @@
          "russian": "Каменная цитадель",
          "spanish": "La ciudadela de piedra",
          "thai": "ปราการศิลา",
-         "traditional chinese": "岩石城塞"
+         "traditional chinese": "岩石城塞",
+         "simplified chinese": "岩石城塞"
       }
    },
    "MapUberBoss_StoneCitadel_Quest": {
@@ -2259,7 +2380,8 @@
          "russian": "Восточный зал загадок",
          "spanish": "Cámara de enigmas oriental",
          "thai": "ห้องอาถรรพ์ตะวันออก",
-         "traditional chinese": "東側謎團密室"
+         "traditional chinese": "東側謎團密室",
+         "simplified chinese": "东侧谜团密室"
       }
    },
    "MapUniqueCastaway": {
@@ -2277,7 +2399,8 @@
          "russian": "Изгой",
          "spanish": "Naufragio",
          "thai": "ซากเรืออับปาง",
-         "traditional chinese": "漂流者之所"
+         "traditional chinese": "漂流者之所",
+         "simplified chinese": "漂流者之所"
       }
    },
    "MapUniqueFreight_": {
@@ -2295,7 +2418,8 @@
          "russian": "Фрахт",
          "spanish": "Cargamento",
          "thai": "Freight",
-         "traditional chinese": "貨物"
+         "traditional chinese": "貨物",
+         "simplified chinese": "货物"
       }
    },
    "MapUniqueInitialTower": {
@@ -2315,7 +2439,8 @@
          "russian": "Башня Предтеч",
          "spanish": "Torre precursora",
          "thai": "หอคอยกลุ่มชนก่อนกาล",
-         "traditional chinese": "先行者高塔"
+         "traditional chinese": "先行者高塔",
+         "simplified chinese": "先行者高塔"
       }
    },
    "MapUniqueLake": {
@@ -2333,7 +2458,8 @@
          "russian": "Расколотое озеро",
          "spanish": "El lago fracturado",
          "thai": "ทะเลสาบแตกร้าว",
-         "traditional chinese": "破裂迷湖"
+         "traditional chinese": "破裂迷湖",
+         "simplified chinese": "破裂迷湖"
       }
    },
    "MapUniqueMegalith": {
@@ -2351,7 +2477,8 @@
          "russian": "Мегалиты эзомитов",
          "spanish": "Los megalitos ezomitas",
          "thai": "มหาศิลาเอโซไมต์",
-         "traditional chinese": "艾茲麥巨石"
+         "traditional chinese": "艾茲麥巨石",
+         "simplified chinese": "艾兹麦巨石"
       }
    },
    "MapUniqueMerchant01_Chimeral": {
@@ -2369,7 +2496,8 @@
          "russian": "Лагерь торговца",
          "spanish": "Campamento del mercader",
          "thai": "ค่ายพ่อค้า",
-         "traditional chinese": "商人營地"
+         "traditional chinese": "商人營地",
+         "simplified chinese": "商人营地"
       }
    },
    "MapUniqueMerchant01_Oasis": {
@@ -2387,7 +2515,8 @@
          "russian": "Лагерь Джадо",
          "spanish": "El campamento de Jado",
          "thai": "ค่ายจาโด",
-         "traditional chinese": "賈多的營地"
+         "traditional chinese": "賈多的營地",
+         "simplified chinese": "贾多的营地"
       }
    },
    "MapUniqueMerchant01_Sandswept": {
@@ -2405,7 +2534,8 @@
          "russian": "Лагерь торговца",
          "spanish": "Campamento del mercader",
          "thai": "ค่ายพ่อค้า",
-         "traditional chinese": "商人營地"
+         "traditional chinese": "商人營地",
+         "simplified chinese": "商人营地"
       }
    },
    "MapUniqueMerchant02_Crimson": {
@@ -2423,7 +2553,8 @@
          "russian": "Лагерь торговца",
          "spanish": "Campamento del mercader",
          "thai": "ค่ายพ่อค้า",
-         "traditional chinese": "商人營地"
+         "traditional chinese": "商人營地",
+         "simplified chinese": "商人营地"
       }
    },
    "MapUniqueMerchant02_Farmland": {
@@ -2441,7 +2572,8 @@
          "russian": "Лагерь торговца",
          "spanish": "Campamento del mercader",
          "thai": "ค่ายพ่อค้า",
-         "traditional chinese": "商人營地"
+         "traditional chinese": "商人營地",
+         "simplified chinese": "商人营地"
       }
    },
    "MapUniqueMerchant03_Beach": {
@@ -2459,7 +2591,8 @@
          "russian": "Безмятежность",
          "spanish": "Momento zen",
          "thai": "ช่วงเวลาสงบเงียบ",
-         "traditional chinese": "禪意時刻"
+         "traditional chinese": "禪意時刻",
+         "simplified chinese": "禅意时刻"
       }
    },
    "MapUniqueMerchant03_Raft": {
@@ -2477,7 +2610,8 @@
          "russian": "Безмятежность",
          "spanish": "Momento zen",
          "thai": "ช่วงเวลาสงบเงียบ",
-         "traditional chinese": "禪意時刻"
+         "traditional chinese": "禪意時刻",
+         "simplified chinese": "禅意时刻"
       }
    },
    "MapUniqueMerchant03_Tropical": {
@@ -2495,7 +2629,8 @@
          "russian": "Безмятежность",
          "spanish": "Momento zen",
          "thai": "ช่วงเวลาสงบเงียบ",
-         "traditional chinese": "禪意時刻"
+         "traditional chinese": "禪意時刻",
+         "simplified chinese": "禅意时刻"
       }
    },
    "MapUniqueMerchant04_PirateShip": {
@@ -2513,7 +2648,8 @@
          "russian": "«Путешествие»",
          "spanish": "El viaje",
          "thai": "การเดินทาง",
-         "traditional chinese": "航程"
+         "traditional chinese": "航程",
+         "simplified chinese": "航程"
       }
    },
    "MapUniqueReactor_01": {
@@ -2531,7 +2667,8 @@
          "russian": "Западные ворота",
          "spanish": "Entrada occidental",
          "thai": "ทางผ่านตะวันตก",
-         "traditional chinese": "西側閘門"
+         "traditional chinese": "西側閘門",
+         "simplified chinese": "西侧闸门"
       }
    },
    "MapUniqueReactor_02": {
@@ -2549,7 +2686,8 @@
          "russian": "Древние ворота",
          "spanish": "Entrada antigua",
          "thai": "ทางผ่านโบราณ",
-         "traditional chinese": "遠古閘門"
+         "traditional chinese": "遠古閘門",
+         "simplified chinese": "远古闸门"
       }
    },
    "MapUniqueReactor_03": {
@@ -2567,7 +2705,8 @@
          "russian": "Восточные ворота",
          "spanish": "Entrada oriental",
          "thai": "ทางผ่านตะวันออก",
-         "traditional chinese": "東側閘門"
+         "traditional chinese": "東側閘門",
+         "simplified chinese": "东侧闸门"
       }
    },
    "MapUniqueReactor_04": {
@@ -2585,7 +2724,8 @@
          "russian": "Место избранных",
          "spanish": "El sitio del elegido",
          "thai": "สถานที่ผู้ถูกเลือก",
-         "traditional chinese": "天選之所"
+         "traditional chinese": "天選之所",
+         "simplified chinese": "天选之所"
       }
    },
    "MapUniqueSelenite": {
@@ -2603,7 +2743,8 @@
          "russian": "Безмолвная пещера",
          "spanish": "La cueva silenciosa",
          "thai": "ถ้ำสงัด",
-         "traditional chinese": "沉默洞穴"
+         "traditional chinese": "沉默洞穴",
+         "simplified chinese": "沉默洞穴"
       }
    },
    "MapUniqueUntaintedParadise": {
@@ -2621,7 +2762,8 @@
          "russian": "Нетронутый рай",
          "spanish": "Paraíso prístino",
          "thai": "เกาะสวรรค์ไร้มลทิน",
-         "traditional chinese": "純淨樂園"
+         "traditional chinese": "純淨樂園",
+         "simplified chinese": "纯净乐园"
       }
    },
    "MapUniqueVault": {
@@ -2639,7 +2781,8 @@
          "russian": "Сокровищница Камасы",
          "spanish": "Cámaras de Kamasa",
          "thai": "พระคลังแห่งคามาซา",
-         "traditional chinese": "卡瑪薩秘寶庫"
+         "traditional chinese": "卡瑪薩秘寶庫",
+         "simplified chinese": "卡玛萨秘宝库"
       }
    },
    "MapUniqueWildwood": {
@@ -2657,7 +2800,8 @@
          "russian": "Диколесье Вириди",
          "spanish": "El bosque viridino",
          "thai": "ป่าวิเศษวิริเดียน",
-         "traditional chinese": "翠綠荒林"
+         "traditional chinese": "翠綠荒林",
+         "simplified chinese": "翠绿荒林"
       }
    },
    "MapVaalCity": {
@@ -2675,7 +2819,8 @@
          "russian": "Город ваал",
          "spanish": "Ciudad vaal",
          "thai": "Vaal City",
-         "traditional chinese": "瓦爾古城"
+         "traditional chinese": "瓦爾古城",
+         "simplified chinese": "瓦尔古城"
       }
    },
    "MapVaalFactory": {
@@ -2693,7 +2838,8 @@
          "russian": "Сборочный цех",
          "spanish": "La asamblea",
          "thai": "The Assembly",
-         "traditional chinese": "集會"
+         "traditional chinese": "集會",
+         "simplified chinese": "集会"
       }
    },
    "MapVaalFoundry": {
@@ -2711,7 +2857,8 @@
          "russian": "Расплавленные залы",
          "spanish": "Cámara fundida",
          "thai": "Molten Vault",
-         "traditional chinese": "熔岩寶庫"
+         "traditional chinese": "熔岩寶庫",
+         "simplified chinese": "熔岩宝库"
       }
    },
    "MapVaalVault": {
@@ -2731,7 +2878,8 @@
          "russian": "Скрытое убежище",
          "spanish": "Cámara sellada",
          "thai": "Sealed Vault",
-         "traditional chinese": "封印的寶庫"
+         "traditional chinese": "封印的寶庫",
+         "simplified chinese": "封印的宝库"
       }
    },
    "MapVaalVillage": {
@@ -2749,7 +2897,8 @@
          "russian": "Поселение ваал",
          "spanish": "Aldea vaal",
          "thai": "Vaal Village",
-         "traditional chinese": "瓦爾村莊"
+         "traditional chinese": "瓦爾村莊",
+         "simplified chinese": "瓦尔村庄"
       }
    },
    "MapVoidReliquary": {
@@ -2769,7 +2918,8 @@
          "russian": "Хранилище реликвария",
          "spanish": "La cámara del relicario",
          "thai": "คลังวัตถุโบราณ",
-         "traditional chinese": "聖物寶庫"
+         "traditional chinese": "聖物寶庫",
+         "simplified chinese": "圣物宝库"
       }
    },
    "MapWaywardIsle": {
@@ -2787,7 +2937,8 @@
          "russian": "Непокорный остров",
          "spanish": "Isla incontrolable",
          "thai": "Wayward Isle",
-         "traditional chinese": "無常之島"
+         "traditional chinese": "無常之島",
+         "simplified chinese": "无常之岛"
       }
    },
    "MapWetlands": {
@@ -2805,7 +2956,8 @@
          "russian": "Топи",
          "spanish": "Humedales",
          "thai": "Wetlands",
-         "traditional chinese": "濕地"
+         "traditional chinese": "濕地",
+         "simplified chinese": "湿地"
       }
    },
    "MapWillow": {
@@ -2823,7 +2975,8 @@
          "russian": "Ивняк",
          "spanish": "Saucedal",
          "thai": "Willow",
-         "traditional chinese": "垂柳"
+         "traditional chinese": "垂柳",
+         "simplified chinese": "垂柳"
       }
    },
    "MapWoodland": {
@@ -2841,7 +2994,8 @@
          "russian": "Редколесье",
          "spanish": "Bosque",
          "thai": "Woodland",
-         "traditional chinese": "木林"
+         "traditional chinese": "木林",
+         "simplified chinese": "木林"
       }
    },
    "Map_HildaCampsite": {
@@ -2861,7 +3015,8 @@
          "russian": "Лагерь Хильды",
          "spanish": "El campamento de Hilda",
          "thai": "ค่ายฮิลด้า",
-         "traditional chinese": "希爾妲的營地"
+         "traditional chinese": "希爾妲的營地",
+         "simplified chinese": "希尔妲的营地"
       }
    },
    "RitualLeagueBoss": {
@@ -2882,7 +3037,8 @@
          "russian": "Суть небытия",
          "spanish": "El quid de la nada",
          "thai": "รากฐานความว่างเปล่า",
-         "traditional chinese": "無量困境"
+         "traditional chinese": "無量困境",
+         "simplified chinese": "无量困境"
       }
    },
    "ChayulaLeague_Tower": {
@@ -2902,7 +3058,8 @@
          "russian": "Крепость улья",
          "spanish": "Fortaleza de la colmena",
          "thai": "ปราการรวงรัง",
-         "traditional chinese": "巢裔要塞"
+         "traditional chinese": "巢裔要塞",
+         "simplified chinese": "巢裔要塞"
       }
    },
    "ChayulaLeague_TowerBoss": {
@@ -2923,7 +3080,8 @@
          "russian": "Колония улья",
          "spanish": "Colonia de la colmena",
          "thai": "อาณานิคมรวงรัง",
-         "traditional chinese": "巢裔聚落"
+         "traditional chinese": "巢裔聚落",
+         "simplified chinese": "巢裔聚落"
       }
    },
    "ExpeditionLogBook_Prairie": {
@@ -2943,7 +3101,8 @@
          "russian": "Травянистые прерии",
          "spanish": "Pradera erosionada",
          "thai": "ทุ่งหญ้าเตียนโล่ง",
-         "traditional chinese": "闊牧遼原"
+         "traditional chinese": "闊牧遼原",
+         "simplified chinese": "阔牧辽原"
       }
    },
    "ExpeditionLogBook_Digsite": {
@@ -2963,7 +3122,8 @@
          "russian": "Разрытые руины",
          "spanish": "Ruinas exhumadas",
          "thai": "ซากที่ถูกขุดค้น",
-         "traditional chinese": "廢棄挖掘場"
+         "traditional chinese": "廢棄挖掘場",
+         "simplified chinese": "废弃挖掘场"
       }
    },
    "ExpeditionLogBook_Peninsula": {
@@ -2983,7 +3143,8 @@
          "russian": "Скалистый мыс",
          "spanish": "Península escarpada",
          "thai": "แหลมชะง่อน",
-         "traditional chinese": "崎嶇半島"
+         "traditional chinese": "崎嶇半島",
+         "simplified chinese": "崎岖半岛"
       }
    },
    "ExpeditionLogBook_Tropical": {
@@ -3003,7 +3164,8 @@
          "russian": "Зелёный островок",
          "spanish": "Isla frondosa",
          "thai": "เกาะเขียวขจี",
-         "traditional chinese": "蓊鬱群島"
+         "traditional chinese": "蓊鬱群島",
+         "simplified chinese": "蓊郁群岛"
       }
    },
    "ExpeditionLogBook_Wastes": {
@@ -3023,7 +3185,8 @@
          "russian": "Выжженный островок",
          "spanish": "Cayo calcinado",
          "thai": "เกาะปริ่มน้ำร้อนระอุ",
-         "traditional chinese": "焦灼孤島"
+         "traditional chinese": "焦灼孤島",
+         "simplified chinese": "焦灼孤岛"
       }
    },
    "ExpeditionLogBook_Gully": {
@@ -3043,7 +3206,8 @@
          "russian": "Осыпавшийся овраг",
          "spanish": "Hondonada pantanosa",
          "thai": "ร่องธารโคลน",
-         "traditional chinese": "滑塌溪谷"
+         "traditional chinese": "滑塌溪谷",
+         "simplified chinese": "滑塌溪谷"
       }
    },
    "ExpeditionLogBook_Tundra": {
@@ -3063,7 +3227,8 @@
          "russian": "Холодные скалы",
          "spanish": "Peñascos helados",
          "thai": "ผาชันเยือกเย็น",
-         "traditional chinese": "寒風峭壁"
+         "traditional chinese": "寒風峭壁",
+         "simplified chinese": "寒风峭壁"
       }
    },
    "ExpeditionLogBook_Reef": {
@@ -3083,7 +3248,8 @@
          "russian": "Выбеленная отмель",
          "spanish": "Bajíos blanquecinos",
          "thai": "ดอนทรายซีดใต้น้ำ",
-         "traditional chinese": "白化淺灘"
+         "traditional chinese": "白化淺灘",
+         "simplified chinese": "白化浅滩"
       }
    },
    "ExpeditionLogBook_Basin": {
@@ -3103,7 +3269,8 @@
          "russian": "Застойный водоём",
          "spanish": "Cuenca estancada",
          "thai": "ลุ่มน้ำขัง",
-         "traditional chinese": "靜滯盆地"
+         "traditional chinese": "靜滯盆地",
+         "simplified chinese": "静滞盆地"
       }
    },
    "ExpeditionLogBook_Atoll": {
@@ -3123,7 +3290,8 @@
          "russian": "Бесплодный риф",
          "spanish": "Atolón desierto",
          "thai": "เกาะวงแหวนแห้งแล้ง",
-         "traditional chinese": "貧瘠環礁"
+         "traditional chinese": "貧瘠環礁",
+         "simplified chinese": "贫瘠环礁"
       }
    },
    "ExpeditionLogBook_Heath": {
@@ -3143,7 +3311,8 @@
          "russian": "Причал Падших небес",
          "spanish": "Páramo del cielo caído",
          "thai": "ทุ่งโล่งนภาร่วง",
-         "traditional chinese": "殞空荒原"
+         "traditional chinese": "殞空荒原",
+         "simplified chinese": "殒空荒原"
       }
    },
    "ExpeditionSubArea_MedvedBoss": {
@@ -3164,7 +3333,8 @@
          "russian": "Разросшиеся джунгли",
          "spanish": "Jungla expansiva",
          "thai": "ป่าดงดิบกว้างไกล",
-         "traditional chinese": "蔓延叢林"
+         "traditional chinese": "蔓延叢林",
+         "simplified chinese": "蔓延丛林"
       }
    },
    "ExpeditionSubArea_VoranaBoss": {
@@ -3185,7 +3355,8 @@
          "russian": "Скорбный утёс",
          "spanish": "Acantilado apenado",
          "thai": "เชิงผาอาลัย",
-         "traditional chinese": "哀泣崖壁"
+         "traditional chinese": "哀泣崖壁",
+         "simplified chinese": "哀泣崖壁"
       }
    },
    "ExpeditionSubArea_OlrothBoss": {
@@ -3206,7 +3377,8 @@
          "russian": "Неясный остров",
          "spanish": "Isla oscura",
          "thai": "เกาะลับแล",
-         "traditional chinese": "幽隱島嶼"
+         "traditional chinese": "幽隱島嶼",
+         "simplified chinese": "幽隐岛屿"
       }
    },
    "ExpeditionSubArea_UhtredBoss": {
@@ -3227,7 +3399,8 @@
          "russian": "Уединённый храм",
          "spanish": "Templo oculto",
          "thai": "วิหารสันโดษ",
-         "traditional chinese": "隱密神廟"
+         "traditional chinese": "隱密神廟",
+         "simplified chinese": "隐密神庙"
       }
    },
    "ExpeditionSubArea_BlackKnightBoss": {
@@ -3248,7 +3421,8 @@
          "russian": "Гробница падшего рыцаря",
          "spanish": "La tumba del Caballero caído",
          "thai": "หลุมศพอัศวินผู้วินาศ",
-         "traditional chinese": "殞落騎士之墓"
+         "traditional chinese": "殞落騎士之墓",
+         "simplified chinese": "殒落骑士之墓"
       }
    },
    "EndgameDoodad_MeteorCrater": {
@@ -3268,7 +3442,8 @@
          "russian": "Упавшая звезда",
          "spanish": "La estrella caída",
          "thai": "ถิ่นดาราร่วงหล่น",
-         "traditional chinese": "殞星"
+         "traditional chinese": "殞星",
+         "simplified chinese": "殒星"
       }
    },
    "EndgameDoodad_BeastGroundZero": {
@@ -3289,7 +3464,8 @@
          "russian": "Скованный зверь",
          "spanish": "La bestia encadenada",
          "thai": "บีสต์ใต้พันธนาการ",
-         "traditional chinese": "鏈纏巨獸"
+         "traditional chinese": "鏈纏巨獸",
+         "simplified chinese": "链缠巨兽"
       }
    }
 }

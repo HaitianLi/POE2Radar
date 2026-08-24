@@ -33,6 +33,9 @@ public sealed class AtlasMapData
     private readonly Dictionary<string, MapMeta> _maps = new(StringComparer.OrdinalIgnoreCase);    // MapId → meta
     private readonly Dictionary<string, string> _contentDesc = new(StringComparer.OrdinalIgnoreCase); // content name → effect text
     private readonly Dictionary<string, string> _contentIcon = new(StringComparer.OrdinalIgnoreCase); // content name → icon basename
+    // MapId → [简体中文, 繁體中文] display names (the GGG localization imported from atlas_maps.json
+    // <c>translates</c>; empty when a map has no Chinese row). English stays in <see cref="MapMeta.Name"/>.
+    private readonly Dictionary<string, (string Sc, string Tc)> _mapNames = new(StringComparer.OrdinalIgnoreCase);
 
     private static readonly string[] NoTags = Array.Empty<string>();
 
@@ -48,6 +51,30 @@ public sealed class AtlasMapData
     public MapMeta? Get(string? mapId)
         => !string.IsNullOrEmpty(mapId) && _maps.TryGetValue(mapId, out var m) ? m : null;
 
+    /// <summary>
+    /// The map's display name in the radar's current language (<see cref="Localization.Shared"/>).
+    /// English returns <paramref name="englishFallback"/> unchanged (the live WorldAreas name / curated
+    /// English name); 简体中文/繁體中文 use the official GGG localization imported from
+    /// <c>atlas_maps.json</c>, falling back to <paramref name="englishFallback"/> for unmapped ids.
+    /// </summary>
+    public string LocalizedName(string? code, string englishFallback)
+    {
+        var lang = Localization.Shared.Language;
+        if (lang == RadarLanguage.English)
+        {
+            // English: prefer the curated English name (the live WorldAreas name is in the GAME's language,
+            // which may be zh). Falls back to the live/derived name when the id is unmapped.
+            if (!string.IsNullOrEmpty(code) && _maps.TryGetValue(code, out var em) && !string.IsNullOrEmpty(em.Name))
+                return em.Name;
+            return englishFallback;
+        }
+        if (!string.IsNullOrEmpty(code) && _mapNames.TryGetValue(code, out var names))
+        {
+            var n = lang == RadarLanguage.SimplifiedChinese ? names.Sc : names.Tc;
+            if (!string.IsNullOrEmpty(n)) return n;
+        }
+        return englishFallback;
+    }
     public bool TryGet(string? mapId, out MapMeta meta)
     {
         if (!string.IsNullOrEmpty(mapId)) return _maps.TryGetValue(mapId, out meta);
@@ -90,6 +117,13 @@ public sealed class AtlasMapData
                             Type: Str(v, "type"),
                             Group: Str(v, "group"),
                             Tags: tags);
+                        if (v.TryGetProperty("translates", out var tr) && tr.ValueKind == JsonValueKind.Object)
+                        {
+                            var sc = Str(tr, "simplified chinese");
+                            var tc = Str(tr, "traditional chinese");
+                            if (sc.Length > 0 || tc.Length > 0)
+                                data._mapNames[prop.Name] = (sc, tc);
+                        }
                     }
                 }
 

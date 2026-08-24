@@ -36,6 +36,9 @@ public sealed class RadarApp : IDisposable
     private readonly Poe2Atlas _atlas;
     private readonly Poe2Runeforge _runeforge;    // world thread (reads the rune-crafting reward panel)
     private readonly Poe2CurrencyExchange _exchange; // world thread (reads the currency-exchange order book)
+    private readonly Zoom.ZoomPatch _zoom;        // opt-in WRITE-side camera zoom (applied/removed from the render thread)
+    private float _zoomLastTried = float.NaN;     // last zoom value we attempted (SyncZoom retry throttle)
+    private bool _zoomTryFailed;                  // the last apply failed (stale pattern) — don't re-scan every frame
     private readonly OverlayWindow _window;
     private readonly OverlayRenderer _renderer;
     private readonly ApiServer _api;
@@ -56,6 +59,10 @@ public sealed class RadarApp : IDisposable
     private int _landmarkStoreGen;
     private int _appliedClusterGap;
     private string _appliedLeague = "";
+    private string _appliedLang = "en";
+    private bool _appliedGh2Landmarks;
+    private bool _appliedGh2Radar;
+    private bool _appliedAutoBossRooms;
     private nint _areaInstanceForApi;   // current AreaInstance, for the /api/tiles tile-path lookup
     private nint _inGameStateForApi;    // current InGameState, for the /api/atlas node read
     private volatile RadarState _state = RadarState.Empty;
@@ -272,13 +279,25 @@ public sealed class RadarApp : IDisposable
     // ── Collapsible "POE2Radar" navigation menu widget state (drawn always-on; persisted corner). ──
     private bool _navMenuExpanded;                                       // dropdown open? (default collapsed)
 
+    // ── Drag-to-move the nav menu. A mouse-down over the menu starts a potential drag; if the cursor
+    // moves ≥4px before release it's a drag (the panel follows, position persisted as a free spot),
+    // otherwise it's a click and the pressed widget's action fires. Polled in the render loop
+    // (UpdateNavDrag) so it never depends on WM_MOUSEMOVE/WM_LBUTTONUP delivery. ──
+    private volatile bool _navDrag;          // true while a drag (or potential drag) is in progress
+    private int _navStartX, _navStartY;      // client coords at mouse-down
+    private float _navOrigX, _navOrigY;      // menu panel top-left at mouse-down
+    private string? _navDragAction;          // the widget pressed (fires if it wasn't a drag)
+
     public void RequestShutdown() => _shutdown = true;
 
     public RadarApp(ProcessHandle process, MemoryReader reader, nint gameStateSlot)
     {
         _process = process;
         _reader = reader;
+        _zoom = new Zoom.ZoomPatch(process);   // own read stack; the patch is applied/removed by SyncZoom()
         _settings = RadarSettings.Load();
+        _appliedLang = _settings.Language;
+        Localization.Shared.Language = LanguageFromCode(_appliedLang);
         _autoFlask = _settings.AutoFlaskEnabled;   // restore the persisted F8 state (default ON)
         Console.WriteLine($"Settings: {RadarSettings.FilePath}");
         Console.WriteLine($"Entity names: {EntityNameResolver.Shared.Count} mappings; zones: {ZoneGuide.Shared.Count}");
@@ -302,6 +321,13 @@ public sealed class RadarApp : IDisposable
         _watched = new WatchedEntities(Path.Combine(ConfigDir, "watched_entities.json"));
         _landmarkPatterns = new LandmarkPatterns(Path.Combine(ConfigDir, "landmark_patterns.json"));
         _live.CustomLandmarkMatch = TileLandmarkMatch; // surface tiles via landmark patterns + Tile rules
+        // Boss/stairs tile targets from GH2 surface under the master GH2 toggle OR the legacy toggle.
+        _live.Gh2LandmarkMatch = p => (_settings.UseGh2Radar || _settings.UseGh2Landmarks) ? GameHelper2Landmarks.TryMatch(p) : null;
+        _live.BossRoomMatch = p => _settings.AutoDetectBossRooms ? BossRoomDetector.TryMatch(p) : null;
+        _appliedGh2Landmarks = _settings.UseGh2Landmarks;
+        _appliedGh2Radar = _settings.UseGh2Radar;
+        _appliedAutoBossRooms = _settings.AutoDetectBossRooms;
+        Console.WriteLine($"GameHelper2 reference landmarks: {((_settings.UseGh2Radar || _settings.UseGh2Landmarks) ? "ON" : "off")} ({GameHelper2Landmarks.Count} tile patterns)");
         _landmarkGen = _landmarkPatterns.Generation;
         _live.LandmarkClusterGap = _settings.LandmarkClusterGap;
         _appliedClusterGap = _settings.LandmarkClusterGap;
@@ -311,6 +337,8 @@ public sealed class RadarApp : IDisposable
         _displayRules = new DisplayRules(Path.Combine(ConfigDir, "display_rules.json"));
         _resolveEntity = _displayRules.Resolve;
         _resolveTileDraw = p => _displayRules.ResolveTile(p, requireMatch: false);
+        // Install the GH2 icon-recognition overlay layer if the master toggle is already on (persisted).
+        ApplyGh2Overlay(_settings.UseGh2Radar);
         if (_displayRules.Count == 0)
         {
             _displayRules.Replace(DisplayRules.BuildDefault(
@@ -552,7 +580,7 @@ public sealed class RadarApp : IDisposable
         Console.WriteLine($"Hidden entities: {_hidden.Count} pattern(s); display rules: {_displayRules.Count}; known mods: {_modCatalog.Count}");
         _api = new ApiServer(() => _state, _settings, GetNavSelection, ToggleNavTarget, ClearNavSelection,
                              _hidden, _displayRules, _landmarkStore, CurrentTilePaths, () => _modCatalog.All, PricesJson, AtlasJson, SetAtlasSelection,
-                             SetAtlasHighlight, VersionJson, _settings.ApiPort);
+                             SetAtlasHighlight, VersionJson, ZoomStatusJson, _settings.ApiPort);
         try { _api.Start(); Console.WriteLine($"API on http://localhost:{_settings.ApiPort} (dashboard at /)"); }
         catch (Exception ex) { Console.Error.WriteLine($"API server disabled: {ex.Message}"); }
         Console.WriteLine("Hotkeys: F6=add nearest path target  F7=clear path targets  "
@@ -596,6 +624,9 @@ public sealed class RadarApp : IDisposable
             url = u?.Url ?? UpdateChecker.ReleasesPage,
         };
     }
+
+    /// <summary>API (/api/settings → zoomStatus): the live camera-zoom patch state for the dashboard card.</summary>
+    private object ZoomStatusJson() => new { applied = _zoom.Applied, note = _zoom.Note };
 
     public void Run()
     {
@@ -1066,12 +1097,63 @@ public sealed class RadarApp : IDisposable
         return 0xFFFFFFFFu;                                   // neutral
     }
 
+    /// <summary>
+    /// Reconcile the opt-in camera-zoom patch with the current setting. Runs once per render frame but
+    /// only issues syscalls on a CHANGE (toggle, or the clamp value being edited) — the AOB scan +
+    /// write happen once per apply, not per frame. Reads the settings live so a dashboard edit applies
+    /// immediately, and it never needs in-game state (it patches the module .text directly).
+    /// <para>If the AOB scan FAILS (the clamp pattern is stale for the current patch), we do NOT retry
+    /// on the next frame — the scan is expensive (~1s over the 80 MB module), and a stale pattern fails
+    /// the same way every frame, which would hitch the render loop. We retry only when the value or the
+    /// toggle changes.</para>
+    /// </summary>
+    private void SyncZoom()
+    {
+        var cfg = _settings.Zoom;
+        var want = cfg.Enabled;
+        if (want == _zoom.Applied)
+        {
+            // Still enabled but the clamp value changed → re-patch with the new value.
+            if (want && MathF.Abs(cfg.ZoomValue - _zoom.LastValue) > 0.001f)
+                _zoom.Apply(cfg.ZoomValue);
+            return;
+        }
+
+        if (!want)
+        {
+            _zoom.Remove();
+            _zoomTryFailed = false; _zoomLastTried = float.NaN;
+            return;
+        }
+
+        // Want it but it isn't applied. Attempt once per value; on failure, stop retrying (a stale
+        // pattern would otherwise re-scan the module every frame → a ~1 s render hitch).
+        if (_zoomTryFailed && MathF.Abs(cfg.ZoomValue - _zoomLastTried) < 0.001f) return;
+        _zoomLastTried = cfg.ZoomValue;
+        if (_zoom.Apply(cfg.ZoomValue))
+        {
+            _zoomTryFailed = false;
+        }
+        else
+        {
+            _zoomTryFailed = true;
+            Console.WriteLine($"Camera zoom: {_zoom.Note} — not retrying until the setting changes.");
+        }
+    }
+
     /// <summary>One RENDER frame (render thread): fast per-frame reads on the render reader stack
     /// (player/vitals/camera/map + auto-flask + HP-bar live pos), then draw from the lock-free world
     /// snapshot. The heavy walk is on <see cref="WorldLoop"/>.</summary>
     private void Tick()
     {
         var t0 = System.Diagnostics.Stopwatch.GetTimestamp();   // no per-frame Stopwatch allocation
+        SyncZoom();                                             // opt-in zoom patch: apply/remove on setting change (rare)
+        if (_settings.Language != _appliedLang)                 // live language switch (dashboard edit)
+        {
+            _appliedLang = _settings.Language;
+            Localization.Shared.Language = LanguageFromCode(_appliedLang);
+            _atlas.InvalidateCache();                           // localized map names refresh on the next atlas read
+        }
         HandleHotkeys();
 
         var inGame = _liveRender.TryResolve(out var inGameState, out var areaInstance, out var localPlayer);
@@ -1230,10 +1312,15 @@ public sealed class RadarApp : IDisposable
             CameraMatrix: _cameraMatrix,
             HideJunk: _settings.HideJunk,
             ShowPath: _settings.ShowPath,
+            ShowWorldPaths: _settings.ShowWorldPaths,
             UseCuratedLandmarks: _settings.UseCuratedLandmarks,
             ShowMonsters: _settings.ShowMonsters,
             ShowTerrain: _settings.ShowTerrain,
             ShowPlayerBlip: _settings.ShowPlayerBlip,
+            ShowMinimap: _settings.ShowMinimap,
+            MinimapCorner: _settings.MinimapCorner,
+            MinimapSize: _settings.MinimapSize,
+            MinimapZoom: _settings.MinimapZoom,
             HpBarNormal: _settings.HpBarNormal,
             HpBarMagic: _settings.HpBarMagic,
             HpBarRare: _settings.HpBarRare,
@@ -1242,6 +1329,9 @@ public sealed class RadarApp : IDisposable
             Legend: legend,
             NavMenuExpanded: _navMenuExpanded,
             NavMenuCorner: _settings.NavMenuCorner,
+            NavMenuCustom: _settings.NavMenuCustom,
+            NavMenuX: _settings.NavMenuX,
+            NavMenuY: _settings.NavMenuY,
             Styles: _settings.Styles,
             HpBars: _settings.HpBars,
             HpBarTargets: hpTargets,
@@ -1310,6 +1400,7 @@ public sealed class RadarApp : IDisposable
         // otherwise stay click-through so the game receives the clicks. Runs after Render so
         // LegendRowRects reflects the frame just drawn. Gate on REAL focus (never grab clicks when
         // PoE2 isn't foreground, even if "always show overlay" is keeping it drawn).
+        UpdateNavDrag();
         UpdateClickThrough(realActive);
         _renderMs = (float)System.Diagnostics.Stopwatch.GetElapsedTime(t0).TotalMilliseconds;
     }
@@ -1376,6 +1467,25 @@ public sealed class RadarApp : IDisposable
         {
             _appliedClusterGap = _settings.LandmarkClusterGap;
             _live.LandmarkClusterGap = _appliedClusterGap;
+            _live.InvalidateLandmarks();
+        }
+        // Toggle the GameHelper2 reference landmark set (endgame boss arenas + stairs).
+        if (_settings.UseGh2Landmarks != _appliedGh2Landmarks)
+        {
+            _appliedGh2Landmarks = _settings.UseGh2Landmarks;
+            _live.InvalidateLandmarks();
+        }
+        // Toggle generic boss-room auto-detect (tile-name "boss"/"arena" keyword layer).
+        if (_settings.AutoDetectBossRooms != _appliedAutoBossRooms)
+        {
+            _appliedAutoBossRooms = _settings.AutoDetectBossRooms;
+            _live.InvalidateLandmarks();
+        }
+        // Toggle the master GH2 radar: swaps the icon-recognition overlay layer + the GH2 landmark set.
+        if (_settings.UseGh2Radar != _appliedGh2Radar)
+        {
+            _appliedGh2Radar = _settings.UseGh2Radar;
+            ApplyGh2Overlay(_appliedGh2Radar);
             _live.InvalidateLandmarks();
         }
         // Live-apply a changed price league (dashboard/config edit) → re-fetch for that league.
@@ -1466,10 +1576,12 @@ public sealed class RadarApp : IDisposable
     /// </summary>
     private void UpdateClickThrough(bool active)
     {
-        var overWidget = active
-                         && _renderer.LegendRowRects.Count > 0
-                         && OverlayNative.GetCursorPos(out var pt)
-                         && HitTestWidget(ScreenToClientPoint(pt)) is not null;
+        // While a drag (or potential drag) is in progress, keep capturing the mouse even if the cursor
+        // drifts off a widget rect; UpdateNavDrag ends the gesture and clears _navDrag on release.
+        var overWidget = active && (_navDrag || (
+            _renderer.LegendRowRects.Count > 0
+            && OverlayNative.GetCursorPos(out var pt)
+            && HitTestWidget(ScreenToClientPoint(pt)) is not null));
         _window.SetClickThrough(!overWidget);
     }
 
@@ -1497,11 +1609,9 @@ public sealed class RadarApp : IDisposable
     }
 
     /// <summary>
-    /// WM_LBUTTONDOWN handler (wired to <see cref="OverlayWindow.OnClientClick"/>): dispatch the
-    /// click on the navigation-menu widget. "menu-toggle" flips the dropdown; "corner:X" pins the
-    /// widget to that screen corner (persisted); "target:&lt;id&gt;" toggles that nav target's selection;
-    /// "mono-collapse" collapses/expands the nearby-monolith reward panel (persisted).
-    /// Client coords arrive directly from the window, in the same space as LegendRowRects. Purely
+    /// WM_LBUTTONDOWN handler (wired to <see cref="OverlayWindow.OnClientClick"/>). A press over the nav
+    /// menu starts a potential drag (the action fires on release if the cursor didn't move); presses over
+    /// other widgets dispatch immediately. Client coords are in the same space as LegendRowRects. Purely
     /// local UI — nothing is ever sent to the game.
     /// </summary>
     private void OnOverlayClick(int clientX, int clientY)
@@ -1509,6 +1619,65 @@ public sealed class RadarApp : IDisposable
         var action = HitTestWidget((clientX, clientY));
         if (action is null) return;
 
+        // Nav-menu region (chip, corner buttons, rows, or the panel body) is draggable: defer the action
+        // until the release so a drag can win over a click.
+        if (action == "menu-toggle" || action == "menu-drag"
+            || action.StartsWith("corner:", StringComparison.Ordinal)
+            || action.StartsWith("target:", StringComparison.Ordinal))
+        {
+            _navDrag = true;
+            _navStartX = clientX; _navStartY = clientY;
+            var r = _renderer.MenuRect;
+            _navOrigX = r.Left; _navOrigY = r.Top;
+            _navDragAction = action;
+            return;
+        }
+
+        DispatchAction(action);
+    }
+
+    /// <summary>Polls the nav-menu drag/click gesture every render frame (independent of WM_MOUSEMOVE/
+    /// WM_LBUTTONUP delivery — the only mouse message we rely on is the initial WM_LBUTTONDOWN). While the
+    /// button is held, ≥4px of movement commits to a live drag; on release, a sub-4px press fires the
+    /// pressed widget's action, otherwise the free position is committed + saved.</summary>
+    private void UpdateNavDrag()
+    {
+        if (!_navDrag) return;
+        if (!OverlayNative.GetCursorPos(out var pt)) return;
+        var p = ScreenToClientPoint(pt);
+        var dx = p.X - _navStartX;
+        var dy = p.Y - _navStartY;
+
+        if (!Down(0x01))   // released
+        {
+            _navDrag = false;
+            if (Math.Abs(dx) >= 4 || Math.Abs(dy) >= 4)
+            {
+                _settings.NavMenuCustom = true;
+                _settings.NavMenuX = _navOrigX + dx;
+                _settings.NavMenuY = _navOrigY + dy;
+                _settings.Save();
+            }
+            else if (_navDragAction is { } a && a != "menu-drag")
+            {
+                DispatchAction(a);   // it was a click, not a drag
+            }
+            _navDragAction = null;
+        }
+        else if (Math.Abs(dx) >= 4 || Math.Abs(dy) >= 4)
+        {
+            // Live-drag: switch to a free position and track the cursor (drawn next frame).
+            _settings.NavMenuCustom = true;
+            _settings.NavMenuX = _navOrigX + dx;
+            _settings.NavMenuY = _navOrigY + dy;
+        }
+    }
+
+    /// <summary>Execute a widget action (click, not drag). "menu-toggle" flips the dropdown; "corner:X"
+    /// pins the widget to that screen corner (clearing any free position, persisted); "target:&lt;id&gt;"
+    /// toggles that nav target's selection; "mono-collapse"/"exchange-collapse" collapse their panels.</summary>
+    private void DispatchAction(string action)
+    {
         if (action == "menu-toggle")
         {
             _navMenuExpanded = !_navMenuExpanded;
@@ -1516,6 +1685,7 @@ public sealed class RadarApp : IDisposable
         else if (action.StartsWith("corner:", StringComparison.Ordinal))
         {
             _settings.NavMenuCorner = action.Substring("corner:".Length);
+            _settings.NavMenuCustom = false;   // back to corner pinning
             _settings.Save();
         }
         else if (action.StartsWith("target:", StringComparison.Ordinal))
@@ -2003,6 +2173,17 @@ public sealed class RadarApp : IDisposable
         return tr is { Hide: false } ? (tr.Label ?? "") : null;
     }
 
+    /// <summary>Install/clear the GameHelper2 icon-recognition overlay layer on the display ruleset.
+    /// Called on startup and whenever the dashboard "GH2 radar" toggle flips (world thread). The layer is
+    /// checked before the user ruleset in <see cref="DisplayRules.Resolve"/>, so flipping the toggle
+    /// instantly adds/removes the GH2 recognitions without touching the user's editable rules.</summary>
+    private void ApplyGh2Overlay(bool on)
+    {
+        var rules = on ? Gh2Radar.BuildRules() : null;
+        _displayRules.SetGh2Overlay(rules);
+        Console.WriteLine($"GH2 radar: {(on ? "ON" : "off")} ({(rules?.Count ?? 0)} extra icon/landmark rules)");
+    }
+
     /// <summary>Distinct terrain-tile paths for the current area (served by /api/tiles for the add-rule
     /// picker). Empty when not in game. Cached per area inside Poe2Live. Runs on the HTTP thread, so it
     /// uses the API's OWN reader stack (_liveApi) — never the world thread's _live.</summary>
@@ -2237,9 +2418,18 @@ public sealed class RadarApp : IDisposable
         return id;
     }
 
-    /// <summary>Friendly display label for a tile landmark (curated if enabled + present, else derived).</summary>
+    /// <summary>Friendly display label for a tile landmark (curated if enabled + present, else derived),
+    /// localized through the radar's term vocabulary.</summary>
     private string LandmarkLabel(Poe2Live.Landmark lm)
-        => _settings.UseCuratedLandmarks && lm.CuratedName is { } c ? c : lm.Name;
+        => Localization.Shared.Term(_settings.UseCuratedLandmarks && lm.CuratedName is { } c ? c : lm.Name);
+
+    /// <summary>Map a persisted language code ("en"/"zh-CN"/"zh-Hant") to the enum.</summary>
+    private static RadarLanguage LanguageFromCode(string code) => code switch
+    {
+        "zh-CN" => RadarLanguage.SimplifiedChinese,
+        "zh-Hant" => RadarLanguage.TraditionalChinese,
+        _ => RadarLanguage.English,
+    };
 
     /// <summary>
     /// Turn an entity metadata path into a readable label: take the last '/'-segment, strip a trailing
@@ -2326,20 +2516,21 @@ public sealed class RadarApp : IDisposable
     /// + caches, so the first call after entering the atlas may take a moment; called on the API thread.</summary>
     private object AtlasJson()
     {
-        // Anchor the scan to the live game-heap slab (the catalog shares the arena with AreaInstance).
-        var d = _atlas.Read(_lastAreaInstance);
-        // Live node graph (atlas nodes are UiElements) — summary + the locally-visible highlight set.
+        // Node-only read: the filter table + highlight rules are all NODE-driven (ReadNodes), and the
+        // nodes are available the instant the Atlas is open in-game. The catalog scan (_atlas.Read) can
+        // take ~1–2 min and only feeds the catalog/region inspection views (not rendered by the dashboard),
+        // so it's skipped here — the dashboard is immediately usable with no multi-minute "scanning" wait.
         var nodes = _inGameStateForApi != 0 ? _atlas.ReadNodes(_inGameStateForApi) : new List<Poe2Atlas.AtlasNodeLive>();
         var vis = nodes.Where(n => n.Visible).ToList();
         return new
         {
-            located = d.Located,
-            note = d.Note,
-            catalogAddr = $"0x{d.CatalogAddr:X}",
-            catalogCount = d.CatalogCount,
-            regionCount = d.Region.Count,
-            catalog = d.Catalog.Select(m => new { id = m.Id, code = m.Code, name = m.Name, kind = m.Kind, parsedObj = $"0x{m.ParsedObj:X}" }),
-            region = d.Region.Select(r => new { code = r.Code, name = r.Name, kind = r.Kind }),
+            located = nodes.Count > 0,
+            note = "",
+            catalogAddr = "0x0",
+            catalogCount = 0,
+            regionCount = 0,
+            catalog = Array.Empty<object>(),
+            region = Array.Empty<object>(),
             nodes = new
             {
                 total = nodes.Count,
@@ -2807,6 +2998,7 @@ public sealed class RadarApp : IDisposable
         _shutdown = true;
         _worldThread?.Join(1000);   // let the background world loop observe _shutdown and exit
         _modCatalog.Flush(); // persist any mods seen since the last debounced write
+        _zoom.Dispose();     // restore the camera-zoom patch (best-effort) before teardown
         _replanner.Dispose();
         _api.Dispose();
         _renderer.Dispose();

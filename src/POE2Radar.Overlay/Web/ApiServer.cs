@@ -54,6 +54,8 @@ public sealed class ApiServer : IDisposable
     private readonly Func<IReadOnlyList<string>> _knownMods;
     // PriceBook status provider ({league, count, status, exPerDivine, exPerChaos}) for the dashboard.
     private readonly Func<object>? _prices;
+    // Zoom-patch runtime status ({applied, note}) for the dashboard's Camera Zoom card.
+    private readonly Func<object>? _zoomStatus;
     // Atlas map-data provider (catalog + current-region map set). Read-only, computed on demand (it
     // scans memory + caches), returns a JSON-ready object. Null when atlas reading is unavailable.
     private readonly Func<object>? _atlas;
@@ -83,6 +85,7 @@ public sealed class ApiServer : IDisposable
         Action<IReadOnlyList<long>>? atlasSelect = null,
         Action<IReadOnlyList<(string tag, string color, bool track, bool nav, bool arrow)>>? atlasHighlight = null,
         Func<object>? versionProvider = null,
+        Func<object>? zoomStatus = null,
         int port = 7777)
     {
         _state = state;
@@ -90,6 +93,7 @@ public sealed class ApiServer : IDisposable
         _atlasSelect = atlasSelect;
         _atlasHighlight = atlasHighlight;
         _version = versionProvider;
+        _zoomStatus = zoomStatus;
         _settings = settings;
         _navGet = navGet;
         _navToggle = navToggle;
@@ -475,12 +479,20 @@ public sealed class ApiServer : IDisposable
     {
         hideJunk = _settings.HideJunk,
         showPath = _settings.ShowPath,
+        showWorldPaths = _settings.ShowWorldPaths,
         alwaysShowOverlay = _settings.AlwaysShowOverlay,
         useCuratedLandmarks = _settings.UseCuratedLandmarks,
         landmarkClusterGap = _settings.LandmarkClusterGap,
+        useGh2Landmarks = _settings.UseGh2Landmarks,
+        useGh2Radar = _settings.UseGh2Radar,
+        autoDetectBossRooms = _settings.AutoDetectBossRooms,
         showMonsters = _settings.ShowMonsters,
         showTerrain = _settings.ShowTerrain,
         showPlayerBlip = _settings.ShowPlayerBlip,
+        showMinimap = _settings.ShowMinimap,
+        minimapCorner = _settings.MinimapCorner,
+        minimapSize = _settings.MinimapSize,
+        minimapZoom = _settings.MinimapZoom,
         fpsCap = _settings.FpsCap,
         hpBarNormal = _settings.HpBarNormal,
         hpBarMagic = _settings.HpBarMagic,
@@ -512,6 +524,9 @@ public sealed class ApiServer : IDisposable
         atlasContentIconSize = _settings.AtlasContentIconSize,
         atlasRouteArrowSpacing = _settings.AtlasRouteArrowSpacing,
         atlasGroups = _settings.AtlasGroups,
+        zoom = _settings.Zoom,   // opt-in camera-zoom config (write-side; see RadarApp.ZoomStatusJson)
+        zoomStatus = _zoomStatus?.Invoke() ?? new { applied = false, note = "" },
+        language = _settings.Language,   // "en" | "zh-CN" | "zh-Hant"
     };
 
     /// <summary>Apply only whitelisted radar/visual keys from a posted JSON object; persists on change.</summary>
@@ -530,15 +545,24 @@ public sealed class ApiServer : IDisposable
             {
                 case "hideJunk" when TryBool(p.Value, out var b): _settings.HideJunk = b; applied.Add(p.Name); break;
                 case "showPath" when TryBool(p.Value, out var b): _settings.ShowPath = b; applied.Add(p.Name); break;
+                case "showWorldPaths" when TryBool(p.Value, out var b): _settings.ShowWorldPaths = b; applied.Add(p.Name); break;
                 case "alwaysShowOverlay" when TryBool(p.Value, out var b): _settings.AlwaysShowOverlay = b; applied.Add(p.Name); break;
                 case "useCuratedLandmarks" when TryBool(p.Value, out var b): _settings.UseCuratedLandmarks = b; applied.Add(p.Name); break;
                 case "landmarkClusterGap" when TryInt(p.Value, out var n): _settings.LandmarkClusterGap = Math.Clamp(n, 0, 64); applied.Add(p.Name); break;
+                case "useGh2Landmarks" when TryBool(p.Value, out var b): _settings.UseGh2Landmarks = b; applied.Add(p.Name); break;
+                case "useGh2Radar" when TryBool(p.Value, out var b): _settings.UseGh2Radar = b; applied.Add(p.Name); break;
+                case "autoDetectBossRooms" when TryBool(p.Value, out var b): _settings.AutoDetectBossRooms = b; applied.Add(p.Name); break;
                 case "scaleMul" when TryFloat(p.Value, out var f): _settings.ScaleMul = f; applied.Add(p.Name); break;
                 case "offX" when TryFloat(p.Value, out var f): _settings.OffX = f; applied.Add(p.Name); break;
                 case "offY" when TryFloat(p.Value, out var f): _settings.OffY = f; applied.Add(p.Name); break;
                 case "showMonsters" when TryBool(p.Value, out var b): _settings.ShowMonsters = b; applied.Add(p.Name); break;
                 case "showTerrain" when TryBool(p.Value, out var b): _settings.ShowTerrain = b; applied.Add(p.Name); break;
                 case "showPlayerBlip" when TryBool(p.Value, out var b): _settings.ShowPlayerBlip = b; applied.Add(p.Name); break;
+                case "showMinimap" when TryBool(p.Value, out var b): _settings.ShowMinimap = b; applied.Add(p.Name); break;
+                case "minimapCorner" when p.Value.ValueKind == JsonValueKind.String && p.Value.GetString() is { } mc
+                    && mc is "TopLeft" or "TopRight" or "BottomLeft" or "BottomRight": _settings.MinimapCorner = mc; applied.Add(p.Name); break;
+                case "minimapSize" when TryFloat(p.Value, out var ms): _settings.MinimapSize = Math.Clamp(ms, 80f, 600f); applied.Add(p.Name); break;
+                case "minimapZoom" when TryFloat(p.Value, out var mz): _settings.MinimapZoom = Math.Clamp(mz, 0.25f, 8f); applied.Add(p.Name); break;
                 case "fpsCap" when TryInt(p.Value, out var n): _settings.FpsCap = Math.Clamp(n, 15, 360); applied.Add(p.Name); break;
                 case "hpBarNormal" when TryBool(p.Value, out var b): _settings.HpBarNormal = b; applied.Add(p.Name); break;
                 case "hpBarMagic" when TryBool(p.Value, out var b): _settings.HpBarMagic = b; applied.Add(p.Name); break;
@@ -586,12 +610,35 @@ public sealed class ApiServer : IDisposable
                 case "atlasGroups" when p.Value.ValueKind == JsonValueKind.Array:
                     if (TryParseAtlasGroups(p.Value, out var grps)) { _settings.AtlasGroups = grps; _settings.AtlasGroupsSeeded = true; applied.Add(p.Name); }
                     break;
+                // Opt-in camera zoom (write-side): the dashboard re-POSTs the full {zoom} object on edit.
+                case "zoom" when p.Value.ValueKind == JsonValueKind.Object:
+                    if (TryParseZoom(p.Value, out var zoom)) { _settings.Zoom = zoom; applied.Add(p.Name); }
+                    break;
+                // Trilingual radar language (whitelisted to the three supported codes).
+                case "language" when p.Value.ValueKind == JsonValueKind.String && p.Value.GetString() is { } lang
+                    && lang is "en" or "zh-CN" or "zh-Hant": _settings.Language = lang; applied.Add(p.Name); break;
                 // Anything else (apiPort, unknown keys) is ignored by design.
             }
         }
 
         if (applied.Count > 0) _settings.Save();
         return applied.ToArray();
+    }
+
+    /// <summary>Deserialize + clamp a full <see cref="ZoomSettings"/> from posted JSON. The enabled flag
+    /// is the master toggle; the value is clamped to a sane zoom range.</summary>
+    private static bool TryParseZoom(JsonElement el, out ZoomSettings zoom)
+    {
+        zoom = new ZoomSettings();
+        try
+        {
+            var parsed = JsonSerializer.Deserialize<ZoomSettings>(el.GetRawText(), Json);
+            if (parsed == null) return false;
+            parsed.ZoomValue = Math.Clamp(parsed.ZoomValue, 1f, 200f);
+            zoom = parsed;
+            return true;
+        }
+        catch (JsonException) { return false; }
     }
 
     private static readonly Regex HexColor = new("^#[0-9A-Fa-f]{6}$", RegexOptions.Compiled);

@@ -53,6 +53,7 @@ public sealed class DisplayRules
     private readonly object _gate = new();
     private List<DisplayRule> _rules = new();           // under _gate (authoritative, ordered)
     private volatile Compiled[] _snapshot = Array.Empty<Compiled>(); // immutable; lock-free reads
+    private volatile Compiled[] _gh2 = Array.Empty<Compiled>();      // GH2-radar overlay (checked first when set)
     private volatile int _generation;
 
     private static readonly JsonSerializerOptions Json = new()
@@ -86,10 +87,40 @@ public sealed class DisplayRules
     /// </summary>
     public DisplayRule? Resolve(Poe2Live.EntityDot e)
     {
+        // User ruleset first (its hides/mechanics/category defaults stay authoritative); the GH2-radar
+        // overlay then fills the gaps — recognitions the local ruleset has no opinion on. This keeps the
+        // "compare radars" semantics additive: flipping the toggle adds GH2's recognitions without ever
+        // overriding the user's hide rules (dead/opened/complete) or their own mechanic rules.
         var snap = _snapshot;
         foreach (var c in snap)
             if (c.Matches(in e)) return c.Rule;
+
+        var gh2 = _gh2;
+        for (var i = 0; i < gh2.Length; i++)
+            if (gh2[i].Matches(in e)) return gh2[i].Rule;
         return null;
+    }
+
+    /// <summary>
+    /// Install (or clear, with null) the GameHelper2-derived overlay layer. Rules are checked AFTER the
+    /// user ruleset in <see cref="Resolve"/>/<see cref="ResolveTile"/> as an additive fallback, so the
+    /// web "GH2 radar" toggle swaps the extra icon/landmark recognition in instantly without touching
+    /// the editable ruleset or overriding the user's hides/mechanics. Lock-free: a freshly-built
+    /// immutable snapshot is swapped by reference (same idiom as the main snapshot; the render thread
+    /// reads the volatile field once per resolve).
+    /// </summary>
+    public void SetGh2Overlay(IReadOnlyList<DisplayRule>? rules)
+    {
+        var enabled = rules?.Where(r => r.Enabled).ToList();
+        if (enabled is null or { Count: 0 })
+        {
+            _gh2 = Array.Empty<Compiled>();
+            return;
+        }
+
+        var compiled = new Compiled[enabled.Count];
+        for (var i = 0; i < enabled.Count; i++) compiled[i] = new Compiled(enabled[i]);
+        _gh2 = compiled;
     }
 
     /// <summary>
@@ -102,9 +133,14 @@ public sealed class DisplayRules
     /// </summary>
     public DisplayRule? ResolveTile(string path, bool requireMatch)
     {
+        // User Tile rules first, then the GH2 overlay (e.g. campaign runestones) as an additive layer.
         var snap = _snapshot;
         foreach (var c in snap)
             if (c.MatchesTile(path, requireMatch)) return c.Rule;
+
+        var gh2 = _gh2;
+        for (var i = 0; i < gh2.Length; i++)
+            if (gh2[i].MatchesTile(path, requireMatch)) return gh2[i].Rule;
         return null;
     }
 

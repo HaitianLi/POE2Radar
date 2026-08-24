@@ -360,36 +360,36 @@ internal static class DashboardHtml
   <div class="body">
     <aside>
       <div class="vital">
-        <div class="vlabel"><span>Life</span><span class="num" id="hpNum">—</span></div>
+        <div class="vlabel"><span data-i18n="side.life">Life</span><span class="num" id="hpNum">—</span></div>
         <div class="bar hp"><i id="hpBar" style="width:0"></i></div>
       </div>
       <div class="vital">
-        <div class="vlabel"><span>Energy Shield</span><span class="num" id="esNum">—</span></div>
+        <div class="vlabel"><span data-i18n="side.es">Energy Shield</span><span class="num" id="esNum">—</span></div>
         <div class="bar es"><i id="esBar" style="width:0"></i></div>
       </div>
       <div class="vital">
-        <div class="vlabel"><span>Mana</span><span class="num" id="mpNum">—</span></div>
+        <div class="vlabel"><span data-i18n="side.mana">Mana</span><span class="num" id="mpNum">—</span></div>
         <div class="bar mana"><i id="mpBar" style="width:0"></i></div>
       </div>
 
-      <div class="sect">Zone</div>
-      <div class="kv"><span>Area</span><span id="kAreaName">—</span></div>
-      <div class="kv"><span>Area code</span><span id="kArea">—</span></div>
-      <div class="kv"><span>Act / Level</span><span id="kAlvl">—</span></div>
-      <div class="kv"><span>Map open</span><span id="kMap">—</span></div>
-      <div class="kv"><span>Auto-flask</span><span id="kFlask">—</span></div>
+      <div class="sect" data-i18n="side.zone">Zone</div>
+      <div class="kv"><span data-i18n="side.area">Area</span><span id="kAreaName">—</span></div>
+      <div class="kv"><span data-i18n="side.areaCode">Area code</span><span id="kArea">—</span></div>
+      <div class="kv"><span data-i18n="side.actLevel">Act / Level</span><span id="kAlvl">—</span></div>
+      <div class="kv"><span data-i18n="side.mapOpen">Map open</span><span id="kMap">—</span></div>
+      <div class="kv"><span data-i18n="side.autoFlask">Auto-flask</span><span id="kFlask">—</span></div>
       <div id="zoneNotes" class="znotes" hidden></div>
 
-      <div class="sect">Census</div>
+      <div class="sect" data-i18n="side.census">Census</div>
       <div class="tally">
-        <div class="t"><div class="n" id="cEnt">0</div><div class="l">Entities</div></div>
-        <div class="t"><div class="n" id="cPoi">0</div><div class="l">Points of Int.</div></div>
-        <div class="t"><div class="n" id="cMon">0</div><div class="l">Monsters</div></div>
-        <div class="t"><div class="n" id="cLm">0</div><div class="l">Landmarks</div></div>
+        <div class="t"><div class="n" id="cEnt">0</div><div class="l" data-i18n="side.entities">Entities</div></div>
+        <div class="t"><div class="n" id="cPoi">0</div><div class="l" data-i18n="side.poi">Points of Int.</div></div>
+        <div class="t"><div class="n" id="cMon">0</div><div class="l" data-i18n="side.monsters">Monsters</div></div>
+        <div class="t"><div class="n" id="cLm">0</div><div class="l" data-i18n="side.landmarks">Landmarks</div></div>
       </div>
 
       <div id="monoCard" hidden>
-        <div class="sect">Monolith Rewards</div>
+        <div class="sect" data-i18n="side.monolithRewards">Monolith Rewards</div>
         <div id="monoList" class="znotes" style="display:block"></div>
       </div>
 
@@ -398,75 +398,75 @@ internal static class DashboardHtml
 
     <main>
       <div class="tabs">
-        <button class="tab on" data-tab="filters">Rules</button>
-        <button class="tab" data-tab="landmarks">Landmarks</button>
-        <button class="tab" data-tab="atlas">Atlas</button>
-        <button class="tab" data-tab="value">Item Value</button>
-        <button class="tab" data-tab="settings">Settings</button>
+        <button class="tab on" data-tab="filters" data-i18n="tab.rules">Rules</button>
+        <button class="tab" data-tab="landmarks" data-i18n="tab.landmarks">Landmarks</button>
+        <button class="tab" data-tab="atlas" data-i18n="tab.atlas">Atlas</button>
+        <button class="tab" data-tab="value" data-i18n="tab.value">Item Value</button>
+        <button class="tab" data-tab="settings" data-i18n="tab.settings">Settings</button>
       </div>
 
       <section class="view" data-view="filters">
         <div class="panel-grid">
           <div class="card" style="grid-column:1/-1">
-            <h3>Display Rules <span class="tag">&middot; one ordered ruleset &mdash; first match wins</span></h3>
-            <div class="row"><div class="rl hint-row">The single source of truth for how every entity draws. Each entity is matched <b>top&ndash;to&ndash;bottom</b>; the <b>first enabled rule that matches</b> decides everything &mdash; its icon &amp; color, whether it&rsquo;s hidden, whether it shows an HP bar, and whether it&rsquo;s auto-pathed. Reorder with &#9650;/&#9660; to change precedence. A rule matches on any mix of <i>type, metadata terms, monster mods (auras/buffs), rarity, reaction, life, chest/POI/encounter state</i>; a blank condition means &ldquo;any&rdquo;. No more conflicting filters &mdash; if two rules could match, the higher one wins.</div></div>
+            <h3><span data-i18n="sec.displayRules">Display Rules</span> <span class="tag">&middot; <span data-i18n="sec.displayRulesTag">one ordered ruleset &mdash; first match wins</span></span></h3>
+            <div class="row"><div class="rl hint-row" data-i18n="rules.drHint">The single source of truth for how every entity draws. Each entity is matched <b>top&ndash;to&ndash;bottom</b>; the <b>first enabled rule that matches</b> decides everything &mdash; its icon &amp; color, whether it&rsquo;s hidden, whether it shows an HP bar, and whether it&rsquo;s auto-pathed. Reorder with &#9650;/&#9660; to change precedence. A rule matches on any mix of <i>type, metadata terms, monster mods (auras/buffs), rarity, reaction, life, chest/POI/encounter state</i>; a blank condition means &ldquo;any&rdquo;. No more conflicting filters &mdash; if two rules could match, the higher one wins.</div></div>
             <div id="drList"></div>
             <div class="controls" style="margin:8px 0 0">
-              <button class="addbtn" id="drPick" style="width:auto;margin:0;padding:9px 16px">+ Add from game data…</button>
-              <button class="addbtn" id="drAdd" style="width:auto;margin:0;padding:9px 16px">+ Add blank rule</button>
+              <button class="addbtn" id="drPick" style="width:auto;margin:0;padding:9px 16px" data-i18n="btn.addFromGame">+ Add from game data…</button>
+              <button class="addbtn" id="drAdd" style="width:auto;margin:0;padding:9px 16px" data-i18n="btn.addBlank">+ Add blank rule</button>
             </div>
           </div>
           <div class="card" style="grid-column:1/-1">
-            <h3>Hidden <span class="tag">&middot; cull entirely from radar, list &amp; nav</span></h3>
-            <div class="row"><div class="rl hint-row">A stronger cut than a Hide rule: entities whose metadata contains a pattern (or matches a <code>*</code>/<code>?</code> glob) are removed <i>everywhere</i> &mdash; overlay, entity list, and navigation &mdash; before the display rules even run.</div></div>
+            <h3><span data-i18n="sec.hidden">Hidden</span> <span class="tag">&middot; <span data-i18n="sec.hiddenTag">cull entirely from radar, list &amp; nav</span></span></h3>
+            <div class="row"><div class="rl hint-row" data-i18n="rules.hiddenHint">A stronger cut than a Hide rule: entities whose metadata contains a pattern (or matches a <code>*</code>/<code>?</code> glob) are removed <i>everywhere</i> &mdash; overlay, entity list, and navigation &mdash; before the display rules even run.</div></div>
             <div id="hideList" class="controls" style="margin:8px 0 14px"></div>
             <div class="controls" style="margin:0">
-              <input type="search" id="hidePattern" placeholder="pattern or glob to hide (e.g. AbyssCrack, *Daemon*)">
-              <button class="addbtn" id="hideAdd" style="width:auto;margin:0;padding:8px 16px">+ Hide</button>
+              <input type="search" id="hidePattern" data-i18n-ph="rules.hidePh" placeholder="pattern or glob to hide (e.g. AbyssCrack, *Daemon*)">
+              <button class="addbtn" id="hideAdd" style="width:auto;margin:0;padding:8px 16px" data-i18n="btn.hide">+ Hide</button>
             </div>
           </div>
         </div>
-        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsgF">&#10003; saved to config</span></div>
+        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsgF">&#10003; <span data-i18n="saved">saved to config</span></span></div>
       </section>
 
       <section class="view" data-view="landmarks" hidden>
         <div class="panel-grid">
           <div class="card" style="grid-column:1/-1">
-            <h3>Landmarks <span class="tag">&middot; curated map labels &mdash; view, fix, share</span></h3>
-            <div class="row"><div class="rl hint-row">The built-in &ldquo;known&rdquo; map features (boss arenas, exits, loot, waypoints&hellip;), labelled per area. Rename a wrong label, add your own, or hide a bad entry. <b>Export</b> a corrected list to share or submit for baking into a release; <b>Import</b> to load one. (For how a tile <i>draws</i> — icon/color/hide — use a Tile rule on the Rules tab; this is just the labels.)</div></div>
+            <h3><span data-i18n="sec.landmarks">Landmarks</span> <span class="tag">&middot; <span data-i18n="sec.landmarksTag">curated map labels &mdash; view, fix, share</span></span></h3>
+            <div class="row"><div class="rl hint-row" data-i18n="lm.hint">The built-in &ldquo;known&rdquo; map features (boss arenas, exits, loot, waypoints&hellip;), labelled per area. Rename a wrong label, add your own, or hide a bad entry. <b>Export</b> a corrected list to share or submit for baking into a release; <b>Import</b> to load one. (For how a tile <i>draws</i> — icon/color/hide — use a Tile rule on the Rules tab; this is just the labels.)</div></div>
             <div class="controls" style="margin:6px 0 12px">
-              <input type="search" id="lmSearch" placeholder="filter by area / tile / label…">
-              <button class="chip on" id="lmAreaOnly">This area only</button>
+              <input type="search" id="lmSearch" data-i18n-ph="lm.searchPh" placeholder="filter by area / tile / label…">
+              <button class="chip on" id="lmAreaOnly" data-i18n="btn.thisArea">This area only</button>
               <span style="flex:1"></span>
-              <button class="addbtn" id="lmImport" style="width:auto;margin:0;padding:8px 14px">Import…</button>
-              <button class="addbtn" id="lmExport" style="width:auto;margin:0;padding:8px 14px">Export</button>
+              <button class="addbtn" id="lmImport" style="width:auto;margin:0;padding:8px 14px" data-i18n="btn.import">Import…</button>
+              <button class="addbtn" id="lmExport" style="width:auto;margin:0;padding:8px 14px" data-i18n="btn.export">Export</button>
             </div>
             <div id="lmList"></div>
             <div class="mechrow">
               <div class="top">
-                <input class="mname" id="lmArea" placeholder="area (e.g. P2_3, or *)" style="max-width:150px">
-                <input class="mname" id="lmPat" placeholder="tile path / pattern">
-                <input class="mname" id="lmLabel" placeholder="label">
-                <button class="addbtn" id="lmAdd" style="width:auto;margin:0;padding:8px 16px">+ Add</button>
+                <input class="mname" id="lmArea" data-i18n-ph="lm.areaPh" placeholder="area (e.g. P2_3, or *)" style="max-width:150px">
+                <input class="mname" id="lmPat" data-i18n-ph="lm.patPh" placeholder="tile path / pattern">
+                <input class="mname" id="lmLabel" data-i18n-ph="lm.labelPh" placeholder="label">
+                <button class="addbtn" id="lmAdd" style="width:auto;margin:0;padding:8px 16px" data-i18n="btn.add">+ Add</button>
               </div>
             </div>
           </div>
         </div>
-        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsgL">&#10003; saved to config</span></div>
+        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsgL">&#10003; <span data-i18n="saved">saved to config</span></span></div>
       </section>
 
       <section class="view" data-view="atlas" hidden>
         <div class="panel-grid">
           <div class="card" style="grid-column:1/-1">
-            <h3 style="display:flex;align-items:center;gap:10px">Atlas
+            <h3 style="display:flex;align-items:center;gap:10px"><span data-i18n="tab.atlas">Atlas</span>
               <span class="tag" id="atlasStatus">&mdash;</span>
               <span style="flex:1"></span>
-              <button class="chip" id="atlasRefresh" title="Re-read the open Atlas">&#8635; Refresh</button>
+              <button class="chip" id="atlasRefresh" title="Re-read the open Atlas">&#8635; <span data-i18n="btn.refresh">Refresh</span></button>
               <button class="chip" id="atlasHelp" title="How it works" style="width:28px;padding:6px 0;text-align:center">?</button>
             </h3>
 
             <!-- help popover (collapsed by default) -->
-            <div id="atlasHelpBox" hidden class="hint-row" style="margin:0 0 10px;padding:9px 11px;border:1px solid var(--line);border-radius:6px;line-height:1.6">
+            <div id="atlasHelpBox" hidden class="hint-row" data-i18n="atlas.help" style="margin:0 0 10px;padding:9px 11px;border:1px solid var(--line);border-radius:6px;line-height:1.6">
               Open the Atlas in-game, then <b>Refresh</b>. Each row is a map type or rolled content read from memory.
               Per row toggle <b>&#9745; Highlight</b> (ring it in-game), <b style="color:#3ddc97">&#8674; Nav</b> (draw a route to it),
               <b style="color:#e0b341">&#10148; Arrow</b> (edge pointer when off-screen) &mdash; independent. Click any column header to sort.
@@ -475,21 +475,21 @@ internal static class DashboardHtml
 
             <!-- quick presets -->
             <div class="controls" id="atlasPresets" style="gap:6px;margin:0 0 8px;flex-wrap:wrap">
-              <span class="hint-row" style="opacity:.7;margin-right:2px">Quick&nbsp;set:</span>
-              <button class="chip" data-preset="citadels">&#9733; Citadels</button>
-              <button class="chip" data-preset="deadly">&#9760; Deadly Boss</button>
-              <button class="chip" data-preset="bosses">Bosses</button>
-              <button class="chip" data-preset="towers">Towers</button>
-              <button class="chip" data-preset="uniques">Uniques</button>
+              <span class="hint-row" style="opacity:.7;margin-right:2px"><span data-i18n="atlas.quickSet">Quick&nbsp;set:</span></span>
+              <button class="chip" data-preset="citadels">&#9733; <span data-i18n="atlas.citadels">Citadels</span></button>
+              <button class="chip" data-preset="deadly">&#9760; <span data-i18n="atlas.deadly">Deadly Boss</span></button>
+              <button class="chip" data-preset="bosses" data-i18n="atlas.bosses">Bosses</button>
+              <button class="chip" data-preset="towers" data-i18n="atlas.towers">Towers</button>
+              <button class="chip" data-preset="uniques" data-i18n="atlas.uniques">Uniques</button>
             </div>
 
             <!-- display options (#3 declutter / #5 content icons) — persisted via /api/settings -->
             <div class="controls" id="atlasOpts" style="gap:14px;margin:0 0 8px;flex-wrap:wrap;font-size:12px">
-              <label title="Hide maps you've already completed (declutter)"><input type="checkbox" data-atset="atlasHideCompleted"> Hide completed</label>
-              <label title="Hide maps you can run right now"><input type="checkbox" data-atset="atlasHideAccessible"> Hide accessible</label>
-              <label title="Draw in-game content art above tracked + fogged maps"><input type="checkbox" data-atset="atlasShowContentIcons"> Content icons</label>
-              <label title="Content icon size (px)">Icon size <input type="number" data-atset="atlasContentIconSize" min="12" max="64" step="1" style="width:56px"></label>
-              <label title="Spacing of the directional arrows along routes">Arrow spacing <input type="number" data-atset="atlasRouteArrowSpacing" min="1.5" max="18" step="0.5" style="width:56px"></label>
+              <label title="Hide maps you've already completed (declutter)"><input type="checkbox" data-atset="atlasHideCompleted"> <span data-i18n="atlas.hideCompleted">Hide completed</span></label>
+              <label title="Hide maps you can run right now"><input type="checkbox" data-atset="atlasHideAccessible"> <span data-i18n="atlas.hideAccessible">Hide accessible</span></label>
+              <label title="Draw in-game content art above tracked + fogged maps"><input type="checkbox" data-atset="atlasShowContentIcons"> <span data-i18n="atlas.contentIcons">Content icons</span></label>
+              <label title="Content icon size (px)"><span data-i18n="atlas.iconSize">Icon size</span> <input type="number" data-atset="atlasContentIconSize" min="12" max="64" step="1" style="width:56px"></label>
+              <label title="Spacing of the directional arrows along routes"><span data-i18n="atlas.arrowSpacing">Arrow spacing</span> <input type="number" data-atset="atlasRouteArrowSpacing" min="1.5" max="18" step="0.5" style="width:56px"></label>
             </div>
 
             <!-- active rules (removable chips) -->
@@ -497,28 +497,28 @@ internal static class DashboardHtml
 
             <!-- group filter + search -->
             <div class="controls" style="gap:6px;margin:0 0 8px;flex-wrap:wrap">
-              <button class="chip on" data-group="all">All</button>
-              <button class="chip" data-group="Kind">Kind</button>
-              <button class="chip" data-group="Type">Type</button>
-              <button class="chip" data-group="Content">Content</button>
-              <button class="chip" data-group="Map">Map</button>
+              <button class="chip on" data-group="all" data-i18n="pick.all">All</button>
+              <button class="chip" data-group="Kind" data-i18n="atlas.kind">Kind</button>
+              <button class="chip" data-group="Type" data-i18n="atlas.type">Type</button>
+              <button class="chip" data-group="Content" data-i18n="atlas.content">Content</button>
+              <button class="chip" data-group="Map" data-i18n="atlas.map">Map</button>
               <span style="flex:1"></span>
-              <button class="chip" id="atlasHlSelOnly">Active only</button>
-              <button class="chip" id="atlasHlClear">Clear all</button>
+              <button class="chip" id="atlasHlSelOnly" data-i18n="atlas.activeOnly">Active only</button>
+              <button class="chip" id="atlasHlClear" data-i18n="atlas.clearAll">Clear all</button>
               <input type="search" id="atlasHlFilter" placeholder="search&hellip;" style="width:160px">
             </div>
 
             <div id="atlasHlTable" style="max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:6px">
-              <span class="hint-row" style="padding:8px;display:block">Open the Atlas in-game + Refresh to list filters.</span>
+              <span class="hint-row" data-i18n="atlas.emptyTable" style="padding:8px;display:block">Open the Atlas in-game + Refresh to list filters.</span>
             </div>
           </div>
 
           <!-- #7 colour groups: a named set of map names that all draw in one ring/label colour. -->
           <div class="card" style="grid-column:1/-1">
-            <h3 style="display:flex;align-items:center;gap:10px">Map colour groups
-              <span class="hint-row" style="opacity:.7;font-weight:400">recolour a whole category at once (Citadels, Halls, Uniques&hellip;)</span>
+            <h3 style="display:flex;align-items:center;gap:10px"><span data-i18n="atlas.mapColourGroups">Map colour groups</span>
+              <span class="hint-row" data-i18n="atlas.colourHint" style="opacity:.7;font-weight:400">recolour a whole category at once (Citadels, Halls, Uniques&hellip;)</span>
               <span style="flex:1"></span>
-              <button class="chip" id="atlasGroupAdd">+ Add group</button>
+              <button class="chip" id="atlasGroupAdd" data-i18n="atlas.addGroup">+ Add group</button>
             </h3>
             <div id="atlasGroups"></div>
           </div>
@@ -528,190 +528,226 @@ internal static class DashboardHtml
       <section class="view" data-view="settings" hidden>
         <div class="panel-grid">
           <div class="card">
-            <h3>Radar Display</h3>
-            <div class="row"><div class="rl">Show terrain<small>walkable-terrain bitmap</small></div>
+            <h3 data-i18n="sec.radarDisplay">Radar Display</h3>
+            <div class="row"><div class="rl"><span data-i18n="set.showTerrain">Show terrain</span><small data-i18n="set.showTerrainHint">walkable-terrain bitmap</small></div>
               <label class="sw"><input type="checkbox" data-set="showTerrain"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Show player blip<small>blue dot marking your own position</small></div>
+            <div class="row"><div class="rl"><span data-i18n="set.showPlayerBlip">Show player blip</span><small data-i18n="set.showPlayerBlipHint">blue dot marking your own position</small></div>
               <label class="sw"><input type="checkbox" data-set="showPlayerBlip"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Always show overlay<small>draw even when PoE2 isn&rsquo;t focused (e.g. while tweaking this dashboard); auto-flask stays focus-gated</small></div>
+            <div class="row"><div class="rl"><span data-i18n="set.showMinimap">Minimap radar</span><small data-i18n="set.showMinimapHint">own circular corner map (game map made transparent)</small></div>
+              <label class="sw"><input type="checkbox" data-set="showMinimap"><span class="track"></span><span class="knob"></span></label></div>
+            <div class="row"><div class="rl"><span data-i18n="set.minimapCorner">Minimap corner</span><small data-i18n="set.minimapCornerHint">which corner the circle is pinned to</small></div>
+              <select class="numin selin" data-set="minimapCorner">
+                <option value="TopRight">Top Right</option>
+                <option value="TopLeft">Top Left</option>
+                <option value="BottomLeft">Bottom Left</option>
+                <option value="BottomRight">Bottom Right</option>
+              </select></div>
+            <div class="row"><div class="rl"><span data-i18n="set.minimapSize">Minimap size</span><small data-i18n="set.minimapSizeHint">circle diameter in pixels (80&ndash;600)</small></div>
+              <input class="numin" type="number" step="10" min="80" max="600" data-set="minimapSize"></div>
+            <div class="row"><div class="rl"><span data-i18n="set.minimapZoom">Minimap zoom</span><small data-i18n="set.minimapZoomHint">× the large-map scale (higher = zoomed in)</small></div>
+              <input class="numin" type="number" step="0.05" min="0.25" max="8" data-set="minimapZoom"></div>
+            <div class="row"><div class="rl"><span data-i18n="set.alwaysShow">Always show overlay</span><small data-i18n="set.alwaysShowHint">draw even when PoE2 isn&rsquo;t focused (e.g. while tweaking this dashboard); auto-flask stays focus-gated</small></div>
               <label class="sw"><input type="checkbox" data-set="alwaysShowOverlay"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Hide junk entities<small>suppress cosmetic / FX / daemon dots</small></div>
+            <div class="row"><div class="rl"><span data-i18n="set.hideJunk">Hide junk entities</span><small data-i18n="set.hideJunkHint">suppress cosmetic / FX / daemon dots</small></div>
               <label class="sw"><input type="checkbox" data-set="hideJunk"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Navigation paths<small>draw A&#42; routes to selected landmarks</small></div>
+            <div class="row"><div class="rl"><span data-i18n="set.navPaths">Navigation paths</span><small data-i18n="set.navPathsHint">draw A&#42; routes to selected landmarks</small></div>
               <label class="sw"><input type="checkbox" data-set="showPath"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Curated landmark names<small>community labels (boss / reward / exits)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="set.showWorldPaths">World paths (no map)</span><small data-i18n="set.showWorldPathsHint">draw the routes on the world ground when the big map is closed (off = minimap only)</small></div>
+              <label class="sw"><input type="checkbox" data-set="showWorldPaths"><span class="track"></span><span class="knob"></span></label></div>
+            <div class="row"><div class="rl"><span data-i18n="set.curated">Curated landmark names</span><small data-i18n="set.curatedHint">community labels (boss / reward / exits)</small></div>
               <label class="sw"><input type="checkbox" data-set="useCuratedLandmarks"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Overlay FPS cap<small>lower = less load on the game; 60 is smooth for a radar (15&ndash;360)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="set.gh2Landmarks">GameHelper2 landmarks</span><small data-i18n="set.gh2LandmarksHint">endgame boss arenas + dungeon stairs (GH2 reference set)</small></div>
+              <label class="sw"><input type="checkbox" data-set="useGh2Landmarks"><span class="track"></span><span class="knob"></span></label></div>
+            <div class="row"><div class="rl"><span data-i18n="set.autoBoss">Auto-detect boss rooms</span><small data-i18n="set.autoBossHint">flag any tile named &ldquo;boss&rdquo;/&ldquo;arena&rdquo; as a Boss landmark (maps the curated lists don&rsquo;t cover)</small></div>
+              <label class="sw"><input type="checkbox" data-set="autoDetectBossRooms"><span class="track"></span><span class="knob"></span></label></div>
+            <div class="row" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px"><div class="rl"><b data-i18n="set.gh2Radar">GH2 Radar (full)</b><small data-i18n="set.gh2RadarHint">replicate the GameHelper2 Radar plugin&rsquo;s extra icon recognition (tormented spirits, abyss, delirium, incursion, sekhemas, expedition chests, strongbox subtypes, campaign runestones) as a layer over the local radar &mdash; flip in-game to compare</small></div>
+              <label class="sw"><input type="checkbox" data-set="useGh2Radar"><span class="track"></span><span class="knob"></span></label></div>
+            <div class="row"><div class="rl"><span data-i18n="set.fpsCap">Overlay FPS cap</span><small data-i18n="set.fpsCapHint">lower = less load on the game; 60 is smooth for a radar (15&ndash;360)</small></div>
               <input class="numin" type="number" step="1" min="15" max="360" data-set="fpsCap"></div>
+            <div class="row"><div class="rl"><span data-i18n="set.language">Language</span><small data-i18n="set.languageHint">radar UI + on-map terms (mechanic / POI labels)</small></div>
+              <select class="numin selin" data-set="language">
+                <option value="en">English</option>
+                <option value="zh-CN">简体中文</option>
+                <option value="zh-Hant">繁體中文</option>
+              </select></div>
           </div>
           <div class="card">
-            <h3>Monster HP Bars <span class="tag">&middot; by rarity</span></h3>
-            <div class="row"><div class="rl hint-row">Toggle the bar on/off per rarity with the <b>On</b> checkbox &mdash; uncheck all to disable HP bars entirely, or leave only the rarities you want. The rest sets the bar <i>geometry</i> per rarity.</div></div>
+            <h3><span data-i18n="sec.hpBars">Monster HP Bars</span> <span class="tag">&middot; <span data-i18n="sec.hpBarsTag">by rarity</span></span></h3>
+            <div class="row"><div class="rl hint-row" data-i18n="hp.hint1">Toggle the bar on/off per rarity with the <b>On</b> checkbox &mdash; uncheck all to disable HP bars entirely, or leave only the rarities you want. The rest sets the bar <i>geometry</i> per rarity.</div></div>
             <div class="hpgrid">
-              <span class="hph">On</span><span class="hph">Rarity</span><span class="hph">Width</span><span class="hph">Border</span><span class="hph">Thick</span>
+              <span class="hph" data-i18n="hp.on">On</span><span class="hph" data-i18n="hp.rarity">Rarity</span><span class="hph" data-i18n="hp.width">Width</span><span class="hph" data-i18n="hp.border">Border</span><span class="hph" data-i18n="hp.thick">Thick</span>
               <input type="checkbox" data-set="hpBarNormal">
-              <span class="hpr">Normal</span>
+              <span class="hpr" data-i18n="hp.normal">Normal</span>
               <input class="numin" type="number" step="1" min="4" data-hp="widthNormal">
               <input type="color" class="i-color" data-hpcolor="borderColorNormal">
               <input class="numin" type="number" step="0.5" min="0" max="20" data-hp="borderNormal">
               <input type="checkbox" data-set="hpBarMagic">
-              <span class="hpr" style="color:var(--magic)">Magic</span>
+              <span class="hpr" style="color:var(--magic)" data-i18n="hp.magic">Magic</span>
               <input class="numin" type="number" step="1" min="4" data-hp="widthMagic">
               <input type="color" class="i-color" data-hpcolor="borderColorMagic">
               <input class="numin" type="number" step="0.5" min="0" max="20" data-hp="borderMagic">
               <input type="checkbox" data-set="hpBarRare">
-              <span class="hpr" style="color:var(--rare)">Rare</span>
+              <span class="hpr" style="color:var(--rare)" data-i18n="hp.rare">Rare</span>
               <input class="numin" type="number" step="1" min="4" data-hp="widthRare">
               <input type="color" class="i-color" data-hpcolor="borderColorRare">
               <input class="numin" type="number" step="0.5" min="0" max="20" data-hp="borderRare">
               <input type="checkbox" data-set="hpBarUnique">
-              <span class="hpr" style="color:var(--unique)">Unique</span>
+              <span class="hpr" style="color:var(--unique)" data-i18n="hp.unique">Unique</span>
               <input class="numin" type="number" step="1" min="4" data-hp="widthUnique">
               <input type="color" class="i-color" data-hpcolor="borderColorUnique">
               <input class="numin" type="number" step="0.5" min="0" max="20" data-hp="borderUnique">
             </div>
             <div class="hpshared">
-              <label>Height<input class="numin" type="number" step="1" min="1" max="30" data-hp="height"></label>
-              <label>Offset X<input class="numin" type="number" step="1" data-hp="offsetX"></label>
-              <label>Offset Y<input class="numin" type="number" step="1" data-hp="offsetY"></label>
+              <label><span data-i18n="hp.height">Height</span><input class="numin" type="number" step="1" min="1" max="30" data-hp="height"></label>
+              <label><span data-i18n="hp.offsetX">Offset X</span><input class="numin" type="number" step="1" data-hp="offsetX"></label>
+              <label><span data-i18n="hp.offsetY">Offset Y</span><input class="numin" type="number" step="1" data-hp="offsetY"></label>
             </div>
-            <div class="row"><div class="rl hint-row">Bar fill follows the monster icon color; set border color &amp; thickness per rarity (thickness 0 = no border). Offset Y negative = above the mob.</div></div>
+            <div class="row"><div class="rl hint-row" data-i18n="hp.hint2">Bar fill follows the monster icon color; set border color &amp; thickness per rarity (thickness 0 = no border). Offset Y negative = above the mob.</div></div>
           </div>
           <div class="card">
-            <h3>Terrain <span class="tag">&middot; walkable overlay</span></h3>
-            <div class="row"><div class="rl">Interior fill<small>wash over walkable cells</small></div>
+            <h3><span data-i18n="sec.terrain">Terrain</span> <span class="tag">&middot; <span data-i18n="sec.terrainTag">walkable overlay</span></span></h3>
+            <div class="row"><div class="rl"><span data-i18n="ter.interior">Interior fill</span><small data-i18n="ter.interiorHint">wash over walkable cells</small></div>
               <span class="trow-ctl">
                 <input type="color" class="i-color" data-tcolor="interiorColor">
                 <input type="range" class="op" min="0" max="100" data-topacity="interiorOpacity">
                 <span class="opv" data-topv="interiorOpacity">—</span></span></div>
-            <div class="row"><div class="rl" style="color:var(--poi)">Wall edge<small>outlines around rooms</small></div>
+            <div class="row"><div class="rl" style="color:var(--poi)"><span data-i18n="ter.edge">Wall edge</span><small data-i18n="ter.edgeHint">outlines around rooms</small></div>
               <span class="trow-ctl">
                 <input type="color" class="i-color" data-tcolor="edgeColor">
                 <input type="range" class="op" min="0" max="100" data-topacity="edgeOpacity">
                 <span class="opv" data-topv="edgeOpacity">—</span></span></div>
-            <div class="row"><div class="rl hint-row">Edits rebuild the terrain bitmap; use &ldquo;Show terrain&rdquo; above to hide it entirely.</div></div>
+            <div class="row"><div class="rl hint-row" data-i18n="ter.hint">Edits rebuild the terrain bitmap; use &ldquo;Show terrain&rdquo; above to hide it entirely.</div></div>
           </div>
           <div class="card">
-            <h3>Map Calibration</h3>
-            <div class="row"><div class="rl">Scale multiplier<small>projection scale of the map overlay</small></div>
+            <h3 data-i18n="sec.calibration">Map Calibration</h3>
+            <div class="row"><div class="rl"><span data-i18n="cal.scale">Scale multiplier</span><small data-i18n="cal.scaleHint">projection scale of the map overlay</small></div>
               <input class="numin" type="number" step="0.01" data-set="scaleMul"></div>
-            <div class="row"><div class="rl">Offset X</div><input class="numin" type="number" step="1" data-set="offX"></div>
-            <div class="row"><div class="rl">Offset Y</div><input class="numin" type="number" step="1" data-set="offY"></div>
-            <div class="row"><div class="rl hint-row">Adjust here &mdash; changes apply live (no in-game hotkeys).</div></div>
+            <div class="row"><div class="rl"><span data-i18n="cal.offsetX">Offset X</span></div><input class="numin" type="number" step="1" data-set="offX"></div>
+            <div class="row"><div class="rl"><span data-i18n="cal.offsetY">Offset Y</span></div><input class="numin" type="number" step="1" data-set="offY"></div>
+            <div class="row"><div class="rl hint-row" data-i18n="cal.hint">Adjust here &mdash; changes apply live (no in-game hotkeys).</div></div>
           </div>
           <div class="card">
-            <h3>Auto-Flask</h3>
-            <div class="row"><div class="rl">Life flask triggers on<small>which pool the life flask key watches &mdash; ES is ignored if your build has none</small></div>
+            <h3 data-i18n="sec.autoFlask">Auto-Flask</h3>
+            <div class="row"><div class="rl"><span data-i18n="flask.mode">Life flask triggers on</span><small data-i18n="flask.modeHint">which pool the life flask key watches &mdash; ES is ignored if your build has none</small></div>
               <select class="numin selin" data-set="lifeFlaskMode">
-                <option value="Health">Health %</option>
-                <option value="EnergyShield">Energy Shield %</option>
-                <option value="Either">Either (HP or ES)</option>
+                <option value="Health" data-i18n="flask.modeHealth">Health %</option>
+                <option value="EnergyShield" data-i18n="flask.modeEs">Energy Shield %</option>
+                <option value="Either" data-i18n="flask.modeEither">Either (HP or ES)</option>
               </select></div>
-            <div class="row"><div class="rl">Life threshold %<small>tap life flask below this Life %</small></div>
+            <div class="row"><div class="rl"><span data-i18n="flask.lifeThr">Life threshold %</span><small data-i18n="flask.lifeThrHint">tap life flask below this Life %</small></div>
               <input class="numin" type="number" step="1" min="0" max="100" data-set="lifeThresholdPct"></div>
-            <div class="row"><div class="rl">ES threshold %<small>tap life flask below this Energy Shield % (ES / Either modes)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="flask.esThr">ES threshold %</span><small data-i18n="flask.esThrHint">tap life flask below this Energy Shield % (ES / Either modes)</small></div>
               <input class="numin" type="number" step="1" min="0" max="100" data-set="esThresholdPct"></div>
-            <div class="row"><div class="rl">Mana threshold %<small>tap mana flask below this Mana %</small></div>
+            <div class="row"><div class="rl"><span data-i18n="flask.manaThr">Mana threshold %</span><small data-i18n="flask.manaThrHint">tap mana flask below this Mana %</small></div>
               <input class="numin" type="number" step="1" min="0" max="100" data-set="manaThresholdPct"></div>
-            <div class="row"><div class="rl">Life flask key</div>
+            <div class="row"><div class="rl"><span data-i18n="flask.lifeKey">Life flask key</span></div>
               <input class="numin keyin" type="text" maxlength="1" data-set="lifeKey"></div>
-            <div class="row"><div class="rl">Mana flask key</div>
+            <div class="row"><div class="rl"><span data-i18n="flask.manaKey">Mana flask key</span></div>
               <input class="numin keyin" type="text" maxlength="1" data-set="manaKey"></div>
-            <div class="row"><div class="rl">Life cooldown<small>min ms between life taps</small></div>
+            <div class="row"><div class="rl"><span data-i18n="flask.lifeCd">Life cooldown</span><small data-i18n="flask.lifeCdHint">min ms between life taps</small></div>
               <input class="numin" type="number" step="100" min="0" data-set="lifeCooldownMs"></div>
-            <div class="row"><div class="rl">Mana cooldown<small>min ms between mana taps</small></div>
+            <div class="row"><div class="rl"><span data-i18n="flask.manaCd">Mana cooldown</span><small data-i18n="flask.manaCdHint">min ms between mana taps</small></div>
               <input class="numin" type="number" step="100" min="0" data-set="manaCooldownMs"></div>
-            <div class="row"><div class="rl hint-row">F8 toggles auto-flask in-game. Status: <span id="flaskState">&mdash;</span></div></div>
+            <div class="row"><div class="rl hint-row"><span data-i18n="flask.hint">F8 toggles auto-flask in-game. Status:</span> <span id="flaskState">&mdash;</span></div></div>
+          </div>
+          <div class="card">
+            <h3><span data-i18n="sec.cameraZoom">Camera Zoom</span> <span class="tag">&middot; <span data-i18n="sec.cameraZoomTag">opt-in memory patch</span></span></h3>
+            <div class="row"><div class="rl hint-row" style="color:var(--blood-bright)" data-i18n="zoom.warn">Writes to the game process &mdash; bypasses POE2Radar&rsquo;s external read-only boundary and may violate the PoE2 Terms of Service. Off by default; use at your own risk.</div></div>
+            <div class="row"><div class="rl"><span data-i18n="zoom.enable">Enable zoom-out</span><small data-i18n="zoom.enableHint">let the camera zoom out further than the game normally allows</small></div>
+              <label class="sw"><input type="checkbox" data-zoom="enabled"><span class="track"></span><span class="knob"></span></label></div>
+            <div class="row"><div class="rl"><span data-i18n="zoom.value">Zoom clamp value</span><small data-i18n="zoom.valueHint">higher = further out (the minss clamp target)</small></div>
+              <input class="numin" type="number" step="1" min="1" max="200" data-zoom="zoomValue"></div>
+            <div class="row"><div class="rl hint-row"><span data-i18n="state.statusPh">Status:</span> <span id="zoomState" style="color:var(--ink-dim)">&mdash;</span></div></div>
           </div>
         </div>
-        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsg">&#10003; saved to config</span></div>
+        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsg">&#10003; <span data-i18n="saved">saved to config</span></span></div>
       </section>
 
       <section class="view" data-view="value" hidden>
         <div class="panel-grid">
           <!-- Shared pricing config: applies to BOTH the ground overlay and the hover chip. -->
           <div class="card" style="grid-column:1/-1">
-            <h3>General Pricing <span class="tag">&middot; poe.ninja</span></h3>
-            <div class="row"><div class="rl hint-row">These apply to <b>everything priced</b> below &mdash; ground loot, hover, monolith &amp; ritual rewards. Prices come from poe.ninja for the detected league.</div></div>
-            <div class="row"><div class="rl">Price league<small>leave blank to auto-detect your league (HC/SC/Standard) from the game</small></div>
+            <h3><span data-i18n="sec.generalPricing">General Pricing</span> <span class="tag">&middot; <span data-i18n="sec.generalPricingTag">poe.ninja</span></span></h3>
+            <div class="row"><div class="rl hint-row" data-i18n="price.hint">These apply to <b>everything priced</b> below &mdash; ground loot, hover, monolith &amp; ritual rewards. Prices come from poe.ninja for the detected league.</div></div>
+            <div class="row"><div class="rl"><span data-i18n="price.league">Price league</span><small data-i18n="price.leagueHint">leave blank to auto-detect your league (HC/SC/Standard) from the game</small></div>
               <input class="numin" type="text" id="giLeague" data-gi="league" placeholder="auto-detect" style="width:200px"></div>
-            <div class="row"><div class="rl">Low-listing warning<small>flag a price backed by fewer than N live listings with a &ldquo;?&rdquo; (possible mislisting). 0 = never flag</small></div>
+            <div class="row"><div class="rl"><span data-i18n="price.minQty">Low-listing warning</span><small data-i18n="price.minQtyHint">flag a price backed by fewer than N live listings with a &ldquo;?&rdquo; (possible mislisting). 0 = never flag</small></div>
               <input class="numin" type="number" step="1" min="0" data-gi="minQuantity"></div>
-            <div class="row"><div class="rl hint-row">Pricing status: <span id="priceStatus" style="color:var(--ink-dim)">&mdash;</span></div></div>
+            <div class="row"><div class="rl hint-row"><span data-i18n="price.statusPh">Pricing status:</span> <span id="priceStatus" style="color:var(--ink-dim)">&mdash;</span></div></div>
           </div>
 
           <!-- Ground loot value labels. -->
           <div class="card">
-            <h3>Ground Loot</h3>
-            <div class="row"><div class="rl">Show ground loot value<small>draw a value label over dropped items on the map</small></div>
+            <h3 data-i18n="sec.groundLoot">Ground Loot</h3>
+            <div class="row"><div class="rl"><span data-i18n="ground.show">Show ground loot value</span><small data-i18n="ground.showHint">draw a value label over dropped items on the map</small></div>
               <label class="sw"><input type="checkbox" data-gi="enabled"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl hint-row">Show a label for these categories:</div></div>
+            <div class="row"><div class="rl hint-row" data-i18n="ground.catHint">Show a label for these categories:</div></div>
             <div class="chips" id="giCats">
-              <span class="chip" data-gicat="Uniques">Uniques</span>
-              <span class="chip" data-gicat="Currency">Currency</span>
-              <span class="chip" data-gicat="Runes">Runes</span>
-              <span class="chip" data-gicat="SoulCores">Soul Cores</span>
-              <span class="chip" data-gicat="UncutGems">Uncut Gems</span>
-              <span class="chip" data-gicat="Essences">Essences</span>
-              <span class="chip" data-gicat="Fragments">Fragments</span>
-              <span class="chip" data-gicat="Tablets">Tablets</span>
-              <span class="chip" data-gicat="Delirium">Delirium</span>
-              <span class="chip" data-gicat="Idols">Idols</span>
-              <span class="chip" data-gicat="Abyss">Abyss</span>
-              <span class="chip" data-gicat="Ritual">Ritual</span>
-              <span class="chip" data-gicat="Breach">Breach</span>
-              <span class="chip" data-gicat="Expedition">Expedition</span>
+              <span class="chip" data-gicat="Uniques" data-i18n="gi.uniques">Uniques</span>
+              <span class="chip" data-gicat="Currency" data-i18n="gi.currency">Currency</span>
+              <span class="chip" data-gicat="Runes" data-i18n="gi.runes">Runes</span>
+              <span class="chip" data-gicat="SoulCores" data-i18n="gi.soulcores">Soul Cores</span>
+              <span class="chip" data-gicat="UncutGems" data-i18n="gi.uncutgems">Uncut Gems</span>
+              <span class="chip" data-gicat="Essences" data-i18n="gi.essences">Essences</span>
+              <span class="chip" data-gicat="Fragments" data-i18n="gi.fragments">Fragments</span>
+              <span class="chip" data-gicat="Tablets" data-i18n="gi.tablets">Tablets</span>
+              <span class="chip" data-gicat="Delirium" data-i18n="gi.delirium">Delirium</span>
+              <span class="chip" data-gicat="Idols" data-i18n="gi.idols">Idols</span>
+              <span class="chip" data-gicat="Abyss" data-i18n="gi.abyss">Abyss</span>
+              <span class="chip" data-gicat="Ritual" data-i18n="gi.ritual">Ritual</span>
+              <span class="chip" data-gicat="Breach" data-i18n="gi.breach">Breach</span>
+              <span class="chip" data-gicat="Expedition" data-i18n="gi.expedition">Expedition</span>
             </div>
-            <div class="row"><div class="rl hint-row">Minimum value to show, per bucket (Ex) &mdash; drops below the floor are hidden:</div></div>
-            <div class="row"><div class="rl">Uniques min<small>hide uniques under this (Ex)</small></div>
+            <div class="row"><div class="rl hint-row" data-i18n="ground.bucketHint">Minimum value to show, per bucket (Ex) &mdash; drops below the floor are hidden:</div></div>
+            <div class="row"><div class="rl"><span data-i18n="ground.uniqueMin">Uniques min</span><small data-i18n="ground.uniqueMinHint">hide uniques under this (Ex)</small></div>
               <input class="numin" type="number" step="0.1" min="0" data-gi="uniqueMinEx"></div>
-            <div class="row"><div class="rl">Currency min<small>hide currency under this (Ex)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="ground.currencyMin">Currency min</span><small data-i18n="ground.currencyMinHint">hide currency under this (Ex)</small></div>
               <input class="numin" type="number" step="0.1" min="0" data-gi="currencyMinEx"></div>
-            <div class="row"><div class="rl">Other min<small>runes / essences / fragments / … (Ex)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="ground.otherMin">Other min</span><small data-i18n="ground.otherMinHint">runes / essences / fragments / … (Ex)</small></div>
               <input class="numin" type="number" step="0.1" min="0" data-gi="otherMinEx"></div>
-            <div class="row"><div class="rl">Highlight threshold<small>border/emphasis at or above this value (Ex)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="ground.highlight">Highlight threshold</span><small data-i18n="ground.highlightHint">border/emphasis at or above this value (Ex)</small></div>
               <input class="numin" type="number" step="1" min="0" data-gi="highlightMinEx"></div>
-            <div class="row"><div class="rl hint-row">Unidentified uniques reveal their NAME + value; everything else (identified uniques, currency, runes, essences, …) shows the value only.</div></div>
+            <div class="row"><div class="rl hint-row" data-i18n="ground.unidHint">Unidentified uniques reveal their NAME + value; everything else (identified uniques, currency, runes, essences, …) shows the value only.</div></div>
           </div>
 
           <!-- Hover price chip (any item UI). -->
           <div class="card">
-            <h3>On Hover</h3>
-            <div class="row"><div class="rl">Show item value on hover<small>a price chip beside the game tooltip in inventory / stash / vendor / reward UIs</small></div>
+            <h3 data-i18n="sec.onHover">On Hover</h3>
+            <div class="row"><div class="rl"><span data-i18n="hover.show">Show item value on hover</span><small data-i18n="hover.showHint">a price chip beside the game tooltip in inventory / stash / vendor / reward UIs</small></div>
               <label class="sw"><input type="checkbox" data-hv="enabled"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Highlight threshold<small>emphasize the chip at or above this (stack) value (Ex)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="hover.highlight">Highlight threshold</span><small data-i18n="hover.highlightHint">emphasize the chip at or above this (stack) value (Ex)</small></div>
               <input class="numin" type="number" step="1" min="0" data-hv="highlightMinEx"></div>
-            <div class="row"><div class="rl hint-row">Hovering is explicit intent, so this ignores the ground category toggles &amp; value floors &mdash; any priced item shows. Stacks show the per-unit price and the stack total.</div></div>
+            <div class="row"><div class="rl hint-row" data-i18n="hover.hint">Hovering is explicit intent, so this ignores the ground category toggles &amp; value floors &mdash; any priced item shows. Stacks show the per-unit price and the stack total.</div></div>
           </div>
 
           <!-- Monolith (expedition) reward overlay — a value/pricing feature, grouped here. -->
           <div class="card">
-            <h3>Monolith Rewards <span class="tag">&middot; expedition</span></h3>
-            <div class="row"><div class="rl">Enabled<small>read + price runeshape-monolith rewards</small></div>
+            <h3><span data-i18n="sec.monolithRewards">Monolith Rewards</span> <span class="tag">&middot; <span data-i18n="sec.monolithRewardsTag">expedition</span></span></h3>
+            <div class="row"><div class="rl"><span data-i18n="mono.enabled">Enabled</span><small data-i18n="mono.enabledHint">read + price runeshape-monolith rewards</small></div>
               <label class="sw"><input type="checkbox" data-mono="enabled"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Min value to show / auto-path<small>hide the monolith entirely (icon, panel, auto-nav) below this (Ex). 0 = show every monolith</small></div>
+            <div class="row"><div class="rl"><span data-i18n="mono.minValue">Min value to show / auto-path</span><small data-i18n="mono.minValueHint">hide the monolith entirely (icon, panel, auto-nav) below this (Ex). 0 = show every monolith</small></div>
               <input class="numin" type="number" step="1" min="0" data-mono="minValueEx"></div>
-            <div class="row"><div class="rl">Highlight threshold<small>green value tier at or above this (Ex)</small></div>
+            <div class="row"><div class="rl"><span data-i18n="mono.highlight">Highlight threshold</span><small data-i18n="mono.highlightHint">green value tier at or above this (Ex)</small></div>
               <input class="numin" type="number" step="1" min="0" data-mono="highlightMinEx"></div>
-            <div class="row"><div class="rl">Hide collected<small>drop monoliths whose reward was already claimed</small></div>
+            <div class="row"><div class="rl"><span data-i18n="mono.hideCollected">Hide collected</span><small data-i18n="mono.hideCollectedHint">drop monoliths whose reward was already claimed</small></div>
               <label class="sw"><input type="checkbox" data-mono="hideCollected"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Show reward panel<small>the in-overlay nearby-monolith reward list</small></div>
+            <div class="row"><div class="rl"><span data-i18n="mono.showPanel">Show reward panel</span><small data-i18n="mono.showPanelHint">the in-overlay nearby-monolith reward list</small></div>
               <label class="sw"><input type="checkbox" data-mono="showPanel"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Show map label<small>draw value + top reward at the icon</small></div>
+            <div class="row"><div class="rl"><span data-i18n="mono.showLabel">Show map label</span><small data-i18n="mono.showLabelHint">draw value + top reward at the icon</small></div>
               <label class="sw"><input type="checkbox" data-mono="showMapLabel"><span class="track"></span><span class="knob"></span></label></div>
           </div>
 
           <!-- Currency Exchange depth panel — value/pricing feature, grouped here. -->
           <div class="card">
-            <h3>Currency Exchange <span class="tag">&middot; Kalguur market</span></h3>
-            <div class="row"><div class="rl">Enabled<small>show the order-book depth panel when the exchange is open</small></div>
+            <h3><span data-i18n="sec.currencyExchange">Currency Exchange</span> <span class="tag">&middot; <span data-i18n="sec.currencyExchangeTag">Kalguur market</span></span></h3>
+            <div class="row"><div class="rl"><span data-i18n="ce.enabled">Enabled</span><small data-i18n="ce.enabledHint">show the order-book depth panel when the exchange is open</small></div>
               <label class="sw"><input type="checkbox" data-ce="enabled"><span class="track"></span><span class="knob"></span></label></div>
-            <div class="row"><div class="rl">Max rows<small>ladder rows to show per side</small></div>
+            <div class="row"><div class="rl"><span data-i18n="ce.maxRows">Max rows</span><small data-i18n="ce.maxRowsHint">ladder rows to show per side</small></div>
               <input class="numin" type="number" step="1" min="1" max="64" data-ce="maxRows"></div>
-            <div class="row"><div class="rl hint-row">When the in-game Currency Exchange is open, a top-right panel lists the best offered/wanted ratios + depth (the best row of each side is highlighted).</div></div>
+            <div class="row"><div class="rl hint-row" data-i18n="ce.hint">When the in-game Currency Exchange is open, a top-right panel lists the best offered/wanted ratios + depth (the best row of each side is highlighted).</div></div>
           </div>
         </div>
-        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsg2">&#10003; saved to config</span></div>
+        <div style="margin-top:18px; height:14px"><span class="saved" id="savedMsg2">&#10003; <span data-i18n="saved">saved to config</span></span></div>
       </section>
 
     </main>
@@ -724,6 +760,408 @@ const $$ = s => [...document.querySelectorAll(s)];
 let state=null, zone=null;
 let activeTab='filters';
 let atlasData=null, atlasView='region', atlasSel=new Set(), atlasHl=null, atlasNav=null, atlasArrow=null, atlasHlSelOnly=false, atlasGroup='all';
+
+/* ── trilingual UI (en / zh-CN / zh-Hant). Static text uses data-i18n; dynamic JS uses t(). ── */
+const I18N = {
+'en': {
+  'tab.rules':'Rules','tab.landmarks':'Landmarks','tab.atlas':'Atlas','tab.value':'Item Value','tab.settings':'Settings',
+  'side.life':'Life','side.es':'Energy Shield','side.mana':'Mana','side.zone':'Zone','side.area':'Area',
+  'side.areaCode':'Area code','side.actLevel':'Act / Level','side.mapOpen':'Map open','side.autoFlask':'Auto-flask',
+  'side.census':'Census','side.entities':'Entities','side.poi':'Points of Int.','side.monsters':'Monsters',
+  'side.landmarks':'Landmarks','side.monolithRewards':'Monolith Rewards',
+  'conn.live':'live','conn.offline':'offline','state.ingame':'in game','state.town':'town/menu',
+  'state.yes':'yes','state.no':'no','state.on':'on','state.off':'off',
+  'sec.displayRules':'Display Rules','sec.displayRulesTag':'one ordered ruleset — first match wins',
+  'sec.hidden':'Hidden','sec.hiddenTag':'cull entirely from radar, list & nav',
+  'sec.landmarks':'Landmarks','sec.landmarksTag':'curated map labels — view, fix, share',
+  'sec.radarDisplay':'Radar Display','sec.hpBars':'Monster HP Bars','sec.hpBarsTag':'by rarity',
+  'sec.terrain':'Terrain','sec.terrainTag':'walkable overlay','sec.calibration':'Map Calibration',
+  'sec.autoFlask':'Auto-Flask','sec.cameraZoom':'Camera Zoom','sec.cameraZoomTag':'opt-in memory patch',
+  'sec.generalPricing':'General Pricing','sec.generalPricingTag':'poe.ninja','sec.groundLoot':'Ground Loot',
+  'sec.onHover':'On Hover','sec.monolithRewards':'Monolith Rewards','sec.monolithRewardsTag':'expedition',
+  'sec.currencyExchange':'Currency Exchange','sec.currencyExchangeTag':'Kalguur market',
+  'set.showTerrain':'Show terrain','set.showTerrainHint':'walkable-terrain bitmap',
+  'set.showPlayerBlip':'Show player blip','set.showPlayerBlipHint':'blue dot marking your own position',
+  'set.showMinimap':'Minimap radar','set.showMinimapHint':'own circular corner map (game map made transparent)',
+  'set.minimapCorner':'Minimap corner','set.minimapCornerHint':'which corner the circle is pinned to',
+  'set.minimapSize':'Minimap size','set.minimapSizeHint':'circle diameter in pixels (80–600)',
+  'set.minimapZoom':'Minimap zoom','set.minimapZoomHint':'× the large-map scale (higher = zoomed in)',
+  'set.alwaysShow':'Always show overlay','set.alwaysShowHint':'draw even when PoE2 isn’t focused; auto-flask stays focus-gated',
+  'set.hideJunk':'Hide junk entities','set.hideJunkHint':'suppress cosmetic / FX / daemon dots',
+  'set.navPaths':'Navigation paths','set.navPathsHint':'draw A* routes to selected landmarks',
+  'set.showWorldPaths':'World paths (no map)','set.showWorldPathsHint':'draw routes on the world ground when the big map is closed (off = minimap only)',
+  'set.curated':'Curated landmark names','set.curatedHint':'community labels (boss / reward / exits)',
+  'set.gh2Landmarks':'GameHelper2 landmarks','set.gh2LandmarksHint':'endgame boss arenas + dungeon stairs (GH2 reference set)',
+  'set.autoBoss':'Auto-detect boss rooms','set.autoBossHint':'flag any tile named “boss”/“arena” as a Boss landmark',
+  'set.gh2Radar':'GH2 Radar (full)','set.gh2RadarHint':'replicate the GameHelper2 Radar plugin’s extra icon recognition',
+  'set.fpsCap':'Overlay FPS cap','set.fpsCapHint':'lower = less load on the game',
+  'set.language':'Language','set.languageHint':'radar UI + on-map terms (mechanic / POI labels)',
+  'hp.on':'On','hp.rarity':'Rarity','hp.width':'Width','hp.border':'Border','hp.thick':'Thick',
+  'hp.normal':'Normal','hp.magic':'Magic','hp.rare':'Rare','hp.unique':'Unique',
+  'hp.height':'Height','hp.offsetX':'Offset X','hp.offsetY':'Offset Y',
+  'ter.interior':'Interior fill','ter.interiorHint':'wash over walkable cells',
+  'ter.edge':'Wall edge','ter.edgeHint':'outlines around rooms',
+  'cal.scale':'Scale multiplier','cal.scaleHint':'projection scale of the map overlay',
+  'cal.offsetX':'Offset X','cal.offsetY':'Offset Y',
+  'flask.mode':'Life flask triggers on','flask.modeHint':'which pool the life flask key watches — ES is ignored if your build has none',
+  'flask.modeHealth':'Health %','flask.modeEs':'Energy Shield %','flask.modeEither':'Either (HP or ES)',
+  'flask.lifeThr':'Life threshold %','flask.lifeThrHint':'tap life flask below this Life %',
+  'flask.esThr':'ES threshold %','flask.esThrHint':'tap life flask below this Energy Shield % (ES / Either modes)',
+  'flask.manaThr':'Mana threshold %','flask.manaThrHint':'tap mana flask below this Mana %',
+  'flask.lifeKey':'Life flask key','flask.manaKey':'Mana flask key',
+  'flask.lifeCd':'Life cooldown','flask.lifeCdHint':'min ms between life taps',
+  'flask.manaCd':'Mana cooldown','flask.manaCdHint':'min ms between mana taps',
+  'zoom.enable':'Enable zoom-out','zoom.enableHint':'let the camera zoom out further than the game normally allows',
+  'zoom.value':'Zoom clamp value','zoom.valueHint':'higher = further out (the minss clamp target)',
+  'price.league':'Price league','price.leagueHint':'leave blank to auto-detect your league (HC/SC/Standard)',
+  'price.minQty':'Low-listing warning','price.minQtyHint':'flag a price backed by fewer than N listings with a “?”',
+  'ground.show':'Show ground loot value','ground.showHint':'draw a value label over dropped items on the map',
+  'ground.uniqueMin':'Uniques min','ground.uniqueMinHint':'hide uniques under this (Ex)',
+  'ground.currencyMin':'Currency min','ground.currencyMinHint':'hide currency under this (Ex)',
+  'ground.otherMin':'Other min','ground.otherMinHint':'runes / essences / fragments / … (Ex)',
+  'ground.highlight':'Highlight threshold','ground.highlightHint':'border/emphasis at or above this value (Ex)',
+  'hover.show':'Show item value on hover','hover.showHint':'a price chip beside the game tooltip',
+  'hover.highlight':'Highlight threshold','hover.highlightHint':'emphasize the chip at or above this (stack) value (Ex)',
+  'mono.enabled':'Enabled','mono.enabledHint':'read + price runeshape-monolith rewards',
+  'mono.minValue':'Min value to show / auto-path','mono.minValueHint':'hide the monolith entirely below this (Ex). 0 = show every monolith',
+  'mono.highlight':'Highlight threshold','mono.highlightHint':'green value tier at or above this (Ex)',
+  'mono.hideCollected':'Hide collected','mono.hideCollectedHint':'drop monoliths whose reward was already claimed',
+  'mono.showPanel':'Show reward panel','mono.showPanelHint':'the in-overlay nearby-monolith reward list',
+  'mono.showLabel':'Show map label','mono.showLabelHint':'draw value + top reward at the icon',
+  'ce.enabled':'Enabled','ce.enabledHint':'show the order-book depth panel when the exchange is open',
+  'ce.maxRows':'Max rows','ce.maxRowsHint':'ladder rows to show per side',
+  'cat.Monster':'Monster','cat.Chest':'Chest','cat.Player':'Player','cat.Npc':'NPC','cat.Object':'Terrain',
+  'cat.Other':'Misc / POI','cat.Transition':'Transition','cat.Tile':'Tile',
+  'cat.Monsters':'Monsters','cat.Chests':'Chests','cat.Misc':'Misc / POI','cat.Terrain':'Terrain',
+  'cat.NPCs':'NPCs','cat.Transitions':'Transitions',
+  'rar.Normal':'Normal','rar.Magic':'Magic','rar.Rare':'Rare','rar.Unique':'Unique',
+  'sel.rarity':'Rarity','sel.reaction':'Reaction','sel.life':'Life','sel.chest':'Chest','sel.poi':'POI','sel.encounter':'Encounter',
+  'sel.any':'any','sel.hostile':'Hostile','sel.friendly':'Friendly','sel.alive':'Alive','sel.dead':'Dead',
+  'sel.opened':'Opened','sel.unopened':'Unopened','sel.yes':'Yes','sel.no':'No','sel.active':'Active','sel.complete':'Complete',
+  'btn.add':'+ Add','btn.remove':'Remove','btn.delete':'Delete','btn.hide':'+ Hide','btn.restore':'Restore',
+  'btn.import':'Import…','btn.export':'Export','btn.addFromGame':'+ Add from game data…','btn.addBlank':'+ Add blank rule',
+  'btn.thisArea':'This area only','btn.refresh':'Refresh','btn.hide':'Hide','btn.autoPath':'Auto-path',
+  'pick.all':'All','pick.entities':'Entities','pick.tiles':'Tiles','pick.mods':'Mods',
+  'pick.filterPh':'filter by name / metadata / tile path / mod id…',
+  'pick.loading':'Loading…','pick.noMatches':'No matches','pick.noMatchesGame':' — are you in game?',
+  'atlas.statusScan':'scanning…','atlas.statusClosed':'atlas closed — open it in-game + Refresh',
+  'atlas.title':'Title','atlas.count':'Count','atlas.category':'Category','atlas.map':'Map','atlas.content':'Content',
+  'atlas.biome':'Biome','atlas.pos':'Pos','atlas.noNodes':'No live nodes (open the Atlas in-game, then Refresh).',
+  'gi.uniques':'Uniques','gi.currency':'Currency','gi.runes':'Runes','gi.soulcores':'Soul Cores','gi.uncutgems':'Uncut Gems',
+  'gi.essences':'Essences','gi.fragments':'Fragments','gi.tablets':'Tablets','gi.delirium':'Delirium','gi.idols':'Idols',
+  'gi.abyss':'Abyss','gi.ritual':'Ritual','gi.breach':'Breach','gi.expedition':'Expedition',
+  'state.act':'Act','state.lvl':'lvl',
+  'atlas.mapColourGroups':'Map colour groups','atlas.addGroup':'+ Add group','atlas.quickSet':'Quick set',
+  'atlas.citadels':'Citadels','atlas.deadly':'Deadly Boss','atlas.bosses':'Bosses','atlas.towers':'Towers','atlas.uniques':'Uniques',
+  'atlas.kind':'Kind','atlas.type':'Type','atlas.activeOnly':'Active only','atlas.clearAll':'Clear all',
+  'atlas.hideCompleted':'Hide completed','atlas.hideAccessible':'Hide accessible','atlas.contentIcons':'Content icons',
+  'atlas.iconSize':'Icon size','atlas.arrowSpacing':'Arrow spacing',
+  'icon.monsterNormal':'Monster · Normal','icon.monsterMagic':'Monster · Magic','icon.monsterRare':'Monster · Rare','icon.monsterUnique':'Monster · Unique',
+  'icon.chestRare':'Chest · Rare','icon.chestUnique':'Chest · Unique','icon.poiLabel':'Point of Interest','icon.landmarkLabel':'Landmark',
+  'rules.noRules':'No display rules yet. Add one below.','rules.newRule':'New rule','rules.unnamed':'(unnamed)',
+  'rules.ruleNamePh':'rule name','rules.matchPh':'match: metadata terms, comma-separated (blank = any)',
+  'rules.modsPh':'monster mods: aura/buff terms, comma-separated (e.g. Aura, ManaSiphon) — blank = any',
+  'rules.labelPh':'label (optional)','rules.anyType':'any type','rules.modsLabel':'mods: ',
+  'rules.hidePh':'pattern or glob to hide (e.g. AbyssCrack, *Daemon*)','rules.nothingHidden':'Nothing hidden.',
+  'lm.searchPh':'filter by area / tile / label…','lm.areaPh':'area (e.g. P2_3, or *)','lm.patPh':'tile path / pattern','lm.labelPh':'label',
+  'lm.noLandmarks':'No curated landmarks','lm.forArea':' for this area (','lm.addOne':'Add one below','lm.orOff':' or turn off “This area only”',
+  'atlas.emptyTable':'Open the Atlas in-game + Refresh to list filters.',
+  'atlas.noGroups':'No groups. Maps in a group draw in its colour when tracked.',
+  'atlas.groupNamePh':'group name','atlas.mapsPh':'one map name per line','atlas.newGroup':'New group',
+  'atlas.colourHint':'recolour a whole category at once (Citadels, Halls, Uniques…)',
+  'atlas.noActive':'No active rules — click a row or a Quick set.',
+  'atlas.noFilters':'No filters yet (open the Atlas + Refresh).','atlas.reading':'reading…',
+  'atlas.nodes':'nodes','atlas.withContent':'with content','atlas.kinds':'kind','atlas.contents':'content','atlas.mapFilters':'map filters',
+  'hp.hint1':'Toggle the bar on/off per rarity with the On checkbox — uncheck all to disable HP bars entirely, or leave only the rarities you want.',
+  'hp.hint2':'Bar fill follows the monster icon color; set border color & thickness per rarity (thickness 0 = no border). Offset Y negative = above the mob.',
+  'ter.hint':'Edits rebuild the terrain bitmap; use “Show terrain” above to hide it entirely.',
+  'cal.hint':'Adjust here — changes apply live (no in-game hotkeys).',
+  'flask.hint':'F8 toggles auto-flask in-game. Status:',
+  'zoom.warn':'Writes to the game process — bypasses POE2Radar’s external read-only boundary and may violate the PoE2 Terms of Service. Off by default; use at your own risk.',
+  'price.statusPh':'Pricing status:','ground.catHint':'Show a label for these categories:',
+  'ground.bucketHint':'Minimum value to show, per bucket (Ex) — drops below the floor are hidden:',
+  'state.itemsLoaded':'items loaded','state.loading':'loading…','state.auto':'(auto)','state.statusPh':'Status:',
+  'mono.collected':'collected','mono.noRewards':'no priced rewards',
+  'rules.drHint':'The single source of truth for how every entity draws. Each entity is matched top-to-bottom; the first enabled rule that matches decides everything — icon & color, hidden, HP bar, auto-path. Reorder with ▲/▼ to change precedence. A rule matches on any mix of type, metadata terms, monster mods (auras/buffs), rarity, reaction, life, chest/POI/encounter state; a blank condition means “any”.',
+  'rules.hiddenHint':'A stronger cut than a Hide rule: entities whose metadata contains a pattern (or matches a */? glob) are removed everywhere — overlay, entity list, and navigation — before the display rules even run.',
+  'lm.hint':'The built-in “known” map features (boss arenas, exits, loot, waypoints…), labelled per area. Rename a wrong label, add your own, or hide a bad entry. Export a corrected list to share or submit for baking into a release; Import to load one. (For how a tile draws — icon/color/hide — use a Tile rule on the Rules tab; this is just the labels.)',
+  'atlas.help':'Open the Atlas in-game, then Refresh. Each row is a map type or rolled content read from memory. Per row toggle ☑ Highlight (ring it in-game), ⇴ Nav (draw a route to it), ➤ Arrow (edge pointer when off-screen) — independent. Click any column header to sort. Hover a tile in-game + press F10 to inspect it.',
+  'price.hint':'These apply to everything priced below — ground loot, hover, monolith & ritual rewards. Prices come from poe.ninja for the detected league.',
+  'ground.unidHint':'Unidentified uniques reveal their NAME + value; everything else (identified uniques, currency, runes, essences, …) shows the value only.',
+  'hover.hint':'Hovering is explicit intent, so this ignores the ground category toggles & value floors — any priced item shows. Stacks show the per-unit price and the stack total.',
+  'ce.hint':'When the in-game Currency Exchange is open, a top-right panel lists the best offered/wanted ratios + depth (the best row of each side is highlighted).',
+  'saved':'saved to config','update':'Update available','download':'Download'
+},
+'zh-CN': {
+  'tab.rules':'规则','tab.landmarks':'地标','tab.atlas':'异界图鉴','tab.value':'物品价值','tab.settings':'设置',
+  'side.life':'生命','side.es':'能量护盾','side.mana':'魔力','side.zone':'区域','side.area':'地图',
+  'side.areaCode':'地图代码','side.actLevel':'章节 / 等级','side.mapOpen':'地图已开','side.autoFlask':'自动药剂',
+  'side.census':'统计','side.entities':'实体','side.poi':'兴趣点','side.monsters':'怪物',
+  'side.landmarks':'地标','side.monolithRewards':'石碑奖励',
+  'conn.live':'已连接','conn.offline':'离线','state.ingame':'游戏中','state.town':'城镇/菜单',
+  'state.yes':'是','state.no':'否','state.on':'开','state.off':'关',
+  'sec.displayRules':'显示规则','sec.displayRulesTag':'一套有序规则 — 首个匹配生效',
+  'sec.hidden':'隐藏','sec.hiddenTag':'从雷达、列表与导航中彻底剔除',
+  'sec.landmarks':'地标','sec.landmarksTag':'精选地图标注 — 查看、修正、分享',
+  'sec.radarDisplay':'雷达显示','sec.hpBars':'怪物血条','sec.hpBarsTag':'按稀有度',
+  'sec.terrain':'地形','sec.terrainTag':'可行走叠加层','sec.calibration':'地图校准',
+  'sec.autoFlask':'自动药剂','sec.cameraZoom':'镜头缩放','sec.cameraZoomTag':'可选内存补丁',
+  'sec.generalPricing':'通用定价','sec.generalPricingTag':'poe.ninja','sec.groundLoot':'地面掉落',
+  'sec.onHover':'悬浮显示','sec.monolithRewards':'石碑奖励','sec.monolithRewardsTag':'先祖密藏',
+  'sec.currencyExchange':'通货兑换','sec.currencyExchangeTag':'卡尔古尔市场',
+  'set.showTerrain':'显示地形','set.showTerrainHint':'可行走地形位图',
+  'set.showPlayerBlip':'显示玩家光点','set.showPlayerBlipHint':'标记自身位置的蓝点',
+  'set.showMinimap':'小地图雷达','set.showMinimapHint':'自绘的圆形角落地图（游戏地图已透明）',
+  'set.minimapCorner':'小地图位置','set.minimapCornerHint':'圆形地图固定的屏幕角落',
+  'set.minimapSize':'小地图大小','set.minimapSizeHint':'圆形直径，单位像素（80–600）',
+  'set.minimapZoom':'小地图缩放','set.minimapZoomHint':'× 大地图比例（越大越放大）',
+  'set.alwaysShow':'始终显示悬浮层','set.alwaysShowHint':'即使 PoE2 不在前台也绘制；自动药剂始终受前台限制',
+  'set.hideJunk':'隐藏垃圾实体','set.hideJunkHint':'过滤外观 / 特效 / 守护进程光点',
+  'set.navPaths':'导航路径','set.navPathsHint':'绘制到所选地标的 A* 路线',
+  'set.showWorldPaths':'世界路径（无地图时）','set.showWorldPathsHint':'大地图关闭时在真实地面上绘制路线（关闭 = 仅显示在小地图）',
+  'set.curated':'精选地标名','set.curatedHint':'社区标注（boss / 奖励 / 出口）',
+  'set.gh2Landmarks':'GameHelper2 地标','set.gh2LandmarksHint':'终局 boss 竞技场 + 地牢楼梯（GH2 参考集）',
+  'set.autoBoss':'自动识别 Boss 房','set.autoBossHint':'将名称含 “boss”/“arena” 的地块标为 Boss 地标',
+  'set.gh2Radar':'GH2 雷达（完整）','set.gh2RadarHint':'复刻 GameHelper2 Radar 插件的额外图标识别',
+  'set.fpsCap':'悬浮层 FPS 上限','set.fpsCapHint':'越低对游戏负载越小',
+  'set.language':'语言','set.languageHint':'雷达界面 + 地图术语（机制 / 兴趣点标签）',
+  'hp.on':'开','hp.rarity':'稀有度','hp.width':'宽度','hp.border':'边框','hp.thick':'粗细',
+  'hp.normal':'普通','hp.magic':'魔法','hp.rare':'稀有','hp.unique':'传奇',
+  'hp.height':'高度','hp.offsetX':'偏移 X','hp.offsetY':'偏移 Y',
+  'ter.interior':'内部填充','ter.interiorHint':'可行走格子的淡色覆盖',
+  'ter.edge':'墙体边缘','ter.edgeHint':'房间外围描边',
+  'cal.scale':'缩放倍率','cal.scaleHint':'地图叠加层的投影缩放',
+  'cal.offsetX':'偏移 X','cal.offsetY':'偏移 Y',
+  'flask.mode':'生命药剂触发条件','flask.modeHint':'生命药剂按键监控哪个资源池 — 无 ES 时忽略 ES',
+  'flask.modeHealth':'生命 %','flask.modeEs':'能量护盾 %','flask.modeEither':'任一（生命或 ES）',
+  'flask.lifeThr':'生命阈值 %','flask.lifeThrHint':'生命低于此 % 时使用生命药剂',
+  'flask.esThr':'ES 阈值 %','flask.esThrHint':'ES 低于此 % 时使用生命药剂（ES / 任一模式）',
+  'flask.manaThr':'魔力阈值 %','flask.manaThrHint':'魔力低于此 % 时使用魔力药剂',
+  'flask.lifeKey':'生命药剂按键','flask.manaKey':'魔力药剂按键',
+  'flask.lifeCd':'生命药剂冷却','flask.lifeCdHint':'两次生命药剂间最短毫秒',
+  'flask.manaCd':'魔力药剂冷却','flask.manaCdHint':'两次魔力药剂间最短毫秒',
+  'zoom.enable':'启用拉远镜头','zoom.enableHint':'让镜头比游戏默认更远地拉出',
+  'zoom.value':'缩放钳制值','zoom.valueHint':'越高拉得越远（minss 钳制目标）',
+  'price.league':'定价赛季','price.leagueHint':'留空以从游戏自动检测赛季（HC/SC/标准）',
+  'price.minQty':'低挂单警告','price.minQtyHint':'挂单数少于 N 时用 “?” 标记（可能为错误挂单）',
+  'ground.show':'显示地面掉落价值','ground.showHint':'在地图掉落物上绘制价值标签',
+  'ground.uniqueMin':'传奇最低','ground.uniqueMinHint':'低于此值的传奇隐藏（Ex）',
+  'ground.currencyMin':'通货最低','ground.currencyMinHint':'低于此值的通货隐藏（Ex）',
+  'ground.otherMin':'其他最低','ground.otherMinHint':'符文 / 精华 / 碎片 / …（Ex）',
+  'ground.highlight':'高亮阈值','ground.highlightHint':'达到或超过此值时描边/强调（Ex）',
+  'hover.show':'悬浮显示物品价值','hover.showHint':'游戏提示旁的价格标签',
+  'hover.highlight':'高亮阈值','hover.highlightHint':'达到或超过此（堆叠）价值时强调（Ex）',
+  'mono.enabled':'启用','mono.enabledHint':'读取 + 定价符文塑形石碑奖励',
+  'mono.minValue':'显示 / 自动导航最低值','mono.minValueHint':'低于此值完全隐藏石碑（Ex）。0 = 显示所有石碑',
+  'mono.highlight':'高亮阈值','mono.highlightHint':'达到或超过此值的绿色价值层级（Ex）',
+  'mono.hideCollected':'隐藏已领取','mono.hideCollectedHint':'隐藏奖励已领取的石碑',
+  'mono.showPanel':'显示奖励面板','mono.showPanelHint':'悬浮层中的附近石碑奖励列表',
+  'mono.showLabel':'显示地图标签','mono.showLabelHint':'在图标处绘制价值 + 最高奖励',
+  'ce.enabled':'启用','ce.enabledHint':'打开兑换时显示订单簿深度面板',
+  'ce.maxRows':'最大行数','ce.maxRowsHint':'每侧显示的阶梯行数',
+  'cat.Monster':'怪物','cat.Chest':'宝箱','cat.Player':'玩家','cat.Npc':'NPC','cat.Object':'地形',
+  'cat.Other':'杂项 / 兴趣点','cat.Transition':'出入口','cat.Tile':'地块',
+  'cat.Monsters':'怪物','cat.Chests':'宝箱','cat.Misc':'杂项 / 兴趣点','cat.Terrain':'地形',
+  'cat.NPCs':'NPC','cat.Transitions':'出入口',
+  'rar.Normal':'普通','rar.Magic':'魔法','rar.Rare':'稀有','rar.Unique':'传奇',
+  'sel.rarity':'稀有度','sel.reaction':'敌我关系','sel.life':'生命','sel.chest':'宝箱','sel.poi':'兴趣点','sel.encounter':'遭遇',
+  'sel.any':'任意','sel.hostile':'敌对','sel.friendly':'友好','sel.alive':'存活','sel.dead':'死亡',
+  'sel.opened':'已开启','sel.unopened':'未开启','sel.yes':'是','sel.no':'否','sel.active':'进行中','sel.complete':'已完成',
+  'btn.add':'+ 添加','btn.remove':'移除','btn.delete':'删除','btn.hide':'+ 隐藏','btn.restore':'恢复',
+  'btn.import':'导入…','btn.export':'导出','btn.addFromGame':'+ 从游戏数据添加…','btn.addBlank':'+ 添加空白规则',
+  'btn.thisArea':'仅此区域','btn.refresh':'刷新','btn.hide':'隐藏','btn.autoPath':'自动寻路',
+  'pick.all':'全部','pick.entities':'实体','pick.tiles':'地块','pick.mods':'词缀',
+  'pick.filterPh':'按名称 / 元数据 / 地块路径 / 词缀 id 过滤…',
+  'pick.loading':'加载中…','pick.noMatches':'无匹配','pick.noMatchesGame':' — 你在游戏中吗？',
+  'atlas.statusScan':'扫描中…','atlas.statusClosed':'图鉴已关闭 — 在游戏中打开 + 刷新',
+  'atlas.title':'标题','atlas.count':'数量','atlas.category':'分类','atlas.map':'地图','atlas.content':'内容',
+  'atlas.biome':'生物群系','atlas.pos':'坐标','atlas.noNodes':'无实时节点（在游戏中打开图鉴，然后刷新）。',
+  'gi.uniques':'传奇物品','gi.currency':'通货','gi.runes':'符文','gi.soulcores':'魂核','gi.uncutgems':'未切割宝石',
+  'gi.essences':'精华','gi.fragments':'碎片','gi.tablets':'石板','gi.delirium':'迷雾','gi.idols':'神像',
+  'gi.abyss':'深渊','gi.ritual':'祭祀','gi.breach':'裂隙','gi.expedition':'先祖密藏',
+  'state.act':'章节','state.lvl':'级',
+  'atlas.mapColourGroups':'地图颜色分组','atlas.addGroup':'+ 添加分组','atlas.quickSet':'快速设置',
+  'atlas.citadels':'城塞','atlas.deadly':'致命 Boss','atlas.bosses':'Boss','atlas.towers':'塔','atlas.uniques':'传奇',
+  'atlas.kind':'类型','atlas.type':'种类','atlas.activeOnly':'仅已启用','atlas.clearAll':'全部清除',
+  'atlas.hideCompleted':'隐藏已完成','atlas.hideAccessible':'隐藏可进入','atlas.contentIcons':'内容图标',
+  'atlas.iconSize':'图标大小','atlas.arrowSpacing':'箭头间距',
+  'icon.monsterNormal':'怪物 · 普通','icon.monsterMagic':'怪物 · 魔法','icon.monsterRare':'怪物 · 稀有','icon.monsterUnique':'怪物 · 传奇',
+  'icon.chestRare':'宝箱 · 稀有','icon.chestUnique':'宝箱 · 传奇','icon.poiLabel':'兴趣点','icon.landmarkLabel':'地标',
+  'rules.noRules':'还没有显示规则，在下方添加。','rules.newRule':'新规则','rules.unnamed':'(未命名)',
+  'rules.ruleNamePh':'规则名称','rules.matchPh':'匹配：元数据词条，逗号分隔（留空 = 任意）',
+  'rules.modsPh':'怪物词缀：光环/buff 词条，逗号分隔（如 Aura、ManaSiphon）— 留空 = 任意',
+  'rules.labelPh':'标签（可选）','rules.anyType':'任意类型','rules.modsLabel':'词缀：',
+  'rules.hidePh':'要隐藏的模式或通配符（如 AbyssCrack、*Daemon*）','rules.nothingHidden':'未隐藏任何内容。',
+  'lm.searchPh':'按区域 / 地块 / 标签过滤…','lm.areaPh':'区域（如 P2_3 或 *）','lm.patPh':'地块路径 / 模式','lm.labelPh':'标签',
+  'lm.noLandmarks':'没有精选地标','lm.forArea':' 于该区域（','lm.addOne':'在下方添加','lm.orOff':' 或关闭“仅此区域”',
+  'atlas.emptyTable':'在游戏中打开图鉴 + 刷新以列出过滤器。',
+  'atlas.noGroups':'暂无分组。分组内的地图在被追踪时以该组颜色绘制。',
+  'atlas.groupNamePh':'分组名称','atlas.mapsPh':'每行一个地图名','atlas.newGroup':'新分组',
+  'atlas.colourHint':'一次性为整个分类着色（城塞、殿堂、传奇…）',
+  'atlas.noActive':'无已启用规则 — 点击某行或快速设置。',
+  'atlas.noFilters':'暂无过滤器（打开图鉴 + 刷新）。','atlas.reading':'读取中…',
+  'atlas.nodes':'节点','atlas.withContent':'含内容','atlas.kinds':'类型','atlas.contents':'内容','atlas.mapFilters':'地图过滤器',
+  'hp.hint1':'用“开”复选框按稀有度开关血条 — 全部取消可完全禁用血条，或只保留想要的稀有度。',
+  'hp.hint2':'血条填充跟随怪物图标颜色；按稀有度设置边框颜色与粗细（粗细 0 = 无边框）。偏移 Y 为负 = 在怪物上方。',
+  'ter.hint':'编辑会重建地形位图；用上方的“显示地形”可完全隐藏。',
+  'cal.hint':'在此调整 — 修改立即生效（无需游戏内热键）。',
+  'flask.hint':'F8 在游戏中切换自动药剂。状态：',
+  'zoom.warn':'会写入游戏进程 — 绕过 POE2Radar 的外部只读边界，可能违反 PoE2 服务条款。默认关闭；风险自负。',
+  'price.statusPh':'定价状态：','ground.catHint':'为这些分类显示标签：',
+  'ground.bucketHint':'每个桶（Ex）显示的最低价值 — 低于下限的掉落被隐藏：',
+  'state.itemsLoaded':'已加载物品','state.loading':'加载中…','state.auto':'(自动)','state.statusPh':'状态：',
+  'mono.collected':'已领取','mono.noRewards':'无已定价奖励',
+  'rules.drHint':'每个实体如何绘制的唯一依据。实体从上到下匹配；首个匹配的启用规则决定一切 — 图标与颜色、是否隐藏、是否显示血条、是否自动寻路。用 ▲/▼ 调整优先级。规则可匹配类型、元数据词条、怪物词缀（光环/buff）、稀有度、敌我关系、生命、宝箱/兴趣点/遭遇状态；留空条件表示“任意”。',
+  'rules.hiddenHint':'比“隐藏”规则更强的剔除：元数据包含某模式（或匹配 */? 通配符）的实体会在所有地方被移除 — 悬浮层、实体列表与导航 — 甚至在显示规则运行之前。',
+  'lm.hint':'内置“已知”地图要素（boss 竞技场、出口、战利品、传送点…），按区域标注。重命名错误的标签、添加自己的、或隐藏坏条目。导出修正后的列表以分享或提交纳入发布；导入以加载。（地块如何绘制 — 图标/颜色/隐藏 — 请在规则页用“地块”规则；这里只是标签。）',
+  'atlas.help':'在游戏中打开图鉴，然后刷新。每行是一个地图类型或从内存读取的骰入内容。每行可独立切换 ☑ 高亮（游戏中圈出）、⇴ 导航（绘制路线）、➤ 箭头（屏幕外时边缘指针）。点击任意列头排序。在游戏中悬停地块并按 F10 检视。',
+  'price.hint':'这些适用于下方所有定价内容 — 地面掉落、悬浮、石碑与祭祀奖励。价格来自 poe.ninja（按检测到的赛季）。',
+  'ground.unidHint':'未鉴定传奇显示其名称 + 价值；其余（已鉴定传奇、通货、符文、精华、…）只显示价值。',
+  'hover.hint':'悬浮是明确意图，因此忽略地面分类开关与价值下限 — 任何已定价物品都会显示。堆叠显示单价与堆叠总价。',
+  'ce.hint':'当游戏内通货兑换打开时，右上角面板会列出最佳卖/买比价 + 深度（每侧最佳行高亮）。',
+  'saved':'已保存到配置','update':'有可用更新','download':'下载'
+},
+'zh-Hant': {
+  'tab.rules':'規則','tab.landmarks':'地標','tab.atlas':'異界圖鑑','tab.value':'物品價值','tab.settings':'設定',
+  'side.life':'生命','side.es':'能量護盾','side.mana':'魔力','side.zone':'區域','side.area':'地圖',
+  'side.areaCode':'地圖代碼','side.actLevel':'章節 / 等級','side.mapOpen':'地圖已開','side.autoFlask':'自動藥劑',
+  'side.census':'統計','side.entities':'實體','side.poi':'興趣點','side.monsters':'怪物',
+  'side.landmarks':'地標','side.monolithRewards':'石碑獎勵',
+  'conn.live':'已連線','conn.offline':'離線','state.ingame':'遊戲中','state.town':'城鎮/選單',
+  'state.yes':'是','state.no':'否','state.on':'開','state.off':'關',
+  'sec.displayRules':'顯示規則','sec.displayRulesTag':'一套有序規則 — 首個匹配生效',
+  'sec.hidden':'隱藏','sec.hiddenTag':'從雷達、列表與導航中徹底剔除',
+  'sec.landmarks':'地標','sec.landmarksTag':'精選地圖標註 — 查看、修正、分享',
+  'sec.radarDisplay':'雷達顯示','sec.hpBars':'怪物血條','sec.hpBarsTag':'按稀有度',
+  'sec.terrain':'地形','sec.terrainTag':'可行走疊加層','sec.calibration':'地圖校準',
+  'sec.autoFlask':'自動藥劑','sec.cameraZoom':'鏡頭縮放','sec.cameraZoomTag':'可選記憶體補丁',
+  'sec.generalPricing':'通用定價','sec.generalPricingTag':'poe.ninja','sec.groundLoot':'地面掉落',
+  'sec.onHover':'懸浮顯示','sec.monolithRewards':'石碑獎勵','sec.monolithRewardsTag':'先祖密藏',
+  'sec.currencyExchange':'通貨兌換','sec.currencyExchangeTag':'卡爾古爾市場',
+  'set.showTerrain':'顯示地形','set.showTerrainHint':'可行走地形點陣圖',
+  'set.showPlayerBlip':'顯示玩家光點','set.showPlayerBlipHint':'標記自身位置的藍點',
+  'set.showMinimap':'小地圖雷達','set.showMinimapHint':'自繪的圓形角落地圖（遊戲地圖已透明）',
+  'set.minimapCorner':'小地圖位置','set.minimapCornerHint':'圓形地圖固定的螢幕角落',
+  'set.minimapSize':'小地圖大小','set.minimapSizeHint':'圓形直徑，單位像素（80–600）',
+  'set.minimapZoom':'小地圖縮放','set.minimapZoomHint':'× 大地圖比例（越大越放大）',
+  'set.alwaysShow':'始終顯示疊加層','set.alwaysShowHint':'即使 PoE2 不在前景也繪製；自動藥劑始終受前景限制',
+  'set.hideJunk':'隱藏垃圾實體','set.hideJunkHint':'過濾外觀 / 特效 / 守護進程光點',
+  'set.navPaths':'導航路徑','set.navPathsHint':'繪製到所選地標的 A* 路線',
+  'set.showWorldPaths':'世界路徑（無地圖時）','set.showWorldPathsHint':'大地圖關閉時在真實地面上繪製路線（關閉 = 僅顯示在小地圖）',
+  'set.curated':'精選地標名','set.curatedHint':'社群標註（boss / 獎勵 / 出口）',
+  'set.gh2Landmarks':'GameHelper2 地標','set.gh2LandmarksHint':'終局 boss 競技場 + 地牢樓梯（GH2 參考集）',
+  'set.autoBoss':'自動識別 Boss 房','set.autoBossHint':'將名稱含 “boss”/“arena” 的地塊標為 Boss 地標',
+  'set.gh2Radar':'GH2 雷達（完整）','set.gh2RadarHint':'複刻 GameHelper2 Radar 外掛的額外圖示識別',
+  'set.fpsCap':'疊加層 FPS 上限','set.fpsCapHint':'越低對遊戲負載越小',
+  'set.language':'語言','set.languageHint':'雷達介面 + 地圖術語（機制 / 興趣點標籤）',
+  'hp.on':'開','hp.rarity':'稀有度','hp.width':'寬度','hp.border':'邊框','hp.thick':'粗細',
+  'hp.normal':'普通','hp.magic':'魔法','hp.rare':'稀有','hp.unique':'傳奇',
+  'hp.height':'高度','hp.offsetX':'偏移 X','hp.offsetY':'偏移 Y',
+  'ter.interior':'內部填充','ter.interiorHint':'可行走格子的淡色覆蓋',
+  'ter.edge':'牆體邊緣','ter.edgeHint':'房間外圍描邊',
+  'cal.scale':'縮放倍率','cal.scaleHint':'地圖疊加層的投影縮放',
+  'cal.offsetX':'偏移 X','cal.offsetY':'偏移 Y',
+  'flask.mode':'生命藥劑觸發條件','flask.modeHint':'生命藥劑按鍵監控哪個資源池 — 無 ES 時忽略 ES',
+  'flask.modeHealth':'生命 %','flask.modeEs':'能量護盾 %','flask.modeEither':'任一（生命或 ES）',
+  'flask.lifeThr':'生命閾值 %','flask.lifeThrHint':'生命低於此 % 時使用生命藥劑',
+  'flask.esThr':'ES 閾值 %','flask.esThrHint':'ES 低於此 % 時使用生命藥劑（ES / 任一模式）',
+  'flask.manaThr':'魔力閾值 %','flask.manaThrHint':'魔力低於此 % 時使用魔力藥劑',
+  'flask.lifeKey':'生命藥劑按鍵','flask.manaKey':'魔力藥劑按鍵',
+  'flask.lifeCd':'生命藥劑冷卻','flask.lifeCdHint':'兩次生命藥劑間最短毫秒',
+  'flask.manaCd':'魔力藥劑冷卻','flask.manaCdHint':'兩次魔力藥劑間最短毫秒',
+  'zoom.enable':'啟用拉遠鏡頭','zoom.enableHint':'讓鏡頭比遊戲預設更遠地拉出',
+  'zoom.value':'縮放鉗制值','zoom.valueHint':'越高拉得越遠（minss 鉗制目標）',
+  'price.league':'定價聯盟','price.leagueHint':'留空以從遊戲自動偵測聯盟（HC/SC/標準）',
+  'price.minQty':'低掛單警告','price.minQtyHint':'掛單數少於 N 時用 “?” 標記（可能為錯誤掛單）',
+  'ground.show':'顯示地面掉落價值','ground.showHint':'在地圖掉落物上繪製價值標籤',
+  'ground.uniqueMin':'傳奇最低','ground.uniqueMinHint':'低於此值的傳奇隱藏（Ex）',
+  'ground.currencyMin':'通貨最低','ground.currencyMinHint':'低於此值的通貨隱藏（Ex）',
+  'ground.otherMin':'其他最低','ground.otherMinHint':'符文 / 精華 / 碎片 / …（Ex）',
+  'ground.highlight':'高亮閾值','ground.highlightHint':'達到或超過此值時描邊/強調（Ex）',
+  'hover.show':'懸浮顯示物品價值','hover.showHint':'遊戲提示旁的價格標籤',
+  'hover.highlight':'高亮閾值','hover.highlightHint':'達到或超過此（堆疊）價值時強調（Ex）',
+  'mono.enabled':'啟用','mono.enabledHint':'讀取 + 定價符文塑形石碑獎勵',
+  'mono.minValue':'顯示 / 自動導航最低值','mono.minValueHint':'低於此值完全隱藏石碑（Ex）。0 = 顯示所有石碑',
+  'mono.highlight':'高亮閾值','mono.highlightHint':'達到或超過此值的綠色價值層級（Ex）',
+  'mono.hideCollected':'隱藏已領取','mono.hideCollectedHint':'隱藏獎勵已領取的石碑',
+  'mono.showPanel':'顯示獎勵面板','mono.showPanelHint':'疊加層中的附近石碑獎勵列表',
+  'mono.showLabel':'顯示地圖標籤','mono.showLabelHint':'在圖示處繪製價值 + 最高獎勵',
+  'ce.enabled':'啟用','ce.enabledHint':'開啟兌換時顯示訂單簿深度面板',
+  'ce.maxRows':'最大行數','ce.maxRowsHint':'每側顯示的階梯行數',
+  'cat.Monster':'怪物','cat.Chest':'寶箱','cat.Player':'玩家','cat.Npc':'NPC','cat.Object':'地形',
+  'cat.Other':'雜項 / 興趣點','cat.Transition':'出入口','cat.Tile':'地塊',
+  'cat.Monsters':'怪物','cat.Chests':'寶箱','cat.Misc':'雜項 / 興趣點','cat.Terrain':'地形',
+  'cat.NPCs':'NPC','cat.Transitions':'出入口',
+  'rar.Normal':'普通','rar.Magic':'魔法','rar.Rare':'稀有','rar.Unique':'傳奇',
+  'sel.rarity':'稀有度','sel.reaction':'敵我關係','sel.life':'生命','sel.chest':'寶箱','sel.poi':'興趣點','sel.encounter':'遭遇',
+  'sel.any':'任意','sel.hostile':'敵對','sel.friendly':'友好','sel.alive':'存活','sel.dead':'死亡',
+  'sel.opened':'已開啟','sel.unopened':'未開啟','sel.yes':'是','sel.no':'否','sel.active':'進行中','sel.complete':'已完成',
+  'btn.add':'+ 新增','btn.remove':'移除','btn.delete':'刪除','btn.hide':'+ 隱藏','btn.restore':'還原',
+  'btn.import':'匯入…','btn.export':'匯出','btn.addFromGame':'+ 從遊戲資料新增…','btn.addBlank':'+ 新增空白規則',
+  'btn.thisArea':'僅此區域','btn.refresh':'重新整理','btn.hide':'隱藏','btn.autoPath':'自動尋路',
+  'pick.all':'全部','pick.entities':'實體','pick.tiles':'地塊','pick.mods':'詞綴',
+  'pick.filterPh':'按名稱 / 中繼資料 / 地塊路徑 / 詞綴 id 過濾…',
+  'pick.loading':'載入中…','pick.noMatches':'無相符','pick.noMatchesGame':' — 你在遊戲中嗎？',
+  'atlas.statusScan':'掃描中…','atlas.statusClosed':'圖鑑已關閉 — 在遊戲中開啟 + 重新整理',
+  'atlas.title':'標題','atlas.count':'數量','atlas.category':'分類','atlas.map':'地圖','atlas.content':'內容',
+  'atlas.biome':'生物群系','atlas.pos':'座標','atlas.noNodes':'無即時節點（在遊戲中開啟圖鑑，然後重新整理）。',
+  'gi.uniques':'傳奇物品','gi.currency':'通貨','gi.runes':'符文','gi.soulcores':'魂核','gi.uncutgems':'未切割寶石',
+  'gi.essences':'精華','gi.fragments':'碎片','gi.tablets':'石板','gi.delirium':'迷霧','gi.idols':'神像',
+  'gi.abyss':'深淵','gi.ritual':'祭祀','gi.breach':'裂隙','gi.expedition':'先祖密藏',
+  'state.act':'章節','state.lvl':'級',
+  'atlas.mapColourGroups':'地圖顏色分組','atlas.addGroup':'+ 新增分組','atlas.quickSet':'快速設定',
+  'atlas.citadels':'城塞','atlas.deadly':'致命 Boss','atlas.bosses':'Boss','atlas.towers':'塔','atlas.uniques':'傳奇',
+  'atlas.kind':'類型','atlas.type':'種類','atlas.activeOnly':'僅已啟用','atlas.clearAll':'全部清除',
+  'atlas.hideCompleted':'隱藏已完成','atlas.hideAccessible':'隱藏可進入','atlas.contentIcons':'內容圖示',
+  'atlas.iconSize':'圖示大小','atlas.arrowSpacing':'箭頭間距',
+  'icon.monsterNormal':'怪物 · 普通','icon.monsterMagic':'怪物 · 魔法','icon.monsterRare':'怪物 · 稀有','icon.monsterUnique':'怪物 · 傳奇',
+  'icon.chestRare':'寶箱 · 稀有','icon.chestUnique':'寶箱 · 傳奇','icon.poiLabel':'興趣點','icon.landmarkLabel':'地標',
+  'rules.noRules':'還沒有顯示規則，在下方新增。','rules.newRule':'新規則','rules.unnamed':'(未命名)',
+  'rules.ruleNamePh':'規則名稱','rules.matchPh':'符合：中繼資料詞條，逗號分隔（留空 = 任意）',
+  'rules.modsPh':'怪物詞綴：光環/buff 詞條，逗號分隔（如 Aura、ManaSiphon）— 留空 = 任意',
+  'rules.labelPh':'標籤（可選）','rules.anyType':'任意類型','rules.modsLabel':'詞綴：',
+  'rules.hidePh':'要隱藏的模式或萬用字元（如 AbyssCrack、*Daemon*）','rules.nothingHidden':'未隱藏任何內容。',
+  'lm.searchPh':'按區域 / 地塊 / 標籤過濾…','lm.areaPh':'區域（如 P2_3 或 *）','lm.patPh':'地塊路徑 / 模式','lm.labelPh':'標籤',
+  'lm.noLandmarks':'沒有精選地標','lm.forArea':' 於該區域（','lm.addOne':'在下方新增','lm.orOff':' 或關閉「僅此區域」',
+  'atlas.emptyTable':'在遊戲中開啟圖鑑 + 重新整理以列出過濾器。',
+  'atlas.noGroups':'尚無分組。分組內的地圖在被追蹤時以該組顏色繪製。',
+  'atlas.groupNamePh':'分組名稱','atlas.mapsPh':'每行一個地圖名','atlas.newGroup':'新分組',
+  'atlas.colourHint':'一次為整個分類著色（城塞、殿堂、傳奇…）',
+  'atlas.noActive':'無已啟用規則 — 點擊某行或快速設定。',
+  'atlas.noFilters':'尚無過濾器（開啟圖鑑 + 重新整理）。','atlas.reading':'讀取中…',
+  'atlas.nodes':'節點','atlas.withContent':'含內容','atlas.kinds':'類型','atlas.contents':'內容','atlas.mapFilters':'地圖過濾器',
+  'hp.hint1':'用「開」核取方塊按稀有度開關血條 — 全部取消可完全停用血條，或只保留想要的稀有度。',
+  'hp.hint2':'血條填滿跟隨怪物圖示顏色；按稀有度設定邊框顏色與粗細（粗細 0 = 無邊框）。偏移 Y 為負 = 在怪物上方。',
+  'ter.hint':'編輯會重建地形點陣圖；用上方的「顯示地形」可完全隱藏。',
+  'cal.hint':'在此調整 — 修改立即生效（無需遊戲內熱鍵）。',
+  'flask.hint':'F8 在遊戲中切換自動藥劑。狀態：',
+  'zoom.warn':'會寫入遊戲程序 — 繞過 POE2Radar 的外部唯讀邊界，可能違反 PoE2 服務條款。預設關閉；風險自負。',
+  'price.statusPh':'定價狀態：','ground.catHint':'為這些分類顯示標籤：',
+  'ground.bucketHint':'每個桶（Ex）顯示的最低價值 — 低於下限的掉落被隱藏：',
+  'state.itemsLoaded':'已載入物品','state.loading':'載入中…','state.auto':'(自動)','state.statusPh':'狀態：',
+  'mono.collected':'已領取','mono.noRewards':'無已定價獎勵',
+  'rules.drHint':'每個實體如何繪製的唯一依據。實體從上到下符合；首個符合的啟用規則決定一切 — 圖示與顏色、是否隱藏、是否顯示血條、是否自動尋路。用 ▲/▼ 調整優先順序。規則可符合類型、中繼資料詞條、怪物詞綴（光環/buff）、稀有度、敵我關係、生命、寶箱/興趣點/遭遇狀態；留空條件表示「任意」。',
+  'rules.hiddenHint':'比「隱藏」規則更強的剔除：中繼資料包含某模式（或符合 */? 萬用字元）的實體會在所有地方被移除 — 疊加層、實體列表與導航 — 甚至在顯示規則執行之前。',
+  'lm.hint':'內建「已知」地圖要素（boss 競技場、出口、戰利品、傳送點…），按區域標註。重新命名錯誤的標籤、新增自己的、或隱藏壞條目。匯出修正後的列表以分享或提交納入發布；匯入以載入。（地塊如何繪製 — 圖示/顏色/隱藏 — 請在規則頁用「地塊」規則；這裡只是標籤。）',
+  'atlas.help':'在遊戲中開啟圖鑑，然後重新整理。每行是一個地圖類型或從記憶體讀取的骰入內容。每行可獨立切換 ☑ 高亮（遊戲中圈出）、⇴ 導航（繪製路線）、➤ 箭頭（螢幕外時邊緣指標）。點擊任意列頭排序。在遊戲中懸停地塊並按 F10 檢視。',
+  'price.hint':'這些適用於下方所有定價內容 — 地面掉落、懸浮、石碑與祭祀獎勵。價格來自 poe.ninja（按偵測到的聯盟）。',
+  'ground.unidHint':'未鑑定傳奇顯示其名稱 + 價值；其餘（已鑑定傳奇、通貨、符文、精華、…）只顯示價值。',
+  'hover.hint':'懸浮是明確意圖，因此忽略地面分類開關與價值下限 — 任何已定價物品都會顯示。堆疊顯示單價與堆疊總價。',
+  'ce.hint':'當遊戲內通貨兌換開啟時，右上角面板會列出最佳賣/買比價 + 深度（每側最佳行高亮）。',
+  'saved':'已儲存到設定','update':'有可用更新','download':'下載'
+}
+};
+let curLang='en';
+const t=k=>(I18N[curLang]&&I18N[curLang][k])||I18N['en'][k]||k;
+function applyLang(lang){
+  curLang=(lang==='zh-CN'||lang==='zh-Hant')?lang:'en';
+  document.documentElement.lang=curLang;
+  $$('[data-i18n]').forEach(el=>{ const v=t(el.dataset.i18n); if(v!==undefined) el.textContent=v; });
+  $$('[data-i18n-ph]').forEach(el=>{ const v=t(el.dataset.i18nPh); if(v!==undefined) el.placeholder=v; });
+  renderState();
+  renderDrules(); renderMechanics(); renderIcons(); renderLandmarks();
+  if(atlasData) renderAtlas();
+}
 
 /* ── tabs ── */
 $$('.tab').forEach(t=>t.onclick=()=>{
@@ -739,7 +1177,7 @@ $$('.tab').forEach(t=>t.onclick=()=>{
 
 /* ── polling (left rail vitals/zone/census) ── */
 async function getJSON(u){ const r=await fetch(u,{cache:'no-store'}); if(!r.ok) throw 0; return r.json(); }
-function setConn(live){ $('#conn').classList.toggle('live',live); $('#connTxt').textContent = live?'live':'offline'; }
+function setConn(live){ $('#conn').classList.toggle('live',live); $('#connTxt').textContent = t(live?'conn.live':'conn.offline'); }
 
 async function tick(){
   try{
@@ -748,6 +1186,7 @@ async function tick(){
     try{ zone = await getJSON('/api/zone'); }catch(e){ zone=null; }
     renderState();
     if(activeTab==='value') pollPrices();   // keep the league/status live (prices load a few s after launch)
+    if(activeTab==='settings') refreshZoomStatus();   // keep the camera-zoom patch status live
   }catch(e){ setConn(false); }
 }
 
@@ -767,7 +1206,10 @@ async function loadSettings(){
     hover = s.hoverPrice || {};
     mono = s.monoliths || {};
     ce = s.currencyExchange || {};
+    zoomCfg = s.zoom || null;
     renderHpBars(); renderTerrain(); renderGround(); renderHover(); renderMono(); renderExchange();
+    renderZoom(); renderZoomStatus(s.zoomStatus, !!(s.zoom && s.zoom.enabled));
+    applyLang(s.language);
   }catch(e){}
 }
 
@@ -822,11 +1264,11 @@ async function pollPrices(){
   try{
     const p = await getJSON('/api/prices');
     const st = $('#priceStatus'); const lg = $('#giLeague');
-    if(lg && p.league) lg.placeholder = p.league + ' (auto)';
+    if(lg && p.league) lg.placeholder = p.league + ' '+t('state.auto');
     if(st){
       st.textContent = p.loaded
-        ? `${p.league||'?'} — ${p.count||0} items loaded`
-        : (p.status||'loading…');
+        ? `${p.league||'?'} — ${p.count||0} ${t('state.itemsLoaded')}`
+        : (p.status||t('state.loading'));
       st.style.color = p.loaded ? 'var(--good, #3ddc97)' : 'var(--ink-dim)';
     }
   }catch(e){}
@@ -867,6 +1309,36 @@ function wireExchange(){
     else el.onchange=()=>{ const v=parseFloat(el.value); if(!isNaN(v)){ ce=ce||{}; ce[k]=v; saveExchange(); } };
   });
 }
+/* ── camera zoom (nested object: POST {zoom}; applies the opt-in memory patch) ── */
+let zoomCfg = null;
+function renderZoom(){
+  if(!zoomCfg) return;
+  $$('[data-zoom]').forEach(el=>{
+    const k=el.dataset.zoom;
+    if(el.type==='checkbox') el.checked=!!zoomCfg[k];
+    else if(zoomCfg[k]!==undefined && zoomCfg[k]!==null) el.value=zoomCfg[k];
+  });
+}
+function renderZoomStatus(zs, enabled){
+  const st=$('#zoomState'); if(!st) return;
+  if(zs && zs.applied){ st.textContent=zs.note||'applied'; st.style.color='var(--good,#3ddc97)'; }
+  else if(enabled){ st.textContent=(zs&&zs.note)||'applying…'; st.style.color='var(--blood-bright)'; }
+  else { st.textContent='off'; st.style.color='var(--ink-dim)'; }
+}
+function saveZoom(){ if(zoomCfg) saveSetting('zoom', zoomCfg); }
+function wireZoom(){
+  $$('[data-zoom]').forEach(el=>{
+    const k=el.dataset.zoom;
+    if(el.type==='checkbox') el.onchange=()=>{ zoomCfg=zoomCfg||{}; zoomCfg[k]=el.checked; saveZoom(); };
+    else el.onchange=()=>{ const v=parseFloat(el.value); if(!isNaN(v)){ zoomCfg=zoomCfg||{}; zoomCfg[k]=v; saveZoom(); } };
+  });
+}
+async function refreshZoomStatus(){
+  try{
+    const s = await getJSON('/api/settings');
+    renderZoomStatus(s.zoomStatus, !!(s.zoom && s.zoom.enabled));
+  }catch(e){}
+}
 async function saveSetting(key,val){
   try{
     await fetch('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({[key]:val})});
@@ -879,7 +1351,7 @@ function wireSettings(){
     const k=el.dataset.set;
     if(el.type==='checkbox') el.onchange=()=>saveSetting(k,el.checked);
     else if(el.classList.contains('keyin')) el.onchange=()=>{ const vk=charToVk(el.value); if(vk) saveSetting(k,vk); el.value=vkToChar(vk); };
-    else if(el.tagName==='SELECT') el.onchange=()=>saveSetting(k,el.value); // string value (e.g. flask mode)
+    else if(el.tagName==='SELECT') el.onchange=()=>{ saveSetting(k,el.value); if(k==='language') applyLang(el.value); }; // string value (e.g. flask mode)
     else el.onchange=()=>{ const v=parseFloat(el.value); if(!isNaN(v)) saveSetting(k,v); };
   });
 }
@@ -1003,19 +1475,19 @@ function renderIcons(){
 
 /* Entity categories a mechanic rule can be gated to (value = Poe2Live.EntityCategory name). Empty
    selection = applies to every category. Labels are friendlier than the raw enum names. */
-const MECH_CATS=[['Monster','Monsters'],['Chest','Chests'],['Other','Misc / POI'],
-  ['Object','Terrain'],['Npc','NPCs'],['Transition','Transitions']];
+const MECH_CATS=[['Monster','cat.Monsters'],['Chest','cat.Chests'],['Other','cat.Misc'],
+  ['Object','cat.Terrain'],['Npc','cat.NPCs'],['Transition','cat.Transitions']];
 function mechRow(m,i){
   const cats=m.categories||[];
   return `<div class="mechrow" data-i="${i}">
     <div class="top">
       <label class="sw"><input type="checkbox" class="m-en"${m.enabled?' checked':''}><span class="track"></span><span class="knob"></span></label>
       <input class="mname" placeholder="Name (e.g. Expedition)" value="${esc(m.name)}">
-      <button class="delbtn m-del">Remove</button>
+      <button class="delbtn m-del">${t('btn.remove')}</button>
     </div>
     <input class="matchin m-match" placeholder="match terms, comma-separated (e.g. Strongbox, StrongBoxes)" value="${esc((m.match||[]).join(', '))}">
     <div class="mcats"><span class="mcats-lbl">Applies to</span>${MECH_CATS.map(([v,l])=>
-      `<label class="catchip${cats.includes(v)?' on':''}"><input type="checkbox" class="m-cat" data-cat="${v}"${cats.includes(v)?' checked':''}>${l}</label>`).join('')}
+      `<label class="catchip${cats.includes(v)?' on':''}"><input type="checkbox" class="m-cat" data-cat="${v}"${cats.includes(v)?' checked':''}>${t(l)}</label>`).join('')}
       <span class="mcats-hint">${cats.length?'':'all types'}</span></div>
     <div class="ctl">
       ${pickerHtml(m.shape,m.color)}
@@ -1072,19 +1544,25 @@ async function loadModVocab(){
 /* ── Display Rules: the unified ordered ruleset. The page holds the array, edits it, and re-POSTs
    the WHOLE list on any change (add / remove / reorder / toggle / field) — same pattern styles used. ── */
 const DR_CATS=['Monster','Chest','Npc','Object','Other','Transition','Player','Tile'];
-const DR_SELECTS=[['rarity','Rarity',['Normal','Magic','Rare','Unique']],['reaction','Reaction',['Hostile','Friendly']],
-  ['life','Life',['Alive','Dead']],['chest','Chest',['Opened','Unopened']],['poi','POI',['Yes','No']],['encounter','Encounter',['Active','Complete']]];
+const TERM_KEYS={'Normal':'rar.Normal','Magic':'rar.Magic','Rare':'rar.Rare','Unique':'rar.Unique','Hostile':'sel.hostile','Friendly':'sel.friendly','Alive':'sel.alive','Dead':'sel.dead','Opened':'sel.opened','Unopened':'sel.unopened','Yes':'sel.yes','No':'sel.no','Active':'sel.active','Complete':'sel.complete'};
+const tr=v=>t(TERM_KEYS[v]||v);
+const DR_SELECTS=[['rarity','sel.rarity',[['Normal','rar.Normal'],['Magic','rar.Magic'],['Rare','rar.Rare'],['Unique','rar.Unique']]],
+  ['reaction','sel.reaction',[['Hostile','sel.hostile'],['Friendly','sel.friendly']]],
+  ['life','sel.life',[['Alive','sel.alive'],['Dead','sel.dead']]],
+  ['chest','sel.chest',[['Opened','sel.opened'],['Unopened','sel.unopened']]],
+  ['poi','sel.poi',[['Yes','sel.yes'],['No','sel.no']]],
+  ['encounter','sel.encounter',[['Active','sel.active'],['Complete','sel.complete']]]];
 async function saveDrules(){ try{ await fetch('/api/display-rules',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({rules:drules})}); flashF(); }catch(e){} }
 async function loadDrules(){ try{ const r=await getJSON('/api/display-rules'); drules=r.rules||[]; }catch(e){ drules=[]; } renderDrules(); }
-function drSel(f,l,o,cur){ return `<label class="drsel">${l}<select class="dr-cond" data-f="${f}"><option value=""${!cur?' selected':''}>any</option>`
-  +o.map(x=>`<option${cur===x?' selected':''}>${x}</option>`).join('')+`</select></label>`; }
+function drSel(f,l,o,cur){ return `<label class="drsel">${t(l)}<select class="dr-cond" data-f="${f}"><option value="">${t('sel.any')}</option>`
+  +o.map(([v,k])=>`<option value="${v}"${cur===v?' selected':''}>${t(k)}</option>`).join('')+`</select></label>`; }
 /* Concise matcher→action summary shown on the collapsed row so the list stays scannable. */
 function drSummary(r){
   const p=[];
-  p.push((r.categories&&r.categories.length)?r.categories.join('/'):'any type');
+  p.push((r.categories&&r.categories.length)?r.categories.join('/'):t('rules.anyType'));
   if(r.match&&r.match.length) p.push('“'+r.match.join(', ')+'”');
-  if(r.mods&&r.mods.length) p.push('mods: '+r.mods.join(', '));
-  ['rarity','reaction','life','chest','poi','encounter'].forEach(f=>{ if(r[f]) p.push(r[f]); });
+  if(r.mods&&r.mods.length) p.push(t('rules.modsLabel')+r.mods.join(', '));
+  ['rarity','reaction','life','chest','poi','encounter'].forEach(f=>{ if(r[f]) p.push(tr(r[f])); });
   return esc(p.join(' · '));
 }
 function drRow(r,i){
@@ -1092,20 +1570,20 @@ function drRow(r,i){
   const badges=(r.hide?'<span class="drbadge hide">hide</span>':'')
     +(r.navigable?'<span class="drbadge">path</span>':'');
   const body=open?`<div class="drbody">
-      <div class="top"><input class="mname dr-name" value="${esc(r.name)}" placeholder="rule name"></div>
-      <input class="matchin dr-match" placeholder="match: metadata terms, comma-separated (blank = any)" value="${esc((r.match||[]).join(', '))}">
-      <input class="matchin dr-mods" list="modVocab" placeholder="monster mods: aura/buff terms, comma-separated (e.g. Aura, ManaSiphon) — blank = any" value="${esc((r.mods||[]).join(', '))}">
+      <div class="top"><input class="mname dr-name" value="${esc(r.name)}" placeholder="${t('rules.ruleNamePh')}"></div>
+      <input class="matchin dr-match" placeholder="${t('rules.matchPh')}" value="${esc((r.match||[]).join(', '))}">
+      <input class="matchin dr-mods" list="modVocab" placeholder="${t('rules.modsPh')}" value="${esc((r.mods||[]).join(', '))}">
       <div class="mcats"><span class="mcats-lbl">Type</span>${DR_CATS.map(c=>
-        `<label class="catchip${cats.includes(c)?' on':''}"><input type="checkbox" class="dr-cat" data-cat="${c}"${cats.includes(c)?' checked':''}>${c}</label>`).join('')}</div>
+        `<label class="catchip${cats.includes(c)?' on':''}"><input type="checkbox" class="dr-cat" data-cat="${c}"${cats.includes(c)?' checked':''}>${t('cat.'+c)}</label>`).join('')}</div>
       <div class="drconds">${DR_SELECTS.map(([f,l,o])=>drSel(f,l,o,r[f])).join('')}</div>
       <div class="ctl">
-        <label class="drflag dr-hideflag" title="hide matching entities entirely"><input type="checkbox" class="dr-hide"${r.hide?' checked':''}> Hide</label>
+        <label class="drflag dr-hideflag" title="hide matching entities entirely"><input type="checkbox" class="dr-hide"${r.hide?' checked':''}> ${t('btn.hide')}</label>
         ${pickerHtml(r.shape,r.color)}
         <input type="color" class="dr-color" value="${r.color||'#ffffff'}">
         <input type="range" class="op dr-op" min="0" max="100" value="${pct(r.opacity)}"><span class="opv">${pct(r.opacity)}%</span>
         <input type="number" class="numin sz dr-size" step="0.1" min="0.5" value="${r.size}">
-        <input class="mname dr-label" style="flex:1;min-width:70px" value="${esc(r.label||'')}" placeholder="label (optional)">
-        <label class="drflag" title="qualify as an auto-path navigation target"><input type="checkbox" class="dr-nav"${r.navigable?' checked':''}> Auto-path</label>
+        <input class="mname dr-label" style="flex:1;min-width:70px" value="${esc(r.label||'')}" placeholder="${t('rules.labelPh')}">
+        <label class="drflag" title="qualify as an auto-path navigation target"><input type="checkbox" class="dr-nav"${r.navigable?' checked':''}> ${t('btn.autoPath')}</label>
       </div>
     </div>`:'';
   return `<div class="mechrow drrow${r.hide?' hideon':''}${open?' open':''}${r.enabled?'':' off'}" data-i="${i}">
@@ -1113,7 +1591,7 @@ function drRow(r,i){
       <label class="sw" title="enabled"><input type="checkbox" class="dr-en"${r.enabled?' checked':''}><span class="track"></span><span class="knob"></span></label>
       <span class="drcaret">${open?'▾':'▸'}</span>
       <span class="drswatch" style="color:${r.color||'#fff'}">${r.hide?'':iconSvg(r.shape,r.color)}</span>
-      <span class="drnm">${esc(r.name||'(unnamed)')}</span>
+      <span class="drnm">${esc(r.name||t('rules.unnamed'))}</span>
       <span class="drsum">${drSummary(r)}</span>
       <span class="drbadges">${badges}</span>
       <span class="drord"><button class="ordbtn dr-up" title="higher precedence">▲</button><button class="ordbtn dr-dn" title="lower precedence">▼</button></span>
@@ -1124,7 +1602,7 @@ function drRow(r,i){
 }
 function renderDrules(){
   const host=$('#drList'); if(!host) return;
-  host.innerHTML = drules.length ? drules.map(drRow).join('') : '<div class="row"><div class="rl hint-row">No display rules yet. Add one below.</div></div>';
+  host.innerHTML = drules.length ? drules.map(drRow).join('') : '<div class="row"><div class="rl hint-row">'+t('rules.noRules')+'</div></div>';
   $$('#drList .drrow').forEach(row=>{
     const i=+row.dataset.i, r=drules[i]; if(!r) return;
     const save=saveDrules;
@@ -1150,7 +1628,7 @@ function renderDrules(){
     row.querySelector('.dr-nav').onchange=e=>{ r.navigable=e.target.checked; save(); };
   });
 }
-$('#drAdd')?.addEventListener('click',()=>{ drules.push({enabled:true,name:'New rule',categories:[],match:[],shape:'Circle',color:'#ffd926',opacity:1,size:4,_open:true}); renderDrules(); saveDrules(); });
+$('#drAdd')?.addEventListener('click',()=>{ drules.push({enabled:true,name:t('rules.newRule'),categories:[],match:[],shape:'Circle',color:'#ffd926',opacity:1,size:4,_open:true}); renderDrules(); saveDrules(); });
 
 /* ── Add-rule picker: browse the area's live ENTITIES + terrain TILE names + monster MODS, filter,
    click to seed a rule (entity → entity rule by category; tile → Tile rule; mod → Monster rule whose
@@ -1162,8 +1640,8 @@ function ensurePick(){
   _pickEl=document.createElement('div'); _pickEl.id='pickPop';
   _pickEl.innerHTML=`<div class="pickbox">
     <div class="pickhead">
-      <input id="pickSearch" type="search" placeholder="filter by name / metadata / tile path / mod id…">
-      <span class="pickkinds"><button class="chip on" data-k="all">All</button><button class="chip" data-k="entity">Entities</button><button class="chip" data-k="tile">Tiles</button><button class="chip" data-k="mod">Mods</button></span>
+      <input id="pickSearch" type="search" data-i18n-ph="pick.filterPh" placeholder="filter by name / metadata / tile path / mod id…">
+      <span class="pickkinds"><button class="chip on" data-k="all" data-i18n="pick.all">All</button><button class="chip" data-k="entity" data-i18n="pick.entities">Entities</button><button class="chip" data-k="tile" data-i18n="pick.tiles">Tiles</button><button class="chip" data-k="mod" data-i18n="pick.mods">Mods</button></span>
       <button class="pickclose" title="close">✕</button>
     </div>
     <div class="picklist" id="pickList"></div>
@@ -1180,7 +1658,7 @@ async function openPicker(){
   const pop=ensurePick(); pop.classList.add('open');
   _pickQ=''; _pickKind='all';
   pop.querySelector('#pickSearch').value=''; pop.querySelectorAll('.pickkinds .chip').forEach((x,j)=>x.classList.toggle('on',j===0));
-  $('#pickList').innerHTML='<div class="pickempty">Loading…</div>';
+  $('#pickList').innerHTML='<div class="pickempty">'+t('pick.loading')+'</div>';
   try{ _pickEnts=await getJSON('/entities?limit=1000')||[]; }catch(_){ _pickEnts=[]; }
   try{ const t=await getJSON('/api/tiles'); _pickTiles=(t&&t.tiles)||[]; }catch(_){ _pickTiles=[]; }
   renderPick(); pop.querySelector('#pickSearch').focus();
@@ -1219,7 +1697,7 @@ function renderPick(){
     +`<span class="picknm">${esc(it.name)}</span><span class="picksub">${esc(it.sub)}</span>`
     +(it.kind==='mod'?`<span class="pickcount">×${it.count}</span>`:'')
     +(it.rarity&&it.rarity!=='NonMonster'?`<span class="pickrar">${esc(it.rarity)}</span>`:'')+`</div>`).join('')
-    : `<div class="pickempty">No matches${(_pickEnts.length+_pickTiles.length===0)?' — are you in game?':''}.</div>`;
+    : `<div class="pickempty">${t('pick.noMatches')}${(_pickEnts.length+_pickTiles.length===0)?t('pick.noMatchesGame'):''}.</div>`;
   $$('#pickList .pickrow').forEach(row=>row.onclick=()=>pickItem(items[+row.dataset.i]));
 }
 function pickItem(it){
@@ -1239,7 +1717,7 @@ $('#drPick')?.addEventListener('click',openPicker);
 function renderHidden(){
   $('#hideList').innerHTML = hidden.length ? hidden.map(p=>
     `<span class="chip on" data-p="${esc(p)}">${esc(p)} <b style="margin-left:5px;cursor:pointer">&#10005;</b></span>`).join('')
-    : '<span style="color:var(--ink-faint);font-size:11px;font-style:italic">Nothing hidden.</span>';
+    : '<span style="color:var(--ink-faint);font-size:11px;font-style:italic">'+t('rules.nothingHidden')+'</span>';
   $$('#hideList .chip').forEach(c=>c.querySelector('b').onclick=()=>{ postHidden({remove:c.dataset.p}).then(loadFilters); });
 }
 $('#hideAdd').onclick=()=>{
@@ -1263,7 +1741,7 @@ async function postLandmarks(body){
 }
 function lmRow(e){
   const badge=e.suppressed?'hidden':e.source;
-  const del=e.suppressed?'Restore':(e.source==='user'?'Remove':'Hide');
+  const del=t(e.suppressed?'btn.restore':(e.source==='user'?'btn.remove':'btn.hide'));
   return `<div class="lmrow${e.suppressed?' sup':''}" data-area="${esc(e.area)}" data-pat="${esc(e.pattern)}">
     <span class="lmbadge ${badge}">${badge}</span>
     <span class="lmarea">${esc(e.area)}</span>
@@ -1281,7 +1759,7 @@ function renderLandmarks(){
     return true;
   });
   host.innerHTML = rows.length ? rows.map(lmRow).join('')
-    : `<div class="row"><div class="rl hint-row">No curated landmarks${lmAreaOnly?' for this area ('+esc(area||'—')+')':''}. Add one below${lmAreaOnly?', or turn off &ldquo;This area only&rdquo;':''}.</div></div>`;
+    : `<div class="row"><div class="rl hint-row">${t('lm.noLandmarks')}${lmAreaOnly?t('lm.forArea')+esc(area||'—')+')':''}. ${t('lm.addOne')}${lmAreaOnly?t('lm.orOff'):''}.</div></div>`;
   $$('#lmList .lmrow').forEach(row=>{
     const area=row.dataset.area, pat=row.dataset.pat, e=lmEntries.find(x=>x.area===area&&x.pattern===pat); if(!e) return;
     row.querySelector('.lmlabel').onchange=ev=>postLandmarks({set:{area,pattern:pat,label:ev.target.value}});
@@ -1328,13 +1806,13 @@ async function wireAtlasOpts(){
 function saveAtlasGroups(){ saveSetting('atlasGroups', atlasGroupsData); }
 function renderAtlasGroups(){
   const box=document.querySelector('#atlasGroups'); if(!box) return;
-  if(atlasGroupsData.length===0){ box.innerHTML='<span class="hint-row" style="opacity:.6">No groups. Maps in a group draw in its colour when tracked.</span>'; return; }
+  if(atlasGroupsData.length===0){ box.innerHTML='<span class="hint-row" style="opacity:.6">'+t('atlas.noGroups')+'</span>'; return; }
   box.innerHTML = atlasGroupsData.map((g,i)=>
     '<div style="display:grid;grid-template-columns:130px 44px 1fr 60px;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid var(--line)">'
-    +'<input data-gi="'+i+'" data-gf="name" value="'+esc(g.name)+'" placeholder="group name" style="width:100%">'
+    +'<input data-gi="'+i+'" data-gf="name" value="'+esc(g.name)+'" placeholder="'+t('atlas.groupNamePh')+'" style="width:100%">'
     +'<input data-gi="'+i+'" data-gf="color" type="color" value="'+esc(g.color)+'" style="width:40px;height:28px;padding:0;border:none;background:none">'
-    +'<textarea data-gi="'+i+'" data-gf="maps" rows="2" placeholder="one map name per line" style="width:100%;resize:vertical">'+esc((g.maps||[]).join('\n'))+'</textarea>'
-    +'<button class="chip" data-gdel="'+i+'">Delete</button></div>'
+    +'<textarea data-gi="'+i+'" data-gf="maps" rows="2" placeholder="'+t('atlas.mapsPh')+'" style="width:100%;resize:vertical">'+esc((g.maps||[]).join('\n'))+'</textarea>'
+    +'<button class="chip" data-gdel="'+i+'">'+t('btn.delete')+'</button></div>'
   ).join('');
   box.querySelectorAll('[data-gf]').forEach(el=>{
     const i=+el.dataset.gi, f=el.dataset.gf;
@@ -1342,9 +1820,9 @@ function renderAtlasGroups(){
   });
   box.querySelectorAll('[data-gdel]').forEach(b=>b.onclick=()=>{ atlasGroupsData.splice(+b.dataset.gdel,1); renderAtlasGroups(); saveAtlasGroups(); });
 }
-document.querySelector('#atlasGroupAdd')?.addEventListener('click',()=>{ atlasGroupsData.push({name:'New group',color:'#E0B341',maps:[]}); renderAtlasGroups(); saveAtlasGroups(); });
+document.querySelector('#atlasGroupAdd')?.addEventListener('click',()=>{ atlasGroupsData.push({name:t('atlas.newGroup'),color:'#E0B341',maps:[]}); renderAtlasGroups(); saveAtlasGroups(); });
 async function loadAtlas(){
-  $('#atlasStatus').textContent='reading…';
+  $('#atlasStatus').textContent=t('atlas.reading');
   if(!atlasOptsWired){ atlasOptsWired=true; wireAtlasOpts(); }
   try{ atlasData=await getJSON('/api/atlas'); }catch(e){ atlasData={located:false,note:'request failed'}; }
   renderAtlas();
@@ -1352,9 +1830,9 @@ async function loadAtlas(){
 function renderAtlas(){
   const d=atlasData; if(!d){ return; }
   const st=$('#atlasStatus'); const nd=d.nodes;
-  if(!(nd&&nd.total)) st.textContent = d.note ? 'scanning…' : 'atlas closed — open it in-game + Refresh';
-  else st.textContent = nd.total+' nodes · '+nd.hasContent+' with content · '
-        +(d.allKinds?.length||0)+' kind / '+(d.allTags?.length||0)+' content / '+(d.allMaps?.length||0)+' map filters';
+  if(!(nd&&nd.total)) st.textContent = d.note ? t('atlas.statusScan') : t('atlas.statusClosed');
+  else st.textContent = nd.total+' '+t('atlas.nodes')+' · '+nd.hasContent+' '+t('atlas.withContent')+' · '
+        +(d.allKinds?.length||0)+' '+t('atlas.kinds')+' / '+(d.allTags?.length||0)+' '+t('atlas.contents')+' / '+(d.allMaps?.length||0)+' '+t('atlas.mapFilters');
   // Seed active rules from the overlay (once): tracked + arrow sets. Then render the filter table.
   if(atlasHl===null){ atlasHl=new Set((d.highlightTags||[]).map(t=>t.toLowerCase())); atlasNav=new Set((d.navTags||[]).map(t=>t.toLowerCase())); atlasArrow=new Set((d.arrowTags||[]).map(t=>t.toLowerCase())); }
   renderAtlasHighlight(d);
@@ -1386,7 +1864,7 @@ let atlasHlSort={key:'count',dir:-1};
 function renderAtlasHighlight(d){
   const box=$('#atlasHlTable'); if(!box) return;
   let rows=atlasFilterRows(d);
-  if(rows.length===0){ box.innerHTML='<span class="hint-row" style="padding:8px;display:block">No filters yet (open the Atlas + Refresh).</span>'; updateHlCount(); return; }
+  if(rows.length===0){ box.innerHTML='<span class="hint-row" style="padding:8px;display:block">'+t('atlas.noFilters')+'</span>'; updateHlCount(); return; }
   if(atlasGroup!=='all') rows=rows.filter(r=>r.group===atlasGroup);
   const flt=($('#atlasHlFilter')?.value||'').trim().toLowerCase();
   if(flt) rows=rows.filter(r=>r.title.toLowerCase().includes(flt)||r.cat.toLowerCase().includes(flt)||r.group.toLowerCase().includes(flt));
@@ -1408,9 +1886,9 @@ function renderAtlasHighlight(d){
     +'<span data-sort="trk" title="Highlight: ring the map in-game (click to sort)" style="cursor:pointer">&#9745;'+sa('trk')+'</span>'
     +'<span data-sort="nav" title="Nav-to: draw a route to it (click to sort)" style="cursor:pointer">&#8674;'+sa('nav')+'</span>'
     +'<span data-sort="arw" title="Arrow: edge arrow toward it when off-screen (click to sort)" style="cursor:pointer">&#10148;'+sa('arw')+'</span>'
-    +'<span data-sort="title" style="cursor:pointer">Title'+sa('title')+'</span>'
-    +'<span data-sort="count" style="cursor:pointer;text-align:right">Count'+sa('count')+'</span>'
-    +'<span data-sort="cat" style="cursor:pointer">Category'+sa('cat')+'</span></div>';
+    +'<span data-sort="title" style="cursor:pointer">'+t('atlas.title')+sa('title')+'</span>'
+    +'<span data-sort="count" style="cursor:pointer;text-align:right">'+t('atlas.count')+sa('count')+'</span>'
+    +'<span data-sort="cat" style="cursor:pointer">'+t('atlas.category')+sa('cat')+'</span></div>';
   html+=rows.map(r=>{
     const key=r.title.toLowerCase(); const trk=atlasHl.has(key), nav=atlasNav.has(key), arw=atlasArrow.has(key);
     return '<div class="hlrow" data-tag="'+esc(r.title)+'" title="click row = toggle Highlight" style="'+cell+';cursor:pointer;border-bottom:1px solid var(--line)'+((trk||nav||arw)?';background:rgba(60,160,255,.14)':'')+'">'
@@ -1444,7 +1922,7 @@ function renderAtlasHighlight(d){
 function updateHlCount(){
   const box=$('#atlasActive'); if(!box) return;
   const keys=new Set([...(atlasHl||[]),...(atlasNav||[]),...(atlasArrow||[])]);
-  if(keys.size===0){ box.innerHTML='<span class="hint-row" style="opacity:.6">No active rules &mdash; click a row or a Quick set.</span>'; return; }
+  if(keys.size===0){ box.innerHTML='<span class="hint-row" style="opacity:.6">'+t('atlas.noActive')+'</span>'; return; }
   // Recover original-case titles from the data.
   const titleOf={}; (atlasData?atlasFilterRows(atlasData):[]).forEach(r=>titleOf[r.title.toLowerCase()]=r.title);
   const chip=k=>{ const t=titleOf[k]||k; const marks=(atlasHl.has(k)?'<span title="Highlight">&#9745;</span>':'')+(atlasNav.has(k)?'<span style="color:#3ddc97" title="Nav">&#8674;</span>':'')+(atlasArrow.has(k)?'<span style="color:#e0b341" title="Arrow">&#10148;</span>':'');
@@ -1488,10 +1966,10 @@ function renderAtlasNodes(d, f){
       || (n.map||'').toLowerCase().includes(f) || (n.hasContent&&'content'.includes(f))
       || (!n.visited&&'unvisited'.includes(f)) || ('biome '+n.biome).includes(f)
       || (n.tags||[]).some(t=>t.toLowerCase().includes(f)));   // match on map name + content names
-  if(list.length===0){ $('#atlasList').innerHTML='<div class="hint-row">No live nodes (open the Atlas in-game, then Refresh).</div>'; return; }
+  if(list.length===0){ $('#atlasList').innerHTML='<div class="hint-row">'+t('atlas.noNodes')+'</div>'; return; }
   // Content nodes first (the interesting ones), then by tag count.
   list=list.slice().sort((a,b)=>((b.tags||[]).length)-((a.tags||[]).length));
-  const head='<div class="arow ahead nrow"><span>Map</span><span>Content</span><span>Biome</span><span>Pos</span></div>';
+  const head='<div class="arow ahead nrow"><span>'+t('atlas.map')+'</span><span>'+t('atlas.content')+'</span><span>'+t('atlas.biome')+'</span><span>'+t('atlas.pos')+'</span></div>';
   const body=list.slice(0,1200).map(n=>{
     const sel=atlasSel.has(n.el)?' sel':'';
     const hot=((n.map&&atlasHl.has(n.map.toLowerCase()))||(n.tags||[]).some(t=>atlasHl.has(t.toLowerCase())));
@@ -1531,15 +2009,15 @@ function renderState(){
   $('#kAreaName').textContent=areaName||s.areaCode||'—';
   $('#kArea').textContent=s.areaCode||'—';
   const act=s.areaAct||0;
-  $('#kAlvl').textContent=(act?'Act '+act+' · ':'')+(s.areaLevel?('lvl '+s.areaLevel):'—');
-  $('#kMap').textContent=s.mapVisible?'yes':'no';
-  $('#kFlask').textContent=(s.autoFlask?'on':'off')+(s.flask?' · '+s.flask:'');
-  const fs=$('#flaskState'); if(fs) fs.textContent=(s.autoFlask?'ON':'OFF')+(s.flask?' · '+s.flask:'');
+  $('#kAlvl').textContent=(act?t('state.act')+' '+act+' · ':'')+(s.areaLevel?(t('state.lvl')+' '+s.areaLevel):'—');
+  $('#kMap').textContent=t(s.mapVisible?'state.yes':'state.no');
+  $('#kFlask').textContent=t(s.autoFlask?'state.on':'state.off')+(s.flask?' · '+s.flask:'');
+  const fs=$('#flaskState'); if(fs) fs.textContent=t(s.autoFlask?'state.on':'state.off')+(s.flask?' · '+s.flask:'');
   $('#cEnt').textContent=s.entityCount||0;
   $('#cPoi').textContent=s.poiCount||0;
   $('#cMon').textContent=(s.counts&&s.counts.Monster)||0;
   $('#cLm').textContent=s.landmarkCount||0;
-  $('#areaChip').innerHTML = (areaName||s.areaCode||'—') + ' <b>·</b> ' + (s.inGame?'in game':'town/menu');
+  $('#areaChip').innerHTML = (areaName||s.areaCode||'—') + ' <b>·</b> ' + t(s.inGame?'state.ingame':'state.town');
 
   // Runeshape monoliths (from /state): each monolith's value-tier header (best ex · anchor · N holes)
   // with its priced reward rows. Sorted server-side by value; hidden when the area has none.
@@ -1550,11 +2028,11 @@ function renderState(){
     ml.innerHTML = monos.map(m=>{
       const tier = (m.bestEx||0)>=30 ? '#66e066' : (m.bestEx||0)>=18 ? '#e6c84d' : '#cfcfcf';
       const hdr = (m.bestEx>0?('<b style="color:'+tier+'">'+Math.round(m.bestEx)+' ex</b> · '):'')
-                + esc(m.anchor||'?') + ' · ' + (m.holes||0) + 'h' + (m.collected?' · <span style="opacity:.6">collected</span>':'');
+                + esc(m.anchor||'?') + ' · ' + (m.holes||0) + 'h' + (m.collected?' · <span style="opacity:.6">'+t('mono.collected')+'</span>':'');
       const rows=(m.rewards||[]).filter(r=>r.ex>0).slice(0,6)
         .map(r=>'<div style="display:flex;justify-content:space-between;gap:8px"><span>'+esc(r.name)+(r.count>1?(' ×'+r.count):'')+'</span><span style="opacity:.85">'+Math.round(r.ex)+' ex</span></div>').join('');
       return '<div style="margin:0 0 9px"><div style="margin-bottom:2px">'+hdr+'</div>'
-           + '<div style="font-size:12px;opacity:.9;padding-left:8px">'+(rows||'<span style="opacity:.6">no priced rewards</span>')+'</div></div>';
+           + '<div style="font-size:12px;opacity:.9;padding-left:8px">'+(rows||'<span style="opacity:.6">'+t('mono.noRewards')+'</span>')+'</div></div>';
     }).join('');
   } else { mc.hidden=true; ml.innerHTML=''; }
 
@@ -1578,7 +2056,7 @@ async function checkVersion(){
   }catch(e){}
 }
 
-wireSettings(); wireHpBars(); wireTerrain(); wireGround(); wireHover(); wireMono(); wireExchange();
+wireSettings(); wireHpBars(); wireTerrain(); wireGround(); wireHover(); wireMono(); wireExchange(); wireZoom();
 loadIcons().then(()=>{ loadSettings(); loadFilters(); }); // Rules is the default tab
 tick(); setInterval(tick, 1000);
 checkVersion();

@@ -137,11 +137,18 @@ public sealed record RenderContext(
     // Feature flags mirrored from RadarSettings.
     bool HideJunk,
     bool ShowPath,
+    bool ShowWorldPaths,
     bool UseCuratedLandmarks,
     // Radar display toggles.
     bool ShowMonsters,
     bool ShowTerrain,
     bool ShowPlayerBlip,
+    // Self-contained corner minimap (a circle centered on the player — the game's own map is
+    // transparent, so the radar draws its own). Corner / diameter / zoom are user-configurable.
+    bool ShowMinimap,
+    string MinimapCorner,   // TopLeft / TopRight / BottomLeft / BottomRight
+    float MinimapSize,      // circle diameter, px
+    float MinimapZoom,      // × large-map scale (higher = more zoomed in)
     // Monster HP-bar (nameplate) toggles by rarity.
     bool HpBarNormal,
     bool HpBarMagic,
@@ -155,6 +162,9 @@ public sealed record RenderContext(
     // ── Collapsible "POE2Radar" navigation-menu widget (always drawn when Active+InGame). ──
     bool NavMenuExpanded,         // dropdown open?
     string NavMenuCorner,         // pinned corner: TopLeft/TopRight/BottomLeft/BottomRight
+    bool NavMenuCustom,           // free position (dragged) instead of the pinned corner
+    float NavMenuX,               // panel top-left when NavMenuCustom
+    float NavMenuY,
     // ── User-tweakable icon style table + HP-bar geometry (mirrored from RadarSettings). ──
     RadarStyles Styles,
     HpBarSettings HpBars,

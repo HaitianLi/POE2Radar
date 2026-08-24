@@ -49,6 +49,9 @@ if (HasFlag(args, "--find-terrain"))
 if (HasFlag(args, "--find-map"))
     return RunFindMap(process, reader);
 
+if (HasFlag(args, "--mapui"))
+    return RunMapUi(process, reader);
+
 if (HasFlag(args, "--watch-expedition"))
     return RunWatchExpedition(process, reader);
 
@@ -170,11 +173,23 @@ if (TryGetStrArg(args, "--tile-find") is { } tileNeedle)
 if (HasFlag(args, "--tiles"))
     return RunTiles(process, reader);
 
+if (HasFlag(args, "--grid"))
+    return RunGrid(process, reader);
+
 if (HasFlag(args, "--rarity"))
     return RunRarity(process, reader);
 
 if (HasFlag(args, "--mods"))
     return RunMods(process, reader, TryGetIntArg(args, "--min") ?? 1, TryGetIntArg(args, "--max") ?? 12);
+
+if (HasFlag(args, "--bossflag"))
+    return RunBossFlag(process, reader);
+
+if (HasFlag(args, "--positioned"))
+    return RunPositioned(process, reader);
+
+if (HasFlag(args, "--bossicon"))
+    return RunBossIcon(process, reader);
 
 if (HasFlag(args, "--item"))
     return RunItem(process, reader, TryGetIntArg(args, "--max") ?? 6);
@@ -2414,6 +2429,240 @@ static int RunMods(ProcessHandle process, MemoryReader reader, int minRarity, in
     Console.WriteLine($"scanned {shown} monster(s) (rarity >= {minRarity}).");
     Console.WriteLine("seed-layout hit counts:  " + (seedHits.Count == 0 ? "(none)" : string.Join("  ", seedHits.OrderBy(k => k.Key).Select(k => $"+0x{k.Key:X}×{k.Value}"))));
     Console.WriteLine("discovered vec hit counts: " + (discHits.Count == 0 ? "(none)" : string.Join("  ", discHits.OrderBy(k => k.Key).Select(k => $"+0x{k.Key:X}×{k.Value}"))));
+    return 0;
+}
+
+// ── Discover the Monster component's real boss flag ──────────────────────────
+// The fork's Monster.IsBoss(+0x27) is INVALID (reads a pointer high-byte, 0 even for a unique
+// boss). This probe re-discovers it: walk BOTH entity maps, collect every monster with its rarity
+// + Monster component address, then DIFF the Monster component head across three groups —
+// (a) boss-ish uniques (metadata contains "boss"), (b) other uniques, (c) non-uniques — and report
+// the byte offsets where the boss group cleanly separates from the others. Run it while standing
+// in a zone whose area boss is loaded (ideally near the arena).
+static int RunBossFlag(ProcessHandle process, MemoryReader reader)
+{
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game, near the area boss?)."); return 1; }
+
+    var monsters = new List<(string meta, int rarity, nint mon)>();
+    foreach (var mapOff in new[] { Poe2.AreaInstance.AwakeEntities, Poe2.AreaInstance.SleepingEntities })
+    {
+        var head = SafePtr(reader, ai + mapOff);
+        reader.TryReadStruct<int>(ai + mapOff + 8, out var size);
+        if (head == 0 || size <= 0 || size > 100000) continue;
+        var root = SafePtr(reader, head + Poe2.StdMapNode.Parent);
+        var queue = new Queue<nint>(); queue.Enqueue(root);
+        var visited = new HashSet<nint>();
+        while (queue.Count > 0 && visited.Count < 300000)
+        {
+            var node = queue.Dequeue();
+            if (node == 0 || node == head || !visited.Add(node)) continue;
+            if (!reader.TryReadStruct<byte>(node + Poe2.StdMapNode.IsNil, out var nil) || nil != 0) continue;
+            reader.TryReadStruct<uint>(node + Poe2.StdMapNode.KeyId, out var id);
+            var ent = SafePtr(reader, node + Poe2.StdMapNode.ValueEntityPtr);
+            queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Left));
+            queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Right));
+            if (ent == 0 || id >= Poe2.EntityList.VisualIdThreshold) continue;
+            var meta = ReadEntityMetadata(reader, ent);
+            if (!meta.Contains("/Monsters/", StringComparison.Ordinal)) continue;
+            var mon = ResolveComponentAddr(reader, ent, "Monster");
+            var omp = ResolveComponentAddr(reader, ent, "ObjectMagicProperties");
+            var rarity = omp != 0 && reader.TryReadStruct<int>(omp + Poe2.ObjectMagicProperties.Rarity, out var r) ? r : -1;
+            monsters.Add((meta, rarity, mon));
+        }
+    }
+
+    var uniques = monsters.Where(m => m.rarity == 3).ToList();
+    Console.WriteLine($"Collected {monsters.Count} monster(s) across awake+sleeping; {uniques.Count} unique(s).");
+
+    const int headLen = 0x40;
+    var boss = uniques.Where(m => m.meta.Contains("boss", StringComparison.OrdinalIgnoreCase)).ToList();
+    var uniqueOther = uniques.Where(m => !m.meta.Contains("boss", StringComparison.OrdinalIgnoreCase)).ToList();
+
+    Console.WriteLine($"\n=== boss-ish uniques ({boss.Count}) ===");
+    foreach (var (meta, _, mon) in boss)
+    {
+        Console.WriteLine($"  {EntityNameResolver.Shared.ResolveOrShorten(meta)}  Monster=0x{mon:X}");
+        if (mon != 0) DumpWindow(reader, mon, headLen, "    ");
+    }
+    Console.WriteLine($"\n=== other uniques ({uniqueOther.Count}) ===");
+    foreach (var (meta, _, mon) in uniqueOther.Take(8))
+    {
+        Console.WriteLine($"  {EntityNameResolver.Shared.ResolveOrShorten(meta)}  Monster=0x{mon:X}");
+        if (mon != 0) DumpWindow(reader, mon, headLen, "    ");
+    }
+
+    if (boss.Count > 0 && uniqueOther.Count > 0)
+    {
+        Console.WriteLine($"\n=== per-byte diff (boss vs other-uniques, {headLen} bytes) ===");
+        var bossHeads = new List<byte[]>();
+        foreach (var (_, _, mon) in boss) if (ReadMonHead(reader, mon, headLen) is { } h) bossHeads.Add(h);
+        var otherHeads = new List<byte[]>();
+        foreach (var (_, _, mon) in uniqueOther) if (ReadMonHead(reader, mon, headLen) is { } h) otherHeads.Add(h);
+
+        var candidates = 0;
+        for (var off = 0; off < headLen; off++)
+        {
+            var bv = bossHeads.Select(h => h[off]).Distinct().ToList();
+            var ov = otherHeads.Select(h => h[off]).Distinct().ToList();
+            if (bv.All(b => !ov.Contains(b)))
+            {
+                Console.WriteLine($"  +0x{off:X2}  boss={string.Join('/', bv.Select(x => x.ToString("X2")))}  other-unique={string.Join('/', ov.Select(x => x.ToString("X2")))}  ★ candidate boss flag");
+                candidates++;
+            }
+        }
+        if (candidates == 0)
+            Console.WriteLine("  no byte cleanly separates boss from other uniques in the first 0x40 bytes — stand closer to the boss or widen the window.");
+    }
+    return 0;
+}
+
+static byte[]? ReadMonHead(MemoryReader reader, nint addr, int len)
+{
+    if (addr == 0) return null;
+    var buf = new byte[len];
+    return reader.TryReadBytes(addr, buf) == len ? buf : null;
+}
+
+// ── Discover the boss-room marker entities (bossroomminimapicon / bossroomentrancedoor) ───────────
+// The game places a dedicated marker entity (metadata path contains "bossroomminimapicon") at the
+// boss room and a door entity ("bossroomentrancedoor") at its entrance — the GENERIC boss-room signal
+// present on every map regardless of tile naming. This probe walks BOTH entity maps, lists them, and
+// dumps their MinimapIcon component: the icon must carry its own position to be drawn on the minimap
+// (unlike Render.CurrentWorldPosition, which is only valid for rendered entities). Run it standing in
+// a zone whose boss room is known, then paste the MinimapIcon dump back so the world-position offset
+// can be pinned and surfaced as a "Boss Room" POI.
+static int RunBossIcon(ProcessHandle process, MemoryReader reader)
+{
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+
+    var found = 0;
+    foreach (var mapOff in new[] { Poe2.AreaInstance.AwakeEntities, Poe2.AreaInstance.SleepingEntities })
+    {
+        var head = SafePtr(reader, ai + mapOff);
+        reader.TryReadStruct<int>(ai + mapOff + 8, out var size);
+        if (head == 0 || size <= 0 || size > 100000) continue;
+        var root = SafePtr(reader, head + Poe2.StdMapNode.Parent);
+        var queue = new Queue<nint>(); queue.Enqueue(root);
+        var visited = new HashSet<nint>();
+        while (queue.Count > 0 && visited.Count < 300000)
+        {
+            var node = queue.Dequeue();
+            if (node == 0 || node == head || !visited.Add(node)) continue;
+            if (!reader.TryReadStruct<byte>(node + Poe2.StdMapNode.IsNil, out var nil) || nil != 0) continue;
+            reader.TryReadStruct<uint>(node + Poe2.StdMapNode.KeyId, out var id);
+            var ent = SafePtr(reader, node + Poe2.StdMapNode.ValueEntityPtr);
+            queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Left));
+            queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Right));
+            if (ent == 0 || id >= Poe2.EntityList.VisualIdThreshold) continue;
+            var meta = ReadEntityMetadata(reader, ent);
+            if (!meta.Contains("bossroom", StringComparison.OrdinalIgnoreCase)) continue;
+
+            found++;
+            Console.WriteLine($"\n=== boss-room marker #{found}  entity=0x{ent:X}  id={id} ===");
+            Console.WriteLine($"  {EntityNameResolver.Shared.ResolveOrShorten(meta)}");
+            Console.WriteLine($"  {meta}");
+
+            var render = ResolveComponentAddr(reader, ent, "Render");
+            var positioned = ResolveComponentAddr(reader, ent, "Positioned");
+            var icon = ResolveComponentAddr(reader, ent, "MinimapIcon");
+            Console.WriteLine($"  Render=0x{render:X}  Positioned=0x{positioned:X}  MinimapIcon=0x{icon:X}");
+            if (render != 0 && reader.TryReadStruct<System.Numerics.Vector3>(render + Poe2.Render.CurrentWorldPosition, out var w))
+                Console.WriteLine($"  Render.CurrentWorldPosition = ({w.X:F1}, {w.Y:F1}, {w.Z:F1})");
+            if (positioned != 0) DumpWindow(reader, positioned, 0x30, "  Positioned");
+
+            if (icon != 0)
+            {
+                DumpWindow(reader, icon, 0x40, "  MinimapIcon");
+                DumpInts(reader, icon, 0x40, "  MinimapIcon");
+                // Interpret consecutive finite float triples as possible world/grid positions.
+                var buf = new byte[0x40];
+                if (reader.TryReadBytes(icon, buf) == buf.Length)
+                {
+                    for (var i = 0; i + 12 <= buf.Length; i += 4)
+                    {
+                        var x = BitConverter.ToSingle(buf, i);
+                        var y = BitConverter.ToSingle(buf, i + 4);
+                        var z = BitConverter.ToSingle(buf, i + 8);
+                        if (float.IsFinite(x) && float.IsFinite(y) && float.IsFinite(z)
+                            && Math.Abs(x) < 200000 && Math.Abs(y) < 200000 && Math.Abs(z) < 200000)
+                            Console.WriteLine($"  MinimapIcon+0x{i:X2}  float3=({x:F1}, {y:F1}, {z:F1})  → grid({(int)Math.Round(x / Poe2.WorldToGridRatio)}, {(int)Math.Round(y / Poe2.WorldToGridRatio)})");
+                    }
+                }
+            }
+        }
+    }
+    Console.WriteLine($"\nFound {found} boss-room marker entity/entities.");
+    return 0;
+}
+
+// ── Discover the Positioned component's GridPos/WorldPos offsets ─────────────
+// Entity position is read from Render.CurrentWorldPosition, which is only valid for RENDERED
+// (nearby/awake) entities — so distant/sleeping monsters stay invisible even though we now walk
+// both entity maps. GameHelper2/ExileCore read position from the Positioned component instead
+// (valid at zone-load for EVERY entity). This probe re-discovers Positioned's GridPos (Vector2i)
+// and WorldPos (Vector3) by scanning an awake entity's Positioned component for values matching
+// its KNOWN Render world position. Paste the ★ offsets into Poe2.Positioned.
+static int RunPositioned(ProcessHandle process, MemoryReader reader)
+{
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+
+    var head = SafePtr(reader, ai + Poe2.AreaInstance.AwakeEntities);
+    reader.TryReadStruct<int>(ai + Poe2.AreaInstance.AwakeEntities + 8, out var size);
+    if (head == 0 || size <= 0) { Console.Error.WriteLine("no awake entities"); return 1; }
+
+    const float ratio = Poe2.WorldToGridRatio;
+    var queue = new Queue<nint>(); queue.Enqueue(SafePtr(reader, head + Poe2.StdMapNode.Parent));
+    var visited = new HashSet<nint>();
+    var sampled = 0;
+    while (queue.Count > 0 && visited.Count < 200000 && sampled < 6)
+    {
+        var node = queue.Dequeue();
+        if (node == 0 || node == head || !visited.Add(node)) continue;
+        if (!reader.TryReadStruct<byte>(node + Poe2.StdMapNode.IsNil, out var nil) || nil != 0) continue;
+        reader.TryReadStruct<uint>(node + Poe2.StdMapNode.KeyId, out var id);
+        var ent = SafePtr(reader, node + Poe2.StdMapNode.ValueEntityPtr);
+        queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Left));
+        queue.Enqueue(SafePtr(reader, node + Poe2.StdMapNode.Right));
+        if (ent == 0 || id >= Poe2.EntityList.VisualIdThreshold) continue;
+
+        var render = ResolveComponentAddr(reader, ent, "Render");
+        var positioned = ResolveComponentAddr(reader, ent, "Positioned");
+        if (render == 0 || positioned == 0) continue;
+        if (!reader.TryReadStruct<Vector3>(render + Poe2.Render.CurrentWorldPosition, out var w)) continue;
+
+        var gridX = (int)Math.Round(w.X / ratio);
+        var gridY = (int)Math.Round(w.Y / ratio);
+
+        Console.WriteLine($"\n=== entity 0x{ent:X} ({ReadEntityMetadata(reader, ent)}) ===");
+        Console.WriteLine($"  Render world = ({w.X:F1}, {w.Y:F1}, {w.Z:F1})  → grid ({gridX}, {gridY})");
+        Console.WriteLine($"  Render=0x{render:X}  Positioned=0x{positioned:X}");
+
+        var buf = new byte[0x220];
+        if (reader.TryReadBytes(positioned, buf) == buf.Length)
+        {
+            for (var off = 0; off + 8 <= buf.Length; off += 4)
+            {
+                var ix = BitConverter.ToInt32(buf, off);
+                var iy = BitConverter.ToInt32(buf, off + 4);
+                if (ix == gridX && iy == gridY)
+                    Console.WriteLine($"  ★ GridPos candidate @ +0x{off:X}  ({ix},{iy})");
+            }
+            for (var off = 0; off + 12 <= buf.Length; off += 4)
+            {
+                var fx = BitConverter.ToSingle(buf, off);
+                var fy = BitConverter.ToSingle(buf, off + 4);
+                var fz = BitConverter.ToSingle(buf, off + 8);
+                if (Math.Abs(fx - w.X) < 1f && Math.Abs(fy - w.Y) < 1f && Math.Abs(fz - w.Z) < 1f)
+                    Console.WriteLine($"  ★ WorldPos candidate @ +0x{off:X}  ({fx:F1},{fy:F1},{fz:F1})");
+            }
+        }
+        sampled++;
+    }
+    if (sampled == 0)
+        Console.WriteLine("  no awake entities with both Render + Positioned — enter a zone with monsters.");
     return 0;
 }
 
@@ -8196,6 +8445,91 @@ static string? TryReadAnyText(MemoryReader reader, nint p)
 
 // ── Discovery: large-map UI element + its visibility flag ───────────────────
 // 1) Auto-detect UiRoot from InGameState (a pointer to a self-referential UiElement, which also
+// ── Map UI dump (--mapui) ──────────────────────────────────────────────────────────────────
+// Dumps EVERY MapUiElement (DefaultShift=(0,-20), Zoom 0.05..8) with its visibility bit, Shift,
+// Zoom, and SCREEN RECT (same UiElement geometry as Poe2Live.TryUiElementRect). Lets you verify
+// which element is the corner minimap (smallest visible) vs the Tab-toggled large map, and check
+// the minimap's own zoom/shift against the overlay's projection. Run with the map open AND closed.
+static int RunMapUi(ProcessHandle process, MemoryReader reader)
+{
+    var (_, inGameState, _, _) = ResolveChain(process, reader);
+    if (inGameState == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+
+    var uiRoot = SafePtr(reader, inGameState + Poe2.InGameState.UiRoot);
+    if (uiRoot == 0) { Console.Error.WriteLine("no UiRoot."); return 1; }
+
+    float winW = 2560, winH = 1600; var hwnd = Win.GetForegroundWindow();
+    if (hwnd != 0 && Win.GetClientRect(hwnd, out var rc) && rc.right > 0) { winW = rc.right; winH = rc.bottom; }
+    Console.WriteLine($"UiRoot 0x{uiRoot:X}  window {winW:0}x{winH:0}\n");
+    const uint visBit = 1u << Poe2.UiElement.FlagVisibleBit;
+
+    (float x, float y, float w, float h) Rect(nint el)
+    {
+        reader.TryReadStruct<byte>(el + Poe2.UiElement.ScaleIndex, out var sidx);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.LocalScaleMul, out var smul);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.SizeW, out var sw);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.SizeH, out var sh);
+        var (ux, uy) = RfUnscaledPos(reader, el, 0);
+        float v2 = winH / 1600f, v1 = winW / 2560f;
+        float scl = sidx == 2 ? v2 : sidx == 1 ? v1 : (sidx == 3 ? v2 : (smul == 0 ? 1 : smul));
+        return (ux * (sidx == 3 ? v1 : scl), uy * scl, sw * (sidx == 3 ? v1 : scl), sh * scl);
+    }
+
+    var q = new Queue<nint>(); q.Enqueue(uiRoot);
+    var seen = new HashSet<nint>();
+    var maps = new List<(nint el, nint parent, float relX, float relY, float sW, float sH, byte sidx, float mul,
+        float x, float y, float w, float h, bool vis, float sx, float sy, float zoom, long childN,
+        float px, float py, float pw, float ph)>();
+    var body = new byte[Poe2.MapUiElement.Zoom + 8];
+    while (q.Count > 0 && seen.Count < 30000)
+    {
+        var el = q.Dequeue();
+        if (el == 0 || !seen.Add(el)) continue;
+        if (SafePtr(reader, el + Poe2.UiElement.Self) != el) continue;
+
+        var first = SafePtr(reader, el + Poe2.UiElement.Children);
+        long childCount = 0;
+        if (first != 0 && reader.TryReadStruct<nint>(el + Poe2.UiElement.ChildrenEnd, out var last))
+        {
+            childCount = ((long)last - (long)first) / 8;
+            if (childCount is > 0 and <= 8192)
+                for (long k = 0; k < childCount; k++) q.Enqueue(SafePtr(reader, first + (nint)(k * 8)));
+        }
+
+        if (reader.TryReadBytes(el, body) < body.Length) continue;
+        if (BitConverter.ToSingle(body, Poe2.MapUiElement.DefaultShift) != 0f) continue;
+        if (BitConverter.ToSingle(body, Poe2.MapUiElement.DefaultShift + 4) != -20f) continue;
+        var zoom = BitConverter.ToSingle(body, Poe2.MapUiElement.Zoom);
+        if (zoom is <= 0.05f or >= 8f) continue;
+
+        var vis = reader.TryReadStruct<uint>(el + Poe2.UiElement.Flags, out var fl) && (fl & visBit) != 0;
+        var sx = BitConverter.ToSingle(body, Poe2.MapUiElement.Shift);
+        var sy = BitConverter.ToSingle(body, Poe2.MapUiElement.Shift + 4);
+        var parent = SafePtr(reader, el + Poe2.UiElement.Parent);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.RelativePos, out var relX);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.RelativePos + 4, out var relY);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.SizeW, out var sW);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.SizeH, out var sH);
+        reader.TryReadStruct<byte>(el + Poe2.UiElement.ScaleIndex, out var sidx);
+        reader.TryReadStruct<float>(el + Poe2.UiElement.LocalScaleMul, out var mul);
+        var (x, y, w, h) = Rect(el);
+        var (px, py, pw, ph) = Rect(parent);
+        maps.Add((el, parent, relX, relY, sW, sH, sidx, mul, x, y, w, h, vis, sx, sy, zoom, childCount, px, py, pw, ph));
+    }
+
+    Console.WriteLine($"=== {maps.Count} MapUiElement(s) (DefaultShift=(0,-20), Zoom 0.05..8) — sorted by rect area ===\n");
+    foreach (var m in maps.OrderBy(m => m.w * m.h))
+    {
+        Console.WriteLine($"  0x{m.el:X}  parent=0x{m.parent:X}  vis={m.vis,-5}  childN={m.childN,3}");
+        Console.WriteLine($"      relPos=({m.relX:F0},{m.relY:F0})  unscaledSize=({m.sW:F0}x{m.sH:F0})  scaleIdx={m.sidx} mul={m.mul:F3}");
+        Console.WriteLine($"      screenRect=({m.x,6:0},{m.y,6:0} {m.w,5:0}x{m.h,5:0})  Shift=({m.sx,8:F1},{m.sy,8:F1})  Zoom={m.zoom:F3}");
+        Console.WriteLine($"      parentRect=({m.px,6:0},{m.py,6:0} {m.pw,5:0}x{m.ph,5:0})");
+    }
+    Console.WriteLine("\n  smallest visible = corner minimap (the radar's DrawMinimap target); largest = Tab-toggled large map.");
+    Console.WriteLine("  minimap projection scale used by the overlay = Zoom × (winH/677) × ScaleMul; center = rect-center + Shift + (0,-20).");
+    return 0;
+}
+
 //    confirms the Self offset). 2) Auto-detect the children StdVector offset (a vector of
 //    self-referential UiElements). 3) BFS the tree; identify the LargeMap by its DefaultShift
 //    signature (0.0, -20.0). 4) Report its address, the visible-flag region, Zoom/Shift.
@@ -8497,6 +8831,78 @@ static int RunFindTerrain(ProcessHandle process, MemoryReader reader, int scan)
         Console.WriteLine($"  +0x{o:X4}: vec first=0x{first:X12} bytes={bytes} (0x{bytes:X})  nextInt={trailingInt}");
     }
     Console.WriteLine("Look for a large byte vector whose size ≈ gridRows × bytesPerRow (nextInt≈row stride).");
+    return 0;
+}
+
+// ── Walkable-grid nibble dump: diagnose the "line" that loads with the map ───────────
+// The walkable grid is a packed byte vector (2 cells/byte, low nibble = even x). The encoding is
+// 0 = blocked, 1..5 = walkable (entity-size dependent); nibbles 6..15 are INVALID/anomalous. This
+// probe prints the nibble histogram + flags any column whose non-zero coverage is ~full height
+// (a spurious walkable column → the map-edge "line"), and dumps the edge columns' nibble detail.
+// Run it standing in the offending zone.
+static int RunGrid(ProcessHandle process, MemoryReader reader)
+{
+    var (_, _, ai, _) = ResolveChain(process, reader);
+    if (ai == 0) { Console.Error.WriteLine("Could not resolve chain (in game?)."); return 1; }
+    var terrain = ai + Poe2.AreaInstance.TerrainMetadata;
+    var first = SafePtr(reader, terrain + Poe2.Terrain.GridWalkableData);
+    if (!reader.TryReadStruct<nint>(terrain + Poe2.Terrain.GridWalkableData + 8, out var last)) { Console.Error.WriteLine("no walkable vec"); return 1; }
+    if (!reader.TryReadStruct<int>(terrain + Poe2.Terrain.BytesPerRow, out var bytesPerRow) || bytesPerRow <= 0) { Console.Error.WriteLine("bad BytesPerRow"); return 1; }
+    var totalBytes = (long)last - first;
+    var rows = (int)(totalBytes / bytesPerRow);
+    var width = bytesPerRow * 2;
+    reader.TryReadStruct<long>(terrain + Poe2.Terrain.TotalTiles, out var tilesX);
+    reader.TryReadStruct<long>(terrain + Poe2.Terrain.TotalTiles + 8, out var tilesY);
+    Console.WriteLine($"walkable grid: first=0x{first:X} totalBytes={totalBytes} bytesPerRow={bytesPerRow} → padded {width}×{rows}");
+    Console.WriteLine($"TotalTiles=({tilesX},{tilesY}) → REAL grid {tilesX * Poe2.Terrain.TileGridCells}×{tilesY * Poe2.Terrain.TileGridCells} (padded col(s) at x≥{tilesX * Poe2.Terrain.TileGridCells} are NOT real)");
+    if (first == 0 || totalBytes <= 0 || rows <= 0) { Console.Error.WriteLine("implausible grid"); return 1; }
+
+    var raw = new byte[totalBytes];
+    if (reader.TryReadBytes(first, raw) != raw.Length) { Console.Error.WriteLine("read failed"); return 1; }
+
+    var hist = new long[16];
+    for (var i = 0; i < raw.Length; i++) { hist[raw[i] & 0x0F]++; hist[raw[i] >> 4]++; }
+    Console.WriteLine("\n=== nibble histogram (whole grid) ===");
+    for (var v = 0; v < 16; v++)
+        Console.WriteLine($"  {v,2} (0x{v:X}) : {hist[v],10}  ({100.0 * hist[v] / (raw.Length * 2.0):F1}%)");
+
+    Console.WriteLine("\n=== columns with anomalous walkable coverage (non-zero ≥ 80% of rows) ===");
+    var spurious = 0;
+    for (var x = 0; x < width; x++)
+    {
+        var nonzero = 0;
+        for (var y = 0; y < rows; y++)
+        {
+            var b = raw[(long)y * bytesPerRow + (x >> 1)];
+            var nib = (x & 1) == 0 ? (b & 0x0F) : (b >> 4);
+            if (nib != 0) nonzero++;
+        }
+        if (nonzero * 100 >= rows * 80)
+        {
+            spurious++;
+            if (spurious <= 40) Console.WriteLine($"  column x={x,4}: {nonzero}/{rows} non-zero ({100.0 * nonzero / rows:F1}%)");
+        }
+    }
+    Console.WriteLine(spurious == 0 ? "  (none — no full-height walkable columns)" : $"  … {spurious} column(s) total");
+
+    Console.WriteLine("\n=== nibble histograms for the 4 rightmost + 4 leftmost columns ===");
+    for (var pass = 0; pass < 2; pass++)
+    {
+        var xs = pass == 0 ? new[] { width - 4, width - 3, width - 2, width - 1 } : new[] { 0, 1, 2, 3 };
+        foreach (var x in xs)
+        {
+            var col = new long[16];
+            for (var y = 0; y < rows; y++)
+            {
+                var b = raw[(long)y * bytesPerRow + (x >> 1)];
+                var nib = (x & 1) == 0 ? (b & 0x0F) : (b >> 4);
+                col[nib]++;
+            }
+            Console.Write($"  x={x,4}: ");
+            for (var v = 0; v < 16; v++) if (col[v] > 0) Console.Write($" {v}={col[v]}");
+            Console.WriteLine();
+        }
+    }
     return 0;
 }
 
