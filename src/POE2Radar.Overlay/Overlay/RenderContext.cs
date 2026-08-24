@@ -119,6 +119,9 @@ public sealed record RenderContext(
     IReadOnlyList<Poe2Live.Landmark> Landmarks,
     uint AreaHash,
     Poe2Live.TerrainData? Terrain,
+    // Extrapolation time (seconds) for entity dots — the renderer projects dot.Grid + dot.Velocity * this
+    // to smooth the 30 Hz world-tick motion. Computed from the snapshot's publish timestamp.
+    float EntityInterp,
     // Live projection calibration (adjustable at runtime).
     float ScaleMul,
     float OffsetX,

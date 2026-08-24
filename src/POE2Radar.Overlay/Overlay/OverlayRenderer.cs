@@ -1026,7 +1026,7 @@ public sealed class OverlayRenderer : IDisposable
             var rule = ctx.Resolve?.Invoke(e);
             if (rule is null || rule.Hide) continue;
 
-            var p = Project(new NumVec2(e.Grid.X, e.Grid.Y), player, center, scale);
+            var p = Project(e.Grid + e.Velocity * ctx.EntityInterp, player, center, scale);
             _bStyle!.Color = ParseColor(rule.Color, rule.Opacity);
             DrawIcon(rt, rule.Shape, p, rule.Size, _bStyle, filled: true);
             if (!string.IsNullOrEmpty(rule.Label))
@@ -1158,7 +1158,7 @@ public sealed class OverlayRenderer : IDisposable
             if (ctx.HideJunk && JunkFilter.IsJunk(e.Metadata)) continue;
             var rule = ctx.Resolve?.Invoke(e);
             if (rule is null || rule.Hide) continue;
-            var p = Project(new NumVec2(e.Grid.X, e.Grid.Y), player, center, scale);
+            var p = Project(e.Grid + e.Velocity * ctx.EntityInterp, player, center, scale);
             var dx = p.X - cx;
             var dy = p.Y - cy;
             if (dx * dx + dy * dy > cullR * cullR) continue;

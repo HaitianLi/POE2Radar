@@ -61,7 +61,8 @@ public sealed class Poe2Live
     public readonly record struct EntityDot(
         uint Id, nint Address, System.Numerics.Vector2 Grid, Vector3 World, EntityCategory Category, string Metadata,
         int HpCur, int HpMax, bool Poi, byte Reaction, Rarity Rarity, bool Opened, bool IconComplete = false,
-        IReadOnlyList<string>? Mods = null, string? ItemArt = null, bool ItemIdentified = true, string? ItemName = null)
+        IReadOnlyList<string>? Mods = null, string? ItemArt = null, bool ItemIdentified = true, string? ItemName = null,
+        System.Numerics.Vector2 Velocity = default)   // grid-units/sec, filled at world rate → the renderer extrapolates between ticks to smooth dot motion
     {
         // ItemName (positional): a dropped item's rendered BASE-TYPE display name (Base +0x10 → +0x30),
         // e.g. "Greater Orb of Augmentation". The price key for NON-uniques (currency/runes/essences),

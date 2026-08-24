@@ -171,6 +171,8 @@ public sealed class RadarApp : IDisposable
     //    the render thread reads the published _world snapshot instead). ──
     private Thread? _worldThread;                           // the ~30 Hz background world loop (self-paced)
     private List<Poe2Live.EntityDot> _entities = new();     // world only
+    private readonly Dictionary<uint, System.Numerics.Vector2> _prevEntityGrids = new(); // world only: last-tick grid per entity id (→ velocity)
+    private long _lastEntityTick;                           // world only: Stopwatch ticks of the last entity scan
     // Monster HP-bar pipeline: the SPEC (style + which mobs get a bar + their component addresses) is
     // rebuilt at WORLD rate; _hpFrame (live position + HP) is rebuilt every RENDER frame from cheap per-mob
     // reads (via the spec's captured addresses) so bars track moving monsters smoothly without re-walking.
@@ -198,7 +200,8 @@ public sealed class RadarApp : IDisposable
         IReadOnlyList<ItemLabelSpec> ItemLabels,
         IReadOnlyList<SelectedPath> SelectedPaths,
         IReadOnlyList<LegendEntry> Legend,
-        IReadOnlyList<string> SelectedSnapshot)
+        IReadOnlyList<string> SelectedSnapshot,
+        long PublishTimestamp = 0)   // Stopwatch.GetTimestamp() when published — the render thread extrapolates entity dots from here
     {
         public static readonly WorldSnapshot Empty = new(
             false, 0, 0, "", 0, Array.Empty<Poe2Live.EntityDot>(), Array.Empty<Poe2Live.Landmark>(), null,
@@ -671,7 +674,7 @@ public sealed class RadarApp : IDisposable
                         var det = DetectGameMonitorHz(_gameHwnd);
                         if (det > 0)
                         {
-                            var clamped = Math.Clamp(det, 30, 360);
+                            var clamped = Math.Clamp(det, 30, 144);   // cap at 144 — beyond that the blit cost outweighs the visual gain
                             if (clamped != _autoHz || !_autoHzLogged)
                             {
                                 _autoHz = clamped; _autoHzLogged = true;
@@ -1300,6 +1303,11 @@ public sealed class RadarApp : IDisposable
             Landmarks: landmarks,
             AreaHash: _areaHash,
             Terrain: terrain,
+            // Extrapolate entity dots from the snapshot's publish time so they move smoothly between
+            // world ticks (capped at 50 ms so a stalled world loop freezes dots rather than overshooting).
+            EntityInterp: (float)Math.Clamp(
+                (System.Diagnostics.Stopwatch.GetTimestamp() - snap.PublishTimestamp) / (double)System.Diagnostics.Stopwatch.Frequency,
+                0.0, 0.05),
             ScaleMul: _settings.ScaleMul,
             OffsetX: _settings.OffX,
             OffsetY: _settings.OffY,
@@ -1414,7 +1422,7 @@ public sealed class RadarApp : IDisposable
     private void WorldTick(nint inGameState, nint areaInstance, nint localPlayer)
     {
         // AreaInstance is a fresh object per area — use its address to invalidate per-area caches.
-        if (areaInstance != _lastAreaInstance) { _terrain = null; _lastAreaInstance = areaInstance; }
+        if (areaInstance != _lastAreaInstance) { _terrain = null; _lastAreaInstance = areaInstance; _prevEntityGrids.Clear(); _lastEntityTick = 0; }
         var areaHash = _live.AreaHash(areaInstance);
         var areaLevel = _live.AreaLevel(areaInstance);
         var areaCode = _live.AreaCode(areaInstance);
@@ -1440,6 +1448,26 @@ public sealed class RadarApp : IDisposable
         var culling = _hidden.Count > 0;
         if (localPlayer != 0 || culling)
             _entities.RemoveAll(e => e.Address == localPlayer || (culling && _hidden.IsHidden(e.Metadata)));
+
+        // Per-entity velocity (grid-units/sec) from consecutive world ticks. The render thread uses it to
+        // extrapolate dot positions between ticks, which removes the 30 Hz "stepping" on moving monsters
+        // (dots advance smoothly at render rate instead of jumping once per world tick).
+        {
+            var now = System.Diagnostics.Stopwatch.GetTimestamp();
+            var dt = _lastEntityTick != 0 ? (now - _lastEntityTick) / (double)System.Diagnostics.Stopwatch.Frequency : 0.0;
+            _lastEntityTick = now;
+            if (dt > 0 && dt < 0.5)   // skip the first tick / absurd stalls
+            {
+                for (var i = 0; i < _entities.Count; i++)
+                {
+                    var e = _entities[i];
+                    if (_prevEntityGrids.TryGetValue(e.Id, out var prev))
+                        _entities[i] = e with { Velocity = (e.Grid - prev) / (float)dt };
+                    _prevEntityGrids[e.Id] = e.Grid;
+                }
+            }
+        }
+
         // Accumulate any newly-seen monster mod ids into the persistent catalog (debounced write)
         // so the dashboard rule editor can offer them and they survive restarts / new content.
         _modCatalog.Observe(_entities);
@@ -1565,7 +1593,8 @@ public sealed class RadarApp : IDisposable
 
         // Publish the whole immutable world snapshot atomically for the render thread.
         _world = new WorldSnapshot(true, areaHash, areaLevel, areaCode, _charLevel,
-            _entities, _landmarks, _terrain, hpSpecs, itemLabels, _selectedPaths, _legend, _selectedSnapshot);
+            _entities, _landmarks, _terrain, hpSpecs, itemLabels, _selectedPaths, _legend, _selectedSnapshot,
+            PublishTimestamp: System.Diagnostics.Stopwatch.GetTimestamp());
     }
 
     /// <summary>
